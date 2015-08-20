@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using QuickGraph;
 using QuickGraph.Algorithms;
@@ -53,15 +54,90 @@ namespace OctopusPuppet.Tests
                 z_y, c_b, b_c, d_a, e_d, f_e, h_e, h_d, g_d, b_a, y_x
             });
 
-            var connectedComponents = (IDictionary<ComponentVertex, int>)new Dictionary<ComponentVertex, int>();
-            componentDependancies.StronglyConnectedComponents(out connectedComponents);
+            var weaklyConnectedComponents = (IDictionary<ComponentVertex, int>)new Dictionary<ComponentVertex, int>();
+            var numberOfProductGroups = componentDependancies.WeaklyConnectedComponents(weaklyConnectedComponents);
 
-            foreach (var connectedComponent in connectedComponents)
+            //Work out related components
+            foreach (var connectedComponent in weaklyConnectedComponents)
             {
-                connectedComponent.Key.Group = connectedComponent.Value;
+                connectedComponent.Key.ProductGroup = connectedComponent.Value;
+            }
+
+            var componentGroups = new List<IEnumerable<ComponentGroupVertex>>();
+
+            for (var i = 0; i < numberOfProductGroups; i++)
+            {
+                var relatedComponentGroupDependancies = GetComponentGroupVertices(componentDependancies, i);
+                componentGroups.Add(relatedComponentGroupDependancies);
             }
 
             var compressedRowGraph = componentDependancies.ToGraphviz();
         }
+
+        private IEnumerable<ComponentGroupVertex> GetComponentGroupVertices(AdjacencyGraph<ComponentVertex, ComponentEdge> componentDependancies, int productGroup)
+        {
+            var vertices = componentDependancies.Vertices
+                    .Where(vertex => vertex.ProductGroup == productGroup);
+            var edges = componentDependancies.Edges
+                .Where(edge => edge.Source.ProductGroup == productGroup);
+
+            var relatedComponentDependancies = new AdjacencyGraph<ComponentVertex, ComponentEdge>(true);
+            relatedComponentDependancies.AddVertexRange(vertices);
+            relatedComponentDependancies.AddEdgeRange(edges);
+
+            var stronglyConnectedComponents = (IDictionary<ComponentVertex, int>)new Dictionary<ComponentVertex, int>();
+            var numberOfComponentGroups = relatedComponentDependancies.StronglyConnectedComponents(out stronglyConnectedComponents);
+
+            //Work out execution order of related components
+            foreach (var connectedComponent in stronglyConnectedComponents)
+            {
+                connectedComponent.Key.StepGroup = connectedComponent.Value;
+            }
+
+            var relatedComponentGroupDependancies = GetAdjacencyGraphForComponentGroup(relatedComponentDependancies, numberOfComponentGroups)
+                .TopologicalSort();
+
+            return relatedComponentGroupDependancies;
+        }
+
+        private AdjacencyGraph<ComponentGroupVertex, ComponentGroupEdge> GetAdjacencyGraphForComponentGroup(AdjacencyGraph<ComponentVertex, ComponentEdge> relatedComponentDependancies, int numberOfComponentGroups)
+        {
+            var relatedComponentGroupDependancies = new AdjacencyGraph<ComponentGroupVertex, ComponentGroupEdge>(true);
+            
+            for (var j = 0; j < numberOfComponentGroups; j++)
+            {
+                var stepGroup = j;
+
+                var vertices = relatedComponentDependancies.Vertices
+                    .Where(vertex => vertex.StepGroup == stepGroup);
+
+                var edges = relatedComponentDependancies.Edges
+                    .Where(edge => edge.Source.StepGroup == stepGroup);
+
+                var componentGroupVertex = new ComponentGroupVertex(vertices, edges);
+                relatedComponentGroupDependancies.AddVertex(componentGroupVertex);
+            }
+
+            foreach (var componentGroupVertexSource in relatedComponentGroupDependancies.Vertices)
+            {
+                var relatedComponentGroupDependancyEdges = componentGroupVertexSource.Edges;
+                var relatedComponentGroupDependancyVertices = componentGroupVertexSource.Vertices;
+                var componentGroupExternalEdges = relatedComponentGroupDependancyEdges
+                    .Where(edge => relatedComponentGroupDependancyVertices.All(vertex => vertex != edge.Target));
+
+                foreach (var componentGroupExternalEdge in componentGroupExternalEdges)
+                {
+                    var componentGroupVertexTarget = relatedComponentGroupDependancies.Vertices
+                        .First(vertex => vertex.Vertices.Any(x => x == componentGroupExternalEdge.Target));
+
+                    var componentGroupEdge = new ComponentGroupEdge(componentGroupVertexSource, componentGroupVertexTarget);
+                    relatedComponentGroupDependancies.AddEdge(componentGroupEdge);
+                }
+            }
+
+            return relatedComponentGroupDependancies;
+        }
     }
+
+    
 }
