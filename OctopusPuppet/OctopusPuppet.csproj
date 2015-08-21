@@ -66,6 +66,7 @@
     <Compile Include="ComponentEdge.cs" />
     <Compile Include="ComponentGroupVertex.cs" />
     <Compile Include="ComponentVertex.cs" />
+    <Compile Include="DeploymentPlanner.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
