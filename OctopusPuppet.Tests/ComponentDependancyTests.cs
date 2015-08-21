@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using QuickGraph;
 using QuickGraph.Algorithms;
@@ -54,6 +55,16 @@ namespace OctopusPuppet.Tests
                 z_y, c_b, b_c, d_a, e_d, f_e, h_e, h_d, g_d, b_a, y_x
             });
 
+            var products = GetProducts(componentDependancies);
+
+            var productsJson0 = JsonConvert.SerializeObject(products[0]);
+            var productsJson1 = JsonConvert.SerializeObject(products[1]);
+
+            var components = JsonConvert.SerializeObject(componentDependancies.Vertices.OrderBy(propertyName => propertyName.ProductGroup).ThenBy(propertyName => propertyName.ExecutionOrder));
+        }
+
+        private List<IEnumerable<ComponentGroupVertex>> GetProducts(AdjacencyGraph<ComponentVertex, ComponentEdge> componentDependancies)
+        {
             var weaklyConnectedComponents = (IDictionary<ComponentVertex, int>)new Dictionary<ComponentVertex, int>();
             var numberOfProductGroups = componentDependancies.WeaklyConnectedComponents(weaklyConnectedComponents);
 
@@ -67,14 +78,14 @@ namespace OctopusPuppet.Tests
 
             for (var i = 0; i < numberOfProductGroups; i++)
             {
-                var relatedComponentGroupDependancies = GetComponentGroupVertices(componentDependancies, i);
+                var relatedComponentGroupDependancies = GetComponentGroups(componentDependancies, i);
                 componentGroups.Add(relatedComponentGroupDependancies);
             }
 
-            var compressedRowGraph = componentDependancies.ToGraphviz();
+            return componentGroups;
         }
 
-        private IEnumerable<ComponentGroupVertex> GetComponentGroupVertices(AdjacencyGraph<ComponentVertex, ComponentEdge> componentDependancies, int productGroup)
+        private IEnumerable<ComponentGroupVertex> GetComponentGroups(AdjacencyGraph<ComponentVertex, ComponentEdge> componentDependancies, int productGroup)
         {
             var vertices = componentDependancies.Vertices
                     .Where(vertex => vertex.ProductGroup == productGroup);
@@ -91,13 +102,40 @@ namespace OctopusPuppet.Tests
             //Work out execution order of related components
             foreach (var connectedComponent in stronglyConnectedComponents)
             {
-                connectedComponent.Key.StepGroup = connectedComponent.Value;
+                connectedComponent.Key.ComponentGroup = connectedComponent.Value;
             }
 
-            var relatedComponentGroupDependancies = GetAdjacencyGraphForComponentGroup(relatedComponentDependancies, numberOfComponentGroups)
-                .TopologicalSort();
+            var adjacencyGraphForComponentGroup = GetAdjacencyGraphForComponentGroup(relatedComponentDependancies, numberOfComponentGroups);
+
+            AddExecutionOrder(adjacencyGraphForComponentGroup);
+
+            var relatedComponentGroupDependancies = adjacencyGraphForComponentGroup.TopologicalSort();
 
             return relatedComponentGroupDependancies;
+        }
+
+        private void AddExecutionOrder(AdjacencyGraph<ComponentGroupVertex, ComponentGroupEdge> adjacencyGraphForComponentGroup)
+        {
+            var parallelExecutionAdjacencyGraph = adjacencyGraphForComponentGroup.Clone();
+
+            var executionOrder = -1;
+            while (!parallelExecutionAdjacencyGraph.IsVerticesEmpty)
+            {
+                executionOrder++;
+                var rootComponentGroupVertices = parallelExecutionAdjacencyGraph.Roots().ToList();
+
+                foreach (var rootComponentGroupVertex in rootComponentGroupVertices)
+                {
+                    rootComponentGroupVertex.ExecutionOrder = executionOrder;
+
+                    foreach (var componentVertex in rootComponentGroupVertex.Vertices)
+                    {
+                        componentVertex.ExecutionOrder = executionOrder;
+                    }
+                    
+                    parallelExecutionAdjacencyGraph.RemoveVertex(rootComponentGroupVertex);
+                }
+            }
         }
 
         private AdjacencyGraph<ComponentGroupVertex, ComponentGroupEdge> GetAdjacencyGraphForComponentGroup(AdjacencyGraph<ComponentVertex, ComponentEdge> relatedComponentDependancies, int numberOfComponentGroups)
@@ -109,10 +147,10 @@ namespace OctopusPuppet.Tests
                 var stepGroup = j;
 
                 var vertices = relatedComponentDependancies.Vertices
-                    .Where(vertex => vertex.StepGroup == stepGroup);
+                    .Where(vertex => vertex.ComponentGroup == stepGroup);
 
                 var edges = relatedComponentDependancies.Edges
-                    .Where(edge => edge.Source.StepGroup == stepGroup);
+                    .Where(edge => edge.Source.ComponentGroup == stepGroup);
 
                 var componentGroupVertex = new ComponentGroupVertex(vertices, edges);
                 relatedComponentGroupDependancies.AddVertex(componentGroupVertex);
