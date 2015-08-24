@@ -61,12 +61,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ComponentAction.cs" />
-    <Compile Include="ComponentGroupEdge.cs" />
-    <Compile Include="ComponentEdge.cs" />
-    <Compile Include="ComponentGroupVertex.cs" />
-    <Compile Include="ComponentVertex.cs" />
-    <Compile Include="DeploymentPlanner.cs" />
+    <Compile Include="Commands\DeployBranchToEnvironment.cs" />
+    <Compile Include="Commands\DeployEnvironmentToEnvironment.cs" />
+    <Compile Include="Planner\ComponentAction.cs" />
+    <Compile Include="ComponentDeployment.cs" />
+    <Compile Include="Planner\ComponentGroupEdge.cs" />
+    <Compile Include="Planner\ComponentEdge.cs" />
+    <Compile Include="Planner\ComponentGroupVertex.cs" />
+    <Compile Include="Planner\ComponentVertex.cs" />
+    <Compile Include="Planner\DeploymentPlanner.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using QuickGraph;
@@ -7,8 +8,63 @@ namespace OctopusPuppet.Tests
 {
     public class ComponentDependancyTests
     {
-        [Test(Description = "Sort Components")]
-        public void SortComponents()
+        [Test]
+        public void GetDeploymentPlanForComponentJson()
+        {
+            var componentDependanciesToSerialize = new List<ComponentDeployment>()
+            {
+                new ComponentDeployment() {Name = "a", Action = ComponentAction.Skip, Dependancies = {}},
+                new ComponentDeployment() {Name = "b", Action = ComponentAction.Change, Dependancies = {"a", "c"}},
+                new ComponentDeployment() {Name = "c", Action = ComponentAction.Skip, Dependancies = {"b"}},
+                new ComponentDeployment() {Name = "d", Action = ComponentAction.Change, Dependancies = {"a"}},
+                new ComponentDeployment() {Name = "e", Action = ComponentAction.Skip, Dependancies = {"d"}},
+                new ComponentDeployment() {Name = "f", Action = ComponentAction.Change, Dependancies = {"e"}},
+                new ComponentDeployment() {Name = "g", Action = ComponentAction.Remove, Dependancies = {"d"}},
+                new ComponentDeployment() {Name = "h", Action = ComponentAction.Change, Dependancies = {"d", "e"}},
+
+                new ComponentDeployment() {Name = "x", Action = ComponentAction.Skip, Dependancies = {}},
+                new ComponentDeployment() {Name = "y", Action = ComponentAction.Change, Dependancies = {"x"}},
+                new ComponentDeployment() {Name = "z", Action = ComponentAction.Skip, Dependancies = {"y"}}
+            };
+
+            var componentDependanciesJson = JsonConvert.SerializeObject(componentDependanciesToSerialize);
+            var componentDependancies = JsonConvert.DeserializeObject<List<ComponentDeployment>>(componentDependanciesJson);
+
+            var deploymentPlanner = new DeploymentPlanner();
+            var products = deploymentPlanner.GetDeploymentPlan(componentDependancies);
+
+            var productsJson0 = JsonConvert.SerializeObject(products[0]);
+            var productsJson1 = JsonConvert.SerializeObject(products[1]);
+        }
+
+        [Test]
+        public void GetDeploymentPlanForComponentDeploymentList()
+        {
+            var componentDependancies = new List<ComponentDeployment>()
+            {
+                new ComponentDeployment() {Name = "a", Action = ComponentAction.Skip, Dependancies = {}},
+                new ComponentDeployment() {Name = "b", Action = ComponentAction.Change, Dependancies = {"a", "c"}},
+                new ComponentDeployment() {Name = "c", Action = ComponentAction.Skip, Dependancies = {"b"}},
+                new ComponentDeployment() {Name = "d", Action = ComponentAction.Change, Dependancies = {"a"}},
+                new ComponentDeployment() {Name = "e", Action = ComponentAction.Skip, Dependancies = {"d"}},
+                new ComponentDeployment() {Name = "f", Action = ComponentAction.Change, Dependancies = {"e"}},
+                new ComponentDeployment() {Name = "g", Action = ComponentAction.Remove, Dependancies = {"d"}},
+                new ComponentDeployment() {Name = "h", Action = ComponentAction.Change, Dependancies = {"d", "e"}},
+
+                new ComponentDeployment() {Name = "x", Action = ComponentAction.Skip, Dependancies = {}},
+                new ComponentDeployment() {Name = "y", Action = ComponentAction.Change, Dependancies = {"x"}},
+                new ComponentDeployment() {Name = "z", Action = ComponentAction.Skip, Dependancies = {"y"}}
+            };
+
+            var deploymentPlanner = new DeploymentPlanner();
+            var products = deploymentPlanner.GetDeploymentPlan(componentDependancies);
+
+            var productsJson0 = JsonConvert.SerializeObject(products[0]);
+            var productsJson1 = JsonConvert.SerializeObject(products[1]);
+        }
+
+        [Test]
+        public void GetDeploymentPlanForComponentAdjacencyGraph()
         {
             var componentDependancies = new AdjacencyGraph<ComponentVertex, ComponentEdge>(true);
 
@@ -53,7 +109,7 @@ namespace OctopusPuppet.Tests
             });
 
             var deploymentPlanner = new DeploymentPlanner();
-            var products = deploymentPlanner.GetProducts(componentDependancies);
+            var products = deploymentPlanner.GetDeploymentPlan(componentDependancies);
 
             var productsJson0 = JsonConvert.SerializeObject(products[0]);
             var productsJson1 = JsonConvert.SerializeObject(products[1]);
