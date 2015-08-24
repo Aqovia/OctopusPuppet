@@ -38,7 +38,7 @@ namespace OctopusPuppet
         public List<IEnumerable<ComponentGroupVertex>> GetDeploymentPlan(AdjacencyGraph<ComponentVertex, ComponentEdge> componentDependanciesAdjacencyGraph)
         {
             var weaklyConnectedComponents = (IDictionary<ComponentVertex, int>)new Dictionary<ComponentVertex, int>();
-            var numberOfProductGroups = componentDependanciesAdjacencyGraph.WeaklyConnectedComponents(weaklyConnectedComponents);
+            componentDependanciesAdjacencyGraph.WeaklyConnectedComponents(weaklyConnectedComponents);
 
             //Work out related components
             foreach (var connectedComponent in weaklyConnectedComponents)
@@ -46,15 +46,14 @@ namespace OctopusPuppet
                 connectedComponent.Key.ProductGroup = connectedComponent.Value;
             }
 
-            var componentGroups = new List<IEnumerable<ComponentGroupVertex>>();
+            var productGroupNames = weaklyConnectedComponents.Values
+                .Distinct();
 
-            for (var i = 0; i < numberOfProductGroups; i++)
-            {
-                var relatedComponentGroupDependancies = GetComponentGroups(componentDependanciesAdjacencyGraph, i);
-                componentGroups.Add(relatedComponentGroupDependancies);
-            }
+            var productDeploymentPlans = productGroupNames
+                .Select(productGroupName => GetComponentGroups(componentDependanciesAdjacencyGraph, productGroupName))
+                .ToList();
 
-            return componentGroups;
+            return productDeploymentPlans;
         }
 
         private IEnumerable<ComponentGroupVertex> GetComponentGroups(AdjacencyGraph<ComponentVertex, ComponentEdge> componentDependancies, int productGroup)
