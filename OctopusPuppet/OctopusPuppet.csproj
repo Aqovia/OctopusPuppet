@@ -63,13 +63,13 @@
   <ItemGroup>
     <Compile Include="Commands\DeployBranchToEnvironment.cs" />
     <Compile Include="Commands\DeployEnvironmentToEnvironment.cs" />
-    <Compile Include="Planner\ComponentAction.cs" />
+    <Compile Include="Scheduler\ComponentAction.cs" />
     <Compile Include="ComponentDeployment.cs" />
-    <Compile Include="Planner\ComponentGroupEdge.cs" />
-    <Compile Include="Planner\ComponentEdge.cs" />
-    <Compile Include="Planner\ComponentGroupVertex.cs" />
-    <Compile Include="Planner\ComponentVertex.cs" />
-    <Compile Include="Planner\DeploymentPlanner.cs" />
+    <Compile Include="Scheduler\ComponentGroupEdge.cs" />
+    <Compile Include="Scheduler\ComponentEdge.cs" />
+    <Compile Include="Scheduler\ComponentGroupVertex.cs" />
+    <Compile Include="Scheduler\ComponentVertex.cs" />
+    <Compile Include="Scheduler\DeploymentScheduler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

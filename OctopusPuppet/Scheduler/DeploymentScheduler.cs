@@ -3,16 +3,16 @@ using System.Linq;
 using QuickGraph;
 using QuickGraph.Algorithms;
 
-namespace OctopusPuppet
+namespace OctopusPuppet.Scheduler
 {
-    public class DeploymentPlanner
+    public class DeploymentScheduler
     {
-        public List<IEnumerable<ComponentGroupVertex>> GetDeploymentPlan(IEnumerable<ComponentDeployment> componentDependancies)
+        public List<IEnumerable<ComponentGroupVertex>> GetDeploymentSchedule(IEnumerable<ComponentDeployment> componentDependancies)
         {
             var componentVertices = new Dictionary<string, ComponentVertex>();
             foreach (var componentDependancy in componentDependancies)
             {
-                var componentVertex = new ComponentVertex(componentDependancy.Name, componentDependancy.Action);
+                var componentVertex = new ComponentVertex(componentDependancy.Name, componentDependancy.Version, componentDependancy.Action, componentDependancy.DeploymentDuration);
                 componentVertices.Add(componentDependancy.Name, componentVertex);
             }
 
@@ -32,10 +32,10 @@ namespace OctopusPuppet
             componentDependanciesAdjacencyGraph.AddVertexRange(componentVertices.Values);
             componentDependanciesAdjacencyGraph.AddEdgeRange(componentEdges);
 
-            return GetDeploymentPlan(componentDependanciesAdjacencyGraph);
+            return GetDeploymentSchedule(componentDependanciesAdjacencyGraph);
         }
 
-        public List<IEnumerable<ComponentGroupVertex>> GetDeploymentPlan(AdjacencyGraph<ComponentVertex, ComponentEdge> componentDependanciesAdjacencyGraph)
+        public List<IEnumerable<ComponentGroupVertex>> GetDeploymentSchedule(AdjacencyGraph<ComponentVertex, ComponentEdge> componentDependanciesAdjacencyGraph)
         {
             var weaklyConnectedComponents = (IDictionary<ComponentVertex, int>)new Dictionary<ComponentVertex, int>();
             componentDependanciesAdjacencyGraph.WeaklyConnectedComponents(weaklyConnectedComponents);
@@ -68,7 +68,8 @@ namespace OctopusPuppet
 
             var relatedComponentGroupDependancies = adjacencyGraphForComponentGroup
                 .TopologicalSort()
-                .OrderBy(x => x.ExecutionOrder);
+                .OrderBy(x => x.ExecutionOrder)
+                .ThenByDescending(x => x.DeploymentDuration);
 
             return relatedComponentGroupDependancies;
         }

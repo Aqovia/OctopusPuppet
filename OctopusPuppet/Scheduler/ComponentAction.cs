@@ -1,4 +1,4 @@
-﻿namespace OctopusPuppet
+﻿namespace OctopusPuppet.Scheduler
 {
     public enum ComponentAction
     {

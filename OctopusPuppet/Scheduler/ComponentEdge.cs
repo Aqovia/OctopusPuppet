@@ -1,6 +1,6 @@
 ﻿using QuickGraph;
 
-namespace OctopusPuppet
+namespace OctopusPuppet.Scheduler
 {
     public class ComponentEdge : Edge<ComponentVertex>
     {
