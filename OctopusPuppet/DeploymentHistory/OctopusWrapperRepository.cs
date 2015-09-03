@@ -175,17 +175,25 @@ namespace OctopusPuppet.DeploymentHistory
                 ComponentTo = componentTo
             };
 
-            if (componentFrom == componentTo)
+            if (componentFrom == null && componentTo == null)
             {
                 deploymentPlan.Action = PlanAction.Skip;
-            }
-            else if (componentFrom != componentTo)
-            {
-                deploymentPlan.Action = PlanAction.Change;
             }
             else if (componentFrom == null)
             {
                 deploymentPlan.Action = PlanAction.Remove;
+            }
+            else if (componentTo == null)
+            {
+                deploymentPlan.Action = PlanAction.Change;
+            }
+            else if (componentFrom.Version == componentTo.Version)
+            {
+                deploymentPlan.Action = PlanAction.Skip;
+            }
+            else
+            {
+                deploymentPlan.Action = PlanAction.Change;
             }
 
             return deploymentPlan;
@@ -254,7 +262,6 @@ namespace OctopusPuppet.DeploymentHistory
                 .Select(x => x.Id)
                 .ToArray();
 
-
             if (environmentIds.Length != 1)
             {
                 throw new Exception("Unable to find environment");
@@ -284,6 +291,52 @@ namespace OctopusPuppet.DeploymentHistory
             }
 
             return branchDeploymentPlan;
+        }
+
+        public RedeployDeploymentPlans GetRedeployDeploymentPlans(string environment)
+        {
+            var environments = new[] { environment };
+
+            var environmentIds = _repository.Environments
+                .GetAll()
+                .Where(x => environments.Contains(x.Name))
+                .Select(x => x.Id)
+                .ToArray();
+
+            if (environmentIds.Length != 1)
+            {
+                throw new Exception("Unable to find environment");
+            }
+
+            var environmentId = environmentIds[0];
+
+            var dashboard = _repository.Dashboards.GetDynamicDashboard(null, environmentIds);
+
+            var redeployDeploymentPlans = new RedeployDeploymentPlans
+            {
+                EnvironmentId = environmentId
+            };
+
+            foreach (var dashboardProjectResource in dashboard.Projects)
+            {
+                var projectId = dashboardProjectResource.Id;
+                var projectName = dashboardProjectResource.Name;
+
+                var componentFrom = GetComponentForEnvironment(dashboard, environmentId, projectId);
+                var componentTo = componentFrom;
+
+                var deploymentPlan = GetEnvironmentDeploymentPlan(projectName, componentFrom, componentTo);
+
+                //If the component is installed. Then re-install it
+                if (componentFrom != null)
+                {
+                    deploymentPlan.Action = PlanAction.Change;
+                }
+
+                redeployDeploymentPlans.DeploymentPlans.Add(deploymentPlan);
+            }
+
+            return redeployDeploymentPlans;
         }
     }
 }

@@ -21,7 +21,6 @@ namespace OctopusPuppet.Tests
             Assert.AreEqual(2, dashboard.DeploymentPlans.Count);
         }
 
-
         [Test]
         public void GetBranchDeploymentPlans()
         {
@@ -33,6 +32,20 @@ namespace OctopusPuppet.Tests
             var branch = "Master";
 
             var dashboard = repository.GetBranchDeploymentPlans(environment, branch);
+
+            Assert.AreEqual(2, dashboard.DeploymentPlans.Count);
+        }
+
+        [Test]
+        public void GetRedeployDeploymentPlans()
+        {
+            var octopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
+            var octopusApiKey = ConfigurationManager.AppSettings["OctopusApiKey"];
+            var repository = new OctopusWrapperRepository(octopusUrl, octopusApiKey);
+
+            var environment = ConfigurationManager.AppSettings["EnvironmentFrom"];
+
+            var dashboard = repository.GetRedeployDeploymentPlans(environment);
 
             Assert.AreEqual(2, dashboard.DeploymentPlans.Count);
         }

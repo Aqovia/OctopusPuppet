@@ -69,11 +69,13 @@
     <Compile Include="Commands\DeployEnvironmentToEnvironment.cs" />
     <Compile Include="Component.cs" />
     <Compile Include="DeploymentSchedule.cs" />
+    <Compile Include="BranchDeploymentPlans.cs" />
+    <Compile Include="RedeployDeploymentPlans.cs" />
     <Compile Include="EnvironmentDeploymentSchedule.cs" />
     <Compile Include="EnvironmentDeploymentPlans.cs" />
     <Compile Include="DeploymentHistory\OctopusWrapperRepository.cs" />
     <Compile Include="PlanAction.cs" />
-    <Compile Include="EnvironmentDeploymentPlan.cs" />
+    <Compile Include="DeploymentPlan.cs" />
     <Compile Include="Scheduler\ComponentGroupEdge.cs" />
     <Compile Include="Scheduler\ComponentEdge.cs" />
     <Compile Include="Scheduler\ComponentGroupVertex.cs" />
