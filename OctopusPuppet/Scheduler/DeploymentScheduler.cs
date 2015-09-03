@@ -7,12 +7,12 @@ namespace OctopusPuppet.Scheduler
 {
     public class DeploymentScheduler
     {
-        public List<IEnumerable<ComponentGroupVertex>> GetDeploymentSchedule(IEnumerable<ComponentDeployment> componentDependancies)
+        public List<List<ComponentGroupVertex>> GetDeploymentSchedule(List<DeploymentPlan> componentDependancies)
         {
             var componentVertices = new Dictionary<string, ComponentVertex>();
             foreach (var componentDependancy in componentDependancies)
             {
-                var componentVertex = new ComponentVertex(componentDependancy.Name, componentDependancy.Version, componentDependancy.Action, componentDependancy.DeploymentDuration);
+                var componentVertex = new ComponentVertex(componentDependancy.Name, componentDependancy.ComponentFrom.Version.Version.ToString(), componentDependancy.Action, componentDependancy.ComponentFrom.DeploymentDuration);
                 componentVertices.Add(componentDependancy.Name, componentVertex);
             }
 
@@ -20,7 +20,7 @@ namespace OctopusPuppet.Scheduler
             foreach (var componentDependancy in componentDependancies)
             {
                 var source = componentVertices[componentDependancy.Name];
-                foreach (var dependancy in componentDependancy.Dependancies)
+                foreach (var dependancy in componentDependancy.ComponentFrom.Dependancies)
                 {
                     var target = componentVertices[dependancy];
                     var componentEdge = new ComponentEdge(source, target);
@@ -35,7 +35,7 @@ namespace OctopusPuppet.Scheduler
             return GetDeploymentSchedule(componentDependanciesAdjacencyGraph);
         }
 
-        public List<IEnumerable<ComponentGroupVertex>> GetDeploymentSchedule(AdjacencyGraph<ComponentVertex, ComponentEdge> componentDependanciesAdjacencyGraph)
+        public List<List<ComponentGroupVertex>> GetDeploymentSchedule(AdjacencyGraph<ComponentVertex, ComponentEdge> componentDependanciesAdjacencyGraph)
         {
             var weaklyConnectedComponents = (IDictionary<ComponentVertex, int>)new Dictionary<ComponentVertex, int>();
             componentDependanciesAdjacencyGraph.WeaklyConnectedComponents(weaklyConnectedComponents);
@@ -56,7 +56,7 @@ namespace OctopusPuppet.Scheduler
             return productDeploymentPlans;
         }
 
-        private IEnumerable<ComponentGroupVertex> GetComponentGroups(AdjacencyGraph<ComponentVertex, ComponentEdge> componentDependancies, int productGroup)
+        private List<ComponentGroupVertex> GetComponentGroups(AdjacencyGraph<ComponentVertex, ComponentEdge> componentDependancies, int productGroup)
         {
             var adjacencyGraphForProductGroup = GetAdjacencyGraphForProductGroup(componentDependancies, productGroup);
 
@@ -69,7 +69,8 @@ namespace OctopusPuppet.Scheduler
             var relatedComponentGroupDependancies = adjacencyGraphForComponentGroup
                 .TopologicalSort()
                 .OrderBy(x => x.ExecutionOrder)
-                .ThenByDescending(x => x.DeploymentDuration);
+                .ThenByDescending(x => x.DeploymentDuration)
+                .ToList();
 
             return relatedComponentGroupDependancies;
         }

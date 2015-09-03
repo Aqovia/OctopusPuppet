@@ -6,14 +6,14 @@ namespace OctopusPuppet.Scheduler
     {
         public string OctopusProject { get; private set; }
         public string Version { get; private set; }
-        public ComponentAction Action { get; private set; }
+        public PlanAction Action { get; private set; }
         public TimeSpan? DeploymentDuration { get; set; }
 
         public int ComponentGroup { get; set; }
         public int ProductGroup { get; set; }
         public int ExecutionOrder { get; set; }
 
-        public ComponentVertex(string octopusProject, string version, ComponentAction action, TimeSpan? deploymentDuration)
+        public ComponentVertex(string octopusProject, string version, PlanAction action, TimeSpan? deploymentDuration)
         {
             OctopusProject = octopusProject;
             Version = version;
