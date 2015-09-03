@@ -1,4 +1,4 @@
-﻿namespace OctopusPuppet
+﻿namespace OctopusPuppet.DeploymentPlanner
 {
     public enum PlanAction
     {

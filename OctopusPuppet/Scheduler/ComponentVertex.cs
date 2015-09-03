@@ -1,4 +1,5 @@
 ﻿using System;
+using OctopusPuppet.DeploymentPlanner;
 
 namespace OctopusPuppet.Scheduler
 {

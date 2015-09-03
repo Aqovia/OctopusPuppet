@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using Octopus.Client.Model;
 
-namespace OctopusPuppet
+namespace OctopusPuppet.DeploymentPlanner
 {
     public class Component
     {
         [JsonProperty(Required = Required.Always)]
-        public SemanticVersion Version { get; set; }
+        public SemVer Version { get; set; }
 
         [JsonProperty(Required = Required.AllowNull)]
         public TimeSpan? DeploymentDuration { get; set; }

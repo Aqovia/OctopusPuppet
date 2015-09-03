@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4E86A56A-61A9-4906-A66C-130DFB2CB75D}</ProjectGuid>
+    <ProjectGuid>{17D4DBD0-94B3-49B0-81F9-C0A93B91EEE8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>OctopusPuppet.IntegrationTests</RootNamespace>
-    <AssemblyName>OctopusPuppet.IntegrationTests</AssemblyName>
+    <RootNamespace>OctopusPuppet.OctopusProvider</RootNamespace>
+    <AssemblyName>OctopusPuppet.OctopusProvider</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -34,16 +34,11 @@
       <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Octopus.Client, Version=3.0.19.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Octopus.Client.3.0.19.2485\lib\net40\Octopus.Client.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -52,7 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OctopusWrapperRepositoryTests.cs" />
+    <Compile Include="OctopusDeploymentPlanner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -60,10 +55,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OctopusPuppet.OctopusProvider\OctopusPuppet.OctopusProvider.csproj">
-      <Project>{17d4dbd0-94b3-49b0-81f9-c0a93b91eee8}</Project>
-      <Name>OctopusPuppet.OctopusProvider</Name>
-    </ProjectReference>
     <ProjectReference Include="..\OctopusPuppet\OctopusPuppet.csproj">
       <Project>{138a170b-2fba-434b-83bb-704667d9a289}</Project>
       <Name>OctopusPuppet</Name>

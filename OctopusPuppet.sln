@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctopusPuppet.Tests", "Octo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctopusPuppet.IntegrationTests", "OctopusPuppet.IntegrationTests\OctopusPuppet.IntegrationTests.csproj", "{4E86A56A-61A9-4906-A66C-130DFB2CB75D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctopusPuppet.OctopusProvider", "OctopusPuppet.OctopusProvider\OctopusPuppet.OctopusProvider.csproj", "{17D4DBD0-94B3-49B0-81F9-C0A93B91EEE8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{4E86A56A-61A9-4906-A66C-130DFB2CB75D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E86A56A-61A9-4906-A66C-130DFB2CB75D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E86A56A-61A9-4906-A66C-130DFB2CB75D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17D4DBD0-94B3-49B0-81F9-C0A93B91EEE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17D4DBD0-94B3-49B0-81F9-C0A93B91EEE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17D4DBD0-94B3-49B0-81F9-C0A93B91EEE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17D4DBD0-94B3-49B0-81F9-C0A93B91EEE8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

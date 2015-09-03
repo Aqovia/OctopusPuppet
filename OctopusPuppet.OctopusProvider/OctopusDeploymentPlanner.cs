@@ -4,15 +4,16 @@ using System.Linq;
 using Newtonsoft.Json;
 using Octopus.Client;
 using Octopus.Client.Model;
+using OctopusPuppet.DeploymentPlanner;
 
-namespace OctopusPuppet.DeploymentHistory
+namespace OctopusPuppet.OctopusProvider
 {
-    public class OctopusWrapperRepository
+    public class OctopusDeploymentPlanner : IDeploymentPlanner
     {
         private const string ComponentDependancies = "ComponentDependencies";
         private readonly OctopusRepository _repository;
 
-        public OctopusWrapperRepository(string url, string apiKey)
+        public OctopusDeploymentPlanner(string url, string apiKey)
         {
             var octopusServerEndpoint = new OctopusServerEndpoint(url, apiKey);
             _repository = new OctopusRepository(octopusServerEndpoint);
@@ -121,7 +122,7 @@ namespace OctopusPuppet.DeploymentHistory
 
             var component = new Component
             {
-                Version = new SemanticVersion(releaseResource.Version),
+                Version = new SemVer(releaseResource.Version),
                 DeploymentDuration = componentDeployedOnEnvironmentFromDuration,
                 Dependancies = componentDependancies
             };
@@ -158,7 +159,7 @@ namespace OctopusPuppet.DeploymentHistory
 
             var component = new Component
             {
-                Version = new SemanticVersion(dashboardItemResource.ReleaseVersion),
+                Version = new SemVer(dashboardItemResource.ReleaseVersion),
                 DeploymentDuration = componentDeployedOnEnvironmentFromDuration,
                 Dependancies = componentDependancies
             };

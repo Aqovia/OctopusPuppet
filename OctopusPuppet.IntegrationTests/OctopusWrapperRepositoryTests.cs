@@ -1,6 +1,6 @@
 ﻿using System.Configuration;
 using NUnit.Framework;
-using OctopusPuppet.DeploymentHistory;
+using OctopusPuppet.OctopusProvider;
 
 namespace OctopusPuppet.Tests
 {
@@ -11,7 +11,7 @@ namespace OctopusPuppet.Tests
         {
             var octopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
             var octopusApiKey = ConfigurationManager.AppSettings["OctopusApiKey"];
-            var repository = new OctopusWrapperRepository(octopusUrl, octopusApiKey);
+            var repository = new OctopusDeploymentPlanner(octopusUrl, octopusApiKey);
 
             var environmentFrom = ConfigurationManager.AppSettings["EnvironmentFrom"];
             var environmentTo = ConfigurationManager.AppSettings["EnvironmentTo"];
@@ -26,7 +26,7 @@ namespace OctopusPuppet.Tests
         {
             var octopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
             var octopusApiKey = ConfigurationManager.AppSettings["OctopusApiKey"];
-            var repository = new OctopusWrapperRepository(octopusUrl, octopusApiKey);
+            var repository = new OctopusDeploymentPlanner(octopusUrl, octopusApiKey);
 
             var environment = ConfigurationManager.AppSettings["EnvironmentFrom"];
             var branch = "Master";
@@ -41,7 +41,7 @@ namespace OctopusPuppet.Tests
         {
             var octopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
             var octopusApiKey = ConfigurationManager.AppSettings["OctopusApiKey"];
-            var repository = new OctopusWrapperRepository(octopusUrl, octopusApiKey);
+            var repository = new OctopusDeploymentPlanner(octopusUrl, octopusApiKey);
 
             var environment = ConfigurationManager.AppSettings["EnvironmentFrom"];
 

@@ -2,6 +2,7 @@
 using System.Linq;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using OctopusPuppet.DeploymentPlanner;
 using OctopusPuppet.Scheduler;
 using QuickGraph;
 

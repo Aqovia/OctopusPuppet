@@ -1,17 +1,20 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace OctopusPuppet
+namespace OctopusPuppet.DeploymentPlanner
 {
-    public class RedeployDeploymentPlans
+    public class BranchDeploymentPlans
     {
         [JsonProperty(Required = Required.AllowNull)]
         public string EnvironmentId { get; set; }
-       
+
+        [JsonProperty(Required = Required.AllowNull)]
+        public string Branch { get; set; }        
+
         [JsonProperty(Required = Required.AllowNull)]
         public List<DeploymentPlan> DeploymentPlans { get; set; }
 
-        public RedeployDeploymentPlans()
+        public BranchDeploymentPlans()
         {
             DeploymentPlans = new List<DeploymentPlan>();
         }

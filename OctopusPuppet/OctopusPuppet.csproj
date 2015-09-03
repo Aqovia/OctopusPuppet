@@ -36,10 +36,6 @@
       <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Octopus.Client, Version=3.0.19.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Octopus.Client.3.0.19.2485\lib\net40\Octopus.Client.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="QuickGraph, Version=3.6.61114.0, Culture=neutral, PublicKeyToken=f3fb40175eec2af3, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\QuickGraph.3.6.61119.7\lib\net4\QuickGraph.dll</HintPath>
@@ -58,6 +54,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -65,17 +62,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\DeployBranchToEnvironment.cs" />
-    <Compile Include="Commands\DeployEnvironmentToEnvironment.cs" />
-    <Compile Include="Component.cs" />
-    <Compile Include="DeploymentSchedule.cs" />
-    <Compile Include="BranchDeploymentPlans.cs" />
-    <Compile Include="RedeployDeploymentPlans.cs" />
-    <Compile Include="EnvironmentDeploymentSchedule.cs" />
-    <Compile Include="EnvironmentDeploymentPlans.cs" />
-    <Compile Include="DeploymentHistory\OctopusWrapperRepository.cs" />
-    <Compile Include="PlanAction.cs" />
-    <Compile Include="DeploymentPlan.cs" />
+    <Compile Include="DeploymentPlanner\Component.cs" />
+    <Compile Include="DeploymentPlanner\IDeploymentPlanner.cs" />
+    <Compile Include="DeploymentPlanner\SemVer.cs" />
+    <Compile Include="Scheduler\DeploymentSchedule.cs" />
+    <Compile Include="DeploymentPlanner\BranchDeploymentPlans.cs" />
+    <Compile Include="DeploymentPlanner\RedeployDeploymentPlans.cs" />
+    <Compile Include="Scheduler\EnvironmentDeploymentSchedule.cs" />
+    <Compile Include="DeploymentPlanner\EnvironmentDeploymentPlans.cs" />
+    <Compile Include="DeploymentPlanner\PlanAction.cs" />
+    <Compile Include="DeploymentPlanner\DeploymentPlan.cs" />
     <Compile Include="Scheduler\ComponentGroupEdge.cs" />
     <Compile Include="Scheduler\ComponentEdge.cs" />
     <Compile Include="Scheduler\ComponentGroupVertex.cs" />
@@ -83,6 +79,7 @@
     <Compile Include="Scheduler\DeploymentScheduler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scheduler\IDeploymentScheduler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace OctopusPuppet
+namespace OctopusPuppet.DeploymentPlanner
 {
     public class DeploymentPlan
     {

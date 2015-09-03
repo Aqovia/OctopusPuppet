@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using OctopusPuppet.DeploymentPlanner;
 
-namespace OctopusPuppet
+namespace OctopusPuppet.Scheduler
 {
     public class DeploymentSchedule
     {

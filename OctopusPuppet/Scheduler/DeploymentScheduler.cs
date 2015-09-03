@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using OctopusPuppet.DeploymentPlanner;
 using QuickGraph;
 using QuickGraph.Algorithms;
 
 namespace OctopusPuppet.Scheduler
 {
-    public class DeploymentScheduler
+    public class DeploymentScheduler : IDeploymentScheduler
     {
         public List<List<ComponentGroupVertex>> GetDeploymentSchedule(List<DeploymentPlan> componentDependancies)
         {
