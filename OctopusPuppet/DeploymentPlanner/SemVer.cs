@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace OctopusPuppet.DeploymentPlanner
 {
@@ -16,10 +15,11 @@ namespace OctopusPuppet.DeploymentPlanner
     /// 
     /// </summary>
     [Serializable]
+    [JsonConverter(typeof(SemVerJsonConverter))]
     public sealed class SemVer : IComparable, IComparable<SemVer>, IEquatable<SemVer>
     {
-        private static readonly Regex _semanticVersionRegex = new Regex("^(?<Version>\\d+(\\s*\\.\\s*\\d+){0,3})(?<Release>-[a-z][0-9a-z-]*)?$", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
-        private static readonly Regex _strictSemanticVersionRegex = new Regex("^(?<Version>\\d+(\\.\\d+){2})(?<Release>-[a-z][0-9a-z-]*)?$", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
+        private static readonly Regex SemanticVersionRegex = new Regex("^(?<Version>\\d+(\\s*\\.\\s*\\d+){0,3})(?<Release>-[a-z][0-9a-z-]*)?$", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
+        private static readonly Regex StrictSemanticVersionRegex = new Regex("^(?<Version>\\d+(\\.\\d+){2})(?<Release>-[a-z][0-9a-z-]*)?$", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
         private const RegexOptions _flags = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled;
         private readonly string _originalString;
 
@@ -36,7 +36,7 @@ namespace OctopusPuppet.DeploymentPlanner
         public string SpecialVersion { get; private set; }
 
         public SemVer(string version)
-            : this(SemVer.Parse(version, false))
+            : this(Parse(version, false))
         {
             this._originalString = version;
         }
@@ -65,7 +65,7 @@ namespace OctopusPuppet.DeploymentPlanner
         {
             if (version == (Version)null)
                 throw new ArgumentNullException("version");
-            this.Version = preserveMissincComponents ? version : SemVer.NormalizeVersionValue(version);
+            this.Version = preserveMissincComponents ? version : NormalizeVersionValue(version);
             this.SpecialVersion = specialVersion ?? string.Empty;
             this._originalString = string.IsNullOrEmpty(originalString) ? (string)(object)version + (!string.IsNullOrEmpty(specialVersion) ? (object)("-" + specialVersion) : (object)(string)null) : originalString;
         }
@@ -79,8 +79,14 @@ namespace OctopusPuppet.DeploymentPlanner
 
         public static bool operator ==(SemVer version1, SemVer version2)
         {
-            if (version1 == null)
-                return version2 == null;
+            if ((object)version1 == null && (object)version2 == null)
+                return true;
+
+            if (((object)version1 == null) || ((object)version2 == null))
+            {
+                return false;
+            }
+
             return version1.Equals(version2);
         }
 
@@ -127,7 +133,7 @@ namespace OctopusPuppet.DeploymentPlanner
             if (string.IsNullOrEmpty(version))
                 throw new ArgumentException("Argument cannot be null or empty", "version");
             SemVer semanticVersion;
-            if (!SemVer.TryParse(version, out semanticVersion, preserveMissingComponents))
+            if (!TryParse(version, out semanticVersion, preserveMissingComponents))
             {
                 CultureInfo currentCulture = CultureInfo.CurrentCulture;
                 string format = "Invalid version string {0}";
@@ -147,7 +153,7 @@ namespace OctopusPuppet.DeploymentPlanner
         /// </summary>
         public static bool TryParse(string version, out SemVer value, bool preserveMissingComponents = false)
         {
-            return SemVer.TryParseInternal(version, SemVer._semanticVersionRegex, out value, preserveMissingComponents);
+            return TryParseInternal(version, SemanticVersionRegex, out value, preserveMissingComponents);
         }
 
         /// <summary>
@@ -157,7 +163,7 @@ namespace OctopusPuppet.DeploymentPlanner
         /// </summary>
         public static bool TryParseStrict(string version, out SemVer value, bool preserveMissingComponents = false)
         {
-            return SemVer.TryParseInternal(version, SemVer._strictSemanticVersionRegex, out value, preserveMissingComponents);
+            return TryParseInternal(version, StrictSemanticVersionRegex, out value, preserveMissingComponents);
         }
 
         private static bool TryParseInternal(string version, Regex regex, out SemVer semVer,
@@ -170,7 +176,7 @@ namespace OctopusPuppet.DeploymentPlanner
             Version result;
             if (!match.Success || !Version.TryParse(match.Groups["Version"].Value, out result))
                 return false;
-            Version version1 = preserveMissingComponents ? result : SemVer.NormalizeVersionValue(result);
+            Version version1 = preserveMissingComponents ? result : NormalizeVersionValue(result);
             Version version2 = version1;
             string str = match.Groups["Release"].Value;
             char[] chArray = new char[1];
@@ -180,7 +186,7 @@ namespace OctopusPuppet.DeploymentPlanner
             string specialVersion = str.TrimStart(chArray);
             string originalString = version.Replace(" ", "");
             int num2 = preserveMissingComponents ? 1 : 0;
-            SemVer semanticVersion = new SemVer(version2, specialVersion, originalString, num2 != 0);
+            semVer = new SemVer(version2, specialVersion, originalString, num2 != 0);
 
             return true;
         }
@@ -196,7 +202,7 @@ namespace OctopusPuppet.DeploymentPlanner
         public static SemVer ParseOptionalVersion(string version)
         {
             SemVer semanticVersion;
-            SemVer.TryParse(version, out semanticVersion, false);
+            TryParse(version, out semanticVersion, false);
             return semanticVersion;
         }
 
@@ -240,20 +246,20 @@ namespace OctopusPuppet.DeploymentPlanner
 
         public bool Equals(SemVer other)
         {
-            if (other == null)
+            if ((object)other == null)
                 return false;
-            if (this == other)
+            if ((object)this == (object)other)
                 return true;
-            if (object.Equals((object)other.Version, (object)this.Version))
-                return object.Equals((object)other.SpecialVersion, (object)this.SpecialVersion);
+            if (Equals((object)other.Version, (object)this.Version))
+                return Equals((object)other.SpecialVersion, (object)this.SpecialVersion);
             return false;
         }
 
         public override bool Equals(object obj)
         {
-            if (obj == null)
+            if ((object)obj == null)
                 return false;
-            if (this == obj)
+            if ((object)this == (object)obj)
                 return true;
             if (obj.GetType() != typeof(SemVer))
                 return false;

@@ -2,21 +2,21 @@
 using NUnit.Framework;
 using OctopusPuppet.OctopusProvider;
 
-namespace OctopusPuppet.Tests
+namespace OctopusPuppet.IntegrationTests
 {
-    public class OctopusWrapperRepositoryTests
+    public class OctopusDeploymentPlannerTests
     {
         [Test]
         public void GetEnvironmentDeploymentPlans()
         {
             var octopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
             var octopusApiKey = ConfigurationManager.AppSettings["OctopusApiKey"];
-            var repository = new OctopusDeploymentPlanner(octopusUrl, octopusApiKey);
+            var deploymentPlanner = new OctopusDeploymentPlanner(octopusUrl, octopusApiKey);
 
             var environmentFrom = ConfigurationManager.AppSettings["EnvironmentFrom"];
             var environmentTo = ConfigurationManager.AppSettings["EnvironmentTo"];
 
-            var dashboard = repository.GetEnvironmentDeploymentPlans(environmentFrom, environmentTo);
+            var dashboard = deploymentPlanner.GetEnvironmentDeploymentPlans(environmentFrom, environmentTo);
 
             Assert.AreEqual(2, dashboard.DeploymentPlans.Count);
         }
@@ -26,12 +26,12 @@ namespace OctopusPuppet.Tests
         {
             var octopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
             var octopusApiKey = ConfigurationManager.AppSettings["OctopusApiKey"];
-            var repository = new OctopusDeploymentPlanner(octopusUrl, octopusApiKey);
+            var deploymentPlanner = new OctopusDeploymentPlanner(octopusUrl, octopusApiKey);
 
             var environment = ConfigurationManager.AppSettings["EnvironmentFrom"];
             var branch = "Master";
 
-            var dashboard = repository.GetBranchDeploymentPlans(environment, branch);
+            var dashboard = deploymentPlanner.GetBranchDeploymentPlans(environment, branch);
 
             Assert.AreEqual(2, dashboard.DeploymentPlans.Count);
         }
@@ -41,11 +41,11 @@ namespace OctopusPuppet.Tests
         {
             var octopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
             var octopusApiKey = ConfigurationManager.AppSettings["OctopusApiKey"];
-            var repository = new OctopusDeploymentPlanner(octopusUrl, octopusApiKey);
+            var deploymentPlanner = new OctopusDeploymentPlanner(octopusUrl, octopusApiKey);
 
             var environment = ConfigurationManager.AppSettings["EnvironmentFrom"];
 
-            var dashboard = repository.GetRedeployDeploymentPlans(environment);
+            var dashboard = deploymentPlanner.GetRedeployDeploymentPlans(environment);
 
             Assert.AreEqual(2, dashboard.DeploymentPlans.Count);
         }

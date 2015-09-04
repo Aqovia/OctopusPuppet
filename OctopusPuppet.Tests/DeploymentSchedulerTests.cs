@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -10,66 +11,59 @@ namespace OctopusPuppet.Tests
 {
     public class DeploymentSchedulerTests
     {
-        //[Test]
-        //public void GetDeploymentPlanForComponentJson()
-        //{
-        //    var componentDependanciesToSerialize = new List<DeploymentPlan>()
-        //    {
-        //        new DeploymentPlan() {Name = "a", Version = "1.0.0", Action = PlanAction.Skip, DeploymentDuration = null, Dependancies = {}},
-        //        new DeploymentPlan() {Name = "b", Version = "1.0.0", Action = PlanAction.Change, DeploymentDuration = null, Dependancies = {"a", "c"}},
-        //        new DeploymentPlan() {Name = "c", Version = "1.0.0", Action = PlanAction.Skip, DeploymentDuration = null, Dependancies = {"b"}},
-        //        new DeploymentPlan() {Name = "d", Version = "1.0.0", Action = PlanAction.Change, DeploymentDuration = null, Dependancies = {"a"}},
-        //        new DeploymentPlan() {Name = "e", Version = "1.0.0", Action = PlanAction.Skip, DeploymentDuration = null, Dependancies = {"d"}},
-        //        new DeploymentPlan() {Name = "f", Version = "1.0.0", Action = PlanAction.Change, DeploymentDuration = null, Dependancies = {"e"}},
-        //        new DeploymentPlan() {Name = "g", Version = "1.0.0", Action = PlanAction.Remove, DeploymentDuration = null, Dependancies = {"d"}},
-        //        new DeploymentPlan() {Name = "h", Version = "1.0.0", Action = PlanAction.Change, DeploymentDuration = null, Dependancies = {"d", "e"}},
+        private List<DeploymentPlan> GetDeploymentPlans()
+        {
+            var componentDependanciesToSerialize = new List<DeploymentPlan>()
+            {
+                new DeploymentPlan() {Name = "a", Action = PlanAction.Skip, ComponentFrom = new Component(){Dependancies = {}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,100)}, ComponentTo = null},
+                new DeploymentPlan() {Name = "b", Action = PlanAction.Change, ComponentFrom = new Component(){Dependancies = {"a", "c"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,20)}, ComponentTo = null},
+                new DeploymentPlan() {Name = "c", Action = PlanAction.Skip, ComponentFrom = new Component(){Dependancies = {"b"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,20)}, ComponentTo = null},
+                new DeploymentPlan() {Name = "d", Action = PlanAction.Change, ComponentFrom = new Component(){Dependancies = {"a"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,20)}, ComponentTo = null},
+                new DeploymentPlan() {Name = "e", Action = PlanAction.Skip, ComponentFrom = new Component(){Dependancies = {"d"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,60)}, ComponentTo = null},
+                new DeploymentPlan() {Name = "f", Action = PlanAction.Change, ComponentFrom = new Component(){Dependancies = {"e"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,20)}, ComponentTo = null},
+                new DeploymentPlan() {Name = "g", Action = PlanAction.Remove, ComponentFrom = new Component(){Dependancies = {"d"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,20)}, ComponentTo = null},
+                new DeploymentPlan() {Name = "h", Action = PlanAction.Change, ComponentFrom = new Component(){Dependancies = {"d", "e"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,10)}, ComponentTo = null},
 
-        //        new DeploymentPlan() {Name = "x", Version = "1.0.0", Action = PlanAction.Skip, DeploymentDuration = null, Dependancies = {}},
-        //        new DeploymentPlan() {Name = "y", Version = "1.0.0", Action = PlanAction.Change, DeploymentDuration = null, Dependancies = {"x"}},
-        //        new DeploymentPlan() {Name = "z", Version = "1.0.0", Action = PlanAction.Skip, DeploymentDuration = null, Dependancies = {"y"}}
-        //    };
+                new DeploymentPlan() {Name = "x", Action = PlanAction.Skip, ComponentFrom = new Component(){Dependancies = {}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,20)}, ComponentTo = null},
+                new DeploymentPlan() {Name = "y", Action = PlanAction.Change, ComponentFrom = new Component(){Dependancies = {"x"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,40)}, ComponentTo = null},
+                new DeploymentPlan() {Name = "z", Action = PlanAction.Skip, ComponentFrom = new Component(){Dependancies = {"y"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,50)}, ComponentTo = null},
+            };
 
-        //    var componentDependanciesJson = JsonConvert.SerializeObject(componentDependanciesToSerialize);
-        //    var componentDependancies = JsonConvert.DeserializeObject<List<DeploymentPlan>>(componentDependanciesJson);
+            return componentDependanciesToSerialize;
+        }
 
-        //    var deploymentPlanner = new DeploymentScheduler();
-        //    var products = deploymentPlanner.GetDeploymentSchedule(componentDependancies);
+        [Test]
+        public void GetDeploymentPlanForComponentJson()
+        {
+            var componentDependanciesToSerialize = GetDeploymentPlans();
 
-        //    var products0 = products[0];
-        //    var products1 = products[1];
+            var componentDependanciesJson = JsonConvert.SerializeObject(componentDependanciesToSerialize);
+            var componentDependancies = JsonConvert.DeserializeObject<List<DeploymentPlan>>(componentDependanciesJson);
 
-        //    Assert.AreEqual(7, products0.Count());
-        //    Assert.AreEqual(3, products1.Count());
-        //}
+            var deploymentPlanner = new DeploymentScheduler();
+            var products = deploymentPlanner.GetDeploymentSchedule(componentDependancies);
 
-        //[Test]
-        //public void GetDeploymentPlanForComponentDeploymentList()
-        //{
-        //    var componentDependancies = new List<DeploymentPlan>()
-        //    {
-        //        new DeploymentPlan() {Name = "a", Version = "1.0.0", Action = PlanAction.Skip, DeploymentDuration = null, Dependancies = {}},
-        //        new DeploymentPlan() {Name = "b", Version = "1.0.0", Action = PlanAction.Change, DeploymentDuration = null, Dependancies = {"a", "c"}},
-        //        new DeploymentPlan() {Name = "c", Version = "1.0.0", Action = PlanAction.Skip, DeploymentDuration = null, Dependancies = {"b"}},
-        //        new DeploymentPlan() {Name = "d", Version = "1.0.0", Action = PlanAction.Change, DeploymentDuration = null, Dependancies = {"a"}},
-        //        new DeploymentPlan() {Name = "e", Version = "1.0.0", Action = PlanAction.Skip, DeploymentDuration = null, Dependancies = {"d"}},
-        //        new DeploymentPlan() {Name = "f", Version = "1.0.0", Action = PlanAction.Change, DeploymentDuration = null, Dependancies = {"e"}},
-        //        new DeploymentPlan() {Name = "g", Version = "1.0.0", Action = PlanAction.Remove, DeploymentDuration = null, Dependancies = {"d"}},
-        //        new DeploymentPlan() {Name = "h", Version = "1.0.0", Action = PlanAction.Change, DeploymentDuration = null, Dependancies = {"d", "e"}},
+            var products0 = products[0];
+            var products1 = products[1];
 
-        //        new DeploymentPlan() {Name = "x", Version = "1.0.0", Action = PlanAction.Skip, DeploymentDuration = null, Dependancies = {}},
-        //        new DeploymentPlan() {Name = "y", Version = "1.0.0", Action = PlanAction.Change, DeploymentDuration = null, Dependancies = {"x"}},
-        //        new DeploymentPlan() {Name = "z", Version = "1.0.0", Action = PlanAction.Skip, DeploymentDuration = null, Dependancies = {"y"}}
-        //    };
+            Assert.AreEqual(7, products0.Count());
+            Assert.AreEqual(3, products1.Count());
+        }
 
-        //    var deploymentPlanner = new DeploymentScheduler();
-        //    var products = deploymentPlanner.GetDeploymentSchedule(componentDependancies);
+        [Test]
+        public void GetDeploymentPlanForComponentDeploymentList()
+        {
+            var componentDependancies = GetDeploymentPlans();
 
-        //    var products0 = products[0];
-        //    var products1 = products[1];
+            var deploymentPlanner = new DeploymentScheduler();
+            var products = deploymentPlanner.GetDeploymentSchedule(componentDependancies);
 
-        //    Assert.AreEqual(7, products0.Count());
-        //    Assert.AreEqual(3, products1.Count());
-        //}
+            var products0 = products[0];
+            var products1 = products[1];
+
+            Assert.AreEqual(7, products0.Count());
+            Assert.AreEqual(3, products1.Count());
+        }
 
         [Test]
         public void GetDeploymentPlanForComponentAdjacencyGraph()
