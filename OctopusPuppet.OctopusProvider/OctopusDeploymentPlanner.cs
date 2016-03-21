@@ -80,6 +80,22 @@ namespace OctopusPuppet.OctopusProvider
         }
 
         /// <summary>
+        /// Get branches for any release
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        private List<string> GetBranchesForProject(string projectId)
+        {
+            var branches = GetReleaseResources(projectId)
+                .Select(x=>new SemanticVersion(x.Version).SpecialVersion)
+                .Distinct()
+                .ToList();
+
+            return branches;
+        }
+
+
+        /// <summary>
         /// Get component for a branch. If release does not exist for branch then master branch is assumed.
         /// </summary>
         /// <param name="environmentId"></param>
@@ -198,6 +214,32 @@ namespace OctopusPuppet.OctopusProvider
             }
 
             return deploymentPlan;
+        }
+
+        public List<string> GetEnvironments()
+        {
+            var environments = _repository.Environments
+                .GetAll()
+                .Select(x => x.Id)
+                .ToList();
+
+            return environments;
+        }
+
+        public List<string> GetBranches()
+        {
+            var branches = new List<string>();
+
+            var projectIds = _repository.Projects.GetAll().Select(x=>x.Id);
+
+            foreach (var projectId in projectIds)
+            {
+                branches.AddRange(GetBranchesForProject(projectId));
+            }
+
+            branches = branches.Distinct().ToList();
+
+            return branches;
         }
 
         public EnvironmentDeploymentPlans GetEnvironmentDeploymentPlans(string environmentFrom, string environmentTo)
