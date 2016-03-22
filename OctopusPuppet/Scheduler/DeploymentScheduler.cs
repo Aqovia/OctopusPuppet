@@ -1,19 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using OctopusPuppet.DeploymentPlanner;
-using QuickGraph;
 using QuickGraph.Algorithms;
 
 namespace OctopusPuppet.Scheduler
 {
     public class DeploymentScheduler : IDeploymentScheduler
     {
-        public List<List<ComponentGroupVertex>> GetDeploymentSchedule(List<DeploymentPlan> componentDependancies)
+        public ComponentGraph GetDeploymentComponentGraph(List<DeploymentPlan> componentDependancies)
         {
             var componentVertices = new Dictionary<string, ComponentVertex>();
             foreach (var componentDependancy in componentDependancies)
             {
-                var componentVertex = new ComponentVertex(componentDependancy.Name, componentDependancy.ComponentFrom.Version.Version.ToString(), componentDependancy.Action, componentDependancy.ComponentFrom.DeploymentDuration);
+                var version = componentDependancy.ComponentFrom == null ? string.Empty : componentDependancy.ComponentFrom.Version.Version.ToString();
+                var deploymentDuration = componentDependancy.ComponentFrom == null ? null : componentDependancy.ComponentFrom.DeploymentDuration;
+
+                var componentVertex = new ComponentVertex(componentDependancy.Name, version, componentDependancy.Action, deploymentDuration);
                 componentVertices.Add(componentDependancy.Name, componentVertex);
             }
 
@@ -21,6 +23,9 @@ namespace OctopusPuppet.Scheduler
             foreach (var componentDependancy in componentDependancies)
             {
                 var source = componentVertices[componentDependancy.Name];
+
+                if (componentDependancy.ComponentFrom == null) continue;
+
                 foreach (var dependancy in componentDependancy.ComponentFrom.Dependancies)
                 {
                     var target = componentVertices[dependancy];
@@ -29,14 +34,14 @@ namespace OctopusPuppet.Scheduler
                 }
             }
 
-            var componentDependanciesAdjacencyGraph = new AdjacencyGraph<ComponentVertex, ComponentEdge>(true);
+            var componentDependanciesAdjacencyGraph = new ComponentGraph();
             componentDependanciesAdjacencyGraph.AddVertexRange(componentVertices.Values);
             componentDependanciesAdjacencyGraph.AddEdgeRange(componentEdges);
 
-            return GetDeploymentSchedule(componentDependanciesAdjacencyGraph);
+            return componentDependanciesAdjacencyGraph;
         }
 
-        public List<List<ComponentGroupVertex>> GetDeploymentSchedule(AdjacencyGraph<ComponentVertex, ComponentEdge> componentDependanciesAdjacencyGraph)
+        public List<List<ComponentGroupVertex>> GetDeploymentSchedule(ComponentGraph componentDependanciesAdjacencyGraph)
         {
             var weaklyConnectedComponents = (IDictionary<ComponentVertex, int>)new Dictionary<ComponentVertex, int>();
             componentDependanciesAdjacencyGraph.WeaklyConnectedComponents(weaklyConnectedComponents);
@@ -57,7 +62,7 @@ namespace OctopusPuppet.Scheduler
             return productDeploymentPlans;
         }
 
-        private List<ComponentGroupVertex> GetComponentGroups(AdjacencyGraph<ComponentVertex, ComponentEdge> componentDependancies, int productGroup)
+        private List<ComponentGroupVertex> GetComponentGroups(ComponentGraph componentDependancies, int productGroup)
         {
             var adjacencyGraphForProductGroup = GetAdjacencyGraphForProductGroup(componentDependancies, productGroup);
 
@@ -76,21 +81,21 @@ namespace OctopusPuppet.Scheduler
             return relatedComponentGroupDependancies;
         }
 
-        private AdjacencyGraph<ComponentVertex, ComponentEdge> GetAdjacencyGraphForProductGroup(AdjacencyGraph<ComponentVertex, ComponentEdge> componentDependancies, int productGroup)
+        private ComponentGraph GetAdjacencyGraphForProductGroup(ComponentGraph componentDependancies, int productGroup)
         {
             var vertices = componentDependancies.Vertices
                 .Where(vertex => vertex.ProductGroup == productGroup);
             var edges = componentDependancies.Edges
                 .Where(edge => edge.Source.ProductGroup == productGroup);
 
-            var relatedComponentDependancies = new AdjacencyGraph<ComponentVertex, ComponentEdge>(true);
+            var relatedComponentDependancies = new ComponentGraph();
             relatedComponentDependancies.AddVertexRange(vertices);
             relatedComponentDependancies.AddEdgeRange(edges);
 
             return relatedComponentDependancies;
         }
 
-        private int AddComponentGroupToComponent(AdjacencyGraph<ComponentVertex, ComponentEdge> adjacencyGraphForProductGroup)
+        private int AddComponentGroupToComponent(ComponentGraph adjacencyGraphForProductGroup)
         {
             var stronglyConnectedComponents = (IDictionary<ComponentVertex, int>)new Dictionary<ComponentVertex, int>();
             var numberOfComponentGroups = adjacencyGraphForProductGroup.StronglyConnectedComponents(out stronglyConnectedComponents);
@@ -104,7 +109,7 @@ namespace OctopusPuppet.Scheduler
             return numberOfComponentGroups;
         }
 
-        private void AddExecutionOrderToComponentGroupAndComponents(AdjacencyGraph<ComponentGroupVertex, ComponentGroupEdge> adjacencyGraphForComponentGroup)
+        private void AddExecutionOrderToComponentGroupAndComponents(ComponentGroupGraph adjacencyGraphForComponentGroup)
         {
             var adjacencyGraphForComponentGroupThatAreNotProcessed = adjacencyGraphForComponentGroup.Clone();
 
@@ -128,9 +133,9 @@ namespace OctopusPuppet.Scheduler
             }
         }
 
-        private AdjacencyGraph<ComponentGroupVertex, ComponentGroupEdge> GetAdjacencyGraphForComponentGroup(AdjacencyGraph<ComponentVertex, ComponentEdge> adjacencyGraphForProductGroup, int numberOfComponentGroups)
+        private ComponentGroupGraph GetAdjacencyGraphForComponentGroup(ComponentGraph adjacencyGraphForProductGroup, int numberOfComponentGroups)
         {
-            var relatedComponentGroupDependancies = new AdjacencyGraph<ComponentGroupVertex, ComponentGroupEdge>(true);
+            var relatedComponentGroupDependancies = new ComponentGroupGraph();
 
             for (var j = 0; j < numberOfComponentGroups; j++)
             {

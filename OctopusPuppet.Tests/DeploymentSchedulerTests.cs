@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using OctopusPuppet.DeploymentPlanner;
 using OctopusPuppet.Scheduler;
-using QuickGraph;
 
 namespace OctopusPuppet.Tests
 {
@@ -40,8 +39,9 @@ namespace OctopusPuppet.Tests
             var componentDependanciesJson = JsonConvert.SerializeObject(componentDependanciesToSerialize);
             var componentDependancies = JsonConvert.DeserializeObject<List<DeploymentPlan>>(componentDependanciesJson);
 
-            var deploymentPlanner = new DeploymentScheduler();
-            var products = deploymentPlanner.GetDeploymentSchedule(componentDependancies);
+            var deploymentScheduler = new DeploymentScheduler();
+            var componentGraph = deploymentScheduler.GetDeploymentComponentGraph(componentDependancies);
+            var products = deploymentScheduler.GetDeploymentSchedule(componentGraph);
 
             var products0 = products[0];
             var products1 = products[1];
@@ -55,8 +55,9 @@ namespace OctopusPuppet.Tests
         {
             var componentDependancies = GetDeploymentPlans();
 
-            var deploymentPlanner = new DeploymentScheduler();
-            var products = deploymentPlanner.GetDeploymentSchedule(componentDependancies);
+            var deploymentScheduler = new DeploymentScheduler();
+            var componentGraph = deploymentScheduler.GetDeploymentComponentGraph(componentDependancies);
+            var products = deploymentScheduler.GetDeploymentSchedule(componentGraph);
 
             var products0 = products[0];
             var products1 = products[1];
@@ -68,7 +69,7 @@ namespace OctopusPuppet.Tests
         [Test]
         public void GetDeploymentPlanForComponentAdjacencyGraph()
         {
-            var componentDependancies = new AdjacencyGraph<ComponentVertex, ComponentEdge>(true);
+            var componentDependancies = new ComponentGraph();
 
             //Add vertices
 
@@ -110,8 +111,8 @@ namespace OctopusPuppet.Tests
                 b_a, b_c, c_b, d_a, e_d, f_e, g_d, h_e, h_d, y_x, z_y
             });
 
-            var deploymentPlanner = new DeploymentScheduler();
-            var products = deploymentPlanner.GetDeploymentSchedule(componentDependancies);
+            var deploymentScheduler = new DeploymentScheduler();
+            var products = deploymentScheduler.GetDeploymentSchedule(componentDependancies);
 
             var products0 = products[0];
             var products1 = products[1];

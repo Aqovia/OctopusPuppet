@@ -119,6 +119,7 @@
     </Compile>
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="AppBootstrapper.cs" />
+    <Compile Include="ViewModels\ComponentGraphLayout.cs" />
     <Compile Include="ViewModels\DeploymentPlannerViewModel.cs" />
     <Compile Include="Views\DeploymentPlannerView.xaml.cs">
       <DependentUpon>DeploymentPlannerView.xaml</DependentUpon>

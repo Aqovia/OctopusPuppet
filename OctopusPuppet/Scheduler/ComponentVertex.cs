@@ -25,5 +25,10 @@ namespace OctopusPuppet.Scheduler
             ProductGroup = -1;
             ExecutionOrder = -1;
         }
+
+        public override string ToString()
+        {
+            return string.Format("{0} {1}", OctopusProject, Version);
+        }
     }
 }

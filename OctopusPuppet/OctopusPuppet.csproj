@@ -66,6 +66,8 @@
     <Compile Include="DeploymentPlanner\IDeploymentPlanner.cs" />
     <Compile Include="DeploymentPlanner\SemVer.cs" />
     <Compile Include="DeploymentPlanner\SemVerJsonConverter.cs" />
+    <Compile Include="Scheduler\ComponentGraph.cs" />
+    <Compile Include="Scheduler\ComponentGroupGraph.cs" />
     <Compile Include="Scheduler\DeploymentSchedule.cs" />
     <Compile Include="DeploymentPlanner\BranchDeploymentPlans.cs" />
     <Compile Include="DeploymentPlanner\RedeployDeploymentPlans.cs" />

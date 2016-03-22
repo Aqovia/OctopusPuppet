@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using OctopusPuppet.DeploymentPlanner;
 using OctopusPuppet.OctopusProvider;
+using OctopusPuppet.Scheduler;
 
 namespace OctopusPuppet.IntegrationTests
 {
@@ -44,6 +45,9 @@ namespace OctopusPuppet.IntegrationTests
             var environmentTo = ConfigurationManager.AppSettings["EnvironmentTo"];
 
             var dashboard = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(environmentFrom, environmentTo);
+
+            var deploymentScheduler = new DeploymentScheduler();
+            var products = deploymentScheduler.GetDeploymentComponentGraph(dashboard.DeploymentPlans);
 
             var difference = JsonConvert.SerializeObject(dashboard.DeploymentPlans.Where(x => x.Action != PlanAction.Skip));
 
