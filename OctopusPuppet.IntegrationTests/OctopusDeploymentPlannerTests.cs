@@ -34,7 +34,7 @@ namespace OctopusPuppet.IntegrationTests
         }
 
         [Test]
-        public void GetEnvironmentDeploymentPlans()
+        public void GetEnvironmentMirrorDeploymentPlans()
         {
             var octopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
             var octopusApiKey = ConfigurationManager.AppSettings["OctopusApiKey"];
@@ -43,7 +43,7 @@ namespace OctopusPuppet.IntegrationTests
             var environmentFrom = ConfigurationManager.AppSettings["EnvironmentFrom"];
             var environmentTo = ConfigurationManager.AppSettings["EnvironmentTo"];
 
-            var dashboard = deploymentPlanner.GetEnvironmentDeploymentPlans(environmentFrom, environmentTo);
+            var dashboard = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(environmentFrom, environmentTo);
 
             var difference = JsonConvert.SerializeObject(dashboard.DeploymentPlans.Where(x => x.Action != PlanAction.Skip));
 
@@ -62,6 +62,8 @@ namespace OctopusPuppet.IntegrationTests
 
             var dashboard = deploymentPlanner.GetBranchDeploymentPlans(environment, branch);
 
+            var difference = JsonConvert.SerializeObject(dashboard.DeploymentPlans.Where(x => x.Action != PlanAction.Skip));
+
             Assert.AreEqual(2, dashboard.DeploymentPlans.Count);
         }
 
@@ -75,6 +77,8 @@ namespace OctopusPuppet.IntegrationTests
             var environment = ConfigurationManager.AppSettings["EnvironmentFrom"];
 
             var dashboard = deploymentPlanner.GetRedeployDeploymentPlans(environment);
+
+            var difference = JsonConvert.SerializeObject(dashboard.DeploymentPlans.Where(x => x.Action != PlanAction.Skip));
 
             Assert.AreEqual(2, dashboard.DeploymentPlans.Count);
         }

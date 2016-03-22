@@ -220,7 +220,7 @@ namespace OctopusPuppet.OctopusProvider
         {
             var environments = _repository.Environments
                 .GetAll()
-                .Select(x => x.Id)
+                .Select(x => x.Name)
                 .ToList();
 
             return environments;
@@ -242,7 +242,7 @@ namespace OctopusPuppet.OctopusProvider
             return branches;
         }
 
-        public EnvironmentDeploymentPlans GetEnvironmentDeploymentPlans(string environmentFrom, string environmentTo)
+        public EnvironmentDeploymentPlans GetEnvironmentMirrorDeploymentPlans(string environmentFrom, string environmentTo)
         {
             var environments = environmentFrom == environmentTo ? 
                 new[] {environmentFrom} : 

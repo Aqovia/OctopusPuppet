@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctopusPuppet", "OctopusPuppet\OctopusPuppet.csproj", "{138A170B-2FBA-434B-83BB-704667D9A289}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctopusPuppet.IntegrationTests", "OctopusPuppet.IntegrationTests\OctopusPuppet.IntegrationTests.csproj", "{4E86A56A-61A9-4906-A66C-130DFB2CB75D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctopusPuppet.OctopusProvider", "OctopusPuppet.OctopusProvider\OctopusPuppet.OctopusProvider.csproj", "{17D4DBD0-94B3-49B0-81F9-C0A93B91EEE8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctopusPuppet.Gui", "OctopusPuppet.Gui\OctopusPuppet.Gui.csproj", "{C51D87E0-BBD7-4B3A-A047-32F4C906E959}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{17D4DBD0-94B3-49B0-81F9-C0A93B91EEE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17D4DBD0-94B3-49B0-81F9-C0A93B91EEE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17D4DBD0-94B3-49B0-81F9-C0A93B91EEE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C51D87E0-BBD7-4B3A-A047-32F4C906E959}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C51D87E0-BBD7-4B3A-A047-32F4C906E959}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C51D87E0-BBD7-4B3A-A047-32F4C906E959}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C51D87E0-BBD7-4B3A-A047-32F4C906E959}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

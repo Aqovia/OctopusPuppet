@@ -6,7 +6,7 @@ namespace OctopusPuppet.DeploymentPlanner
     {
         List<string> GetEnvironments();
         List<string> GetBranches();
-        EnvironmentDeploymentPlans GetEnvironmentDeploymentPlans(string environmentFrom, string environmentTo);
+        EnvironmentDeploymentPlans GetEnvironmentMirrorDeploymentPlans(string environmentFrom, string environmentTo);
         BranchDeploymentPlans GetBranchDeploymentPlans(string environment, string branch);
         RedeployDeploymentPlans GetRedeployDeploymentPlans(string environment);
     }
