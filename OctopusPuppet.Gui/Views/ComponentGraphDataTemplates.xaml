@@ -19,7 +19,7 @@
     <SolidColorBrush x:Key="SemiHighlightedInEdgeBrush" Color="#FF1DBA00" />
     <SolidColorBrush x:Key="SemiHighlightedOutEdgeBrush" Color="#FFD6A51C" />
 
-    <DataTemplate DataType="{x:Type scheduler:ComponentVertex}">
+    <DataTemplate DataType="{x:Type scheduler:ComponentDeploymentVertex}">
         <TextBlock Text="{Binding Mode=OneWay}" />
     </DataTemplate>
 

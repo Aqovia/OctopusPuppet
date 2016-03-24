@@ -88,20 +88,20 @@ namespace OctopusPuppet.Gui.ViewModels
             }
         }
 
-        private List<DeploymentPlan> _deploymentPlans;
-        private List<DeploymentPlan> DeploymentPlans
+        private EnvironmentDeploymentPlan _environmentDeploymentPlan;
+        private EnvironmentDeploymentPlan EnvironmentDeploymentPlan
         {
-            get { return _deploymentPlans; }
+            get { return _environmentDeploymentPlan; }
             set
             {
-                if (value == _deploymentPlans) return;
-                _deploymentPlans = value;
-                NotifyOfPropertyChange(() => DeploymentPlans);
+                if (value == _environmentDeploymentPlan) return;
+                _environmentDeploymentPlan = value;
+                NotifyOfPropertyChange(() => EnvironmentDeploymentPlan);
             }
         }
 
-        private IBidirectionalGraph<ComponentVertex, ComponentEdge> _graph;
-        public IBidirectionalGraph<ComponentVertex, ComponentEdge> Graph
+        private IBidirectionalGraph<ComponentDeploymentVertex, ComponentDeploymentEdge> _graph;
+        public IBidirectionalGraph<ComponentDeploymentVertex, ComponentDeploymentEdge> Graph
         {
             get { return _graph; }
             private set
@@ -112,15 +112,15 @@ namespace OctopusPuppet.Gui.ViewModels
             }
         }
 
-        private List<List<ComponentGroupVertex>> _products;
-        public List<List<ComponentGroupVertex>> Products
+        private EnvironmentDeployment _environmentDeployment;
+        public EnvironmentDeployment EnvironmentDeployment
         {
-            get { return _products; }
+            get { return _environmentDeployment; }
             private set
             {
-                if (value == _products) return;
-                _products = value;
-                NotifyOfPropertyChange(() => Products);
+                if (value == _environmentDeployment) return;
+                _environmentDeployment = value;
+                NotifyOfPropertyChange(() => EnvironmentDeployment);
             }
         }
 
@@ -346,19 +346,19 @@ namespace OctopusPuppet.Gui.ViewModels
                 {
                     var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
                     var branchDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(_selectedBranchDeploymentEnvironment, _selectedBranchDeploymentBranch);
-                    DeploymentPlans = branchDeploymentPlans.DeploymentPlans;
+                    EnvironmentDeploymentPlan = branchDeploymentPlans.EnvironmentDeploymentPlan;
 
                     var deploymentScheduler = new DeploymentScheduler();
 
-                    var componentGraph = deploymentScheduler.GetDeploymentComponentGraph(DeploymentPlans);
+                    var componentGraph = deploymentScheduler.GetComponentDeploymentGraph(EnvironmentDeploymentPlan);
                     Graph = componentGraph.ToBidirectionalGraph();
-                    Products = deploymentScheduler.GetDeploymentSchedule(componentGraph);
+                    EnvironmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
                 }
                 catch
                 {
-                    DeploymentPlans = new List<DeploymentPlan>();
+                    EnvironmentDeploymentPlan = new EnvironmentDeploymentPlan(new List<ComponentDeploymentPlan>());
                     Graph = null;
-                    Products = new List<List<ComponentGroupVertex>>();
+                    EnvironmentDeployment = new EnvironmentDeployment(new List<ProductDeployment>());
                 }
             }).ContinueWith(task =>
             {
@@ -387,18 +387,18 @@ namespace OctopusPuppet.Gui.ViewModels
                 {
                     var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
                     var redeployDeploymentPlans = deploymentPlanner.GetRedeployDeploymentPlans(_selectedRedeploymentEnvironment);
-                    DeploymentPlans = redeployDeploymentPlans.DeploymentPlans;
+                    EnvironmentDeploymentPlan = redeployDeploymentPlans.EnvironmentDeploymentPlan;
 
                     var deploymentScheduler = new DeploymentScheduler();
-                    var componentGraph = deploymentScheduler.GetDeploymentComponentGraph(DeploymentPlans);
+                    var componentGraph = deploymentScheduler.GetComponentDeploymentGraph(EnvironmentDeploymentPlan);
                     Graph = componentGraph.ToBidirectionalGraph();
-                    Products = deploymentScheduler.GetDeploymentSchedule(componentGraph);
+                    EnvironmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
                 }
                 catch
                 {
-                    DeploymentPlans = new List<DeploymentPlan>();
+                    EnvironmentDeploymentPlan = new EnvironmentDeploymentPlan(new List<ComponentDeploymentPlan>());
                     Graph = null;
-                    Products = new List<List<ComponentGroupVertex>>();
+                    EnvironmentDeployment = new EnvironmentDeployment(new List<ProductDeployment>());
                 }
             }).ContinueWith(task =>
             {
@@ -429,18 +429,18 @@ namespace OctopusPuppet.Gui.ViewModels
                     var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
                     var environmentMirrorDeploymentPlans = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(_selectedEnvironmentMirrorFromEnvironment, _selectedEnvironmentMirrorToEnvironment);
 
-                    DeploymentPlans = environmentMirrorDeploymentPlans.DeploymentPlans;
+                    EnvironmentDeploymentPlan = environmentMirrorDeploymentPlans.EnvironmentDeploymentPlan;
 
                     var deploymentScheduler = new DeploymentScheduler();
-                    var componentGraph = deploymentScheduler.GetDeploymentComponentGraph(DeploymentPlans);
+                    var componentGraph = deploymentScheduler.GetComponentDeploymentGraph(EnvironmentDeploymentPlan);
                     Graph = componentGraph.ToBidirectionalGraph();
-                    Products = deploymentScheduler.GetDeploymentSchedule(componentGraph);
+                    EnvironmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
                 }
                 catch
                 {
-                    DeploymentPlans = new List<DeploymentPlan>();
+                    EnvironmentDeploymentPlan = new EnvironmentDeploymentPlan(new List<ComponentDeploymentPlan>());
                     Graph = null;
-                    Products = new List<List<ComponentGroupVertex>>();
+                    EnvironmentDeployment = new EnvironmentDeployment(new List<ProductDeployment>());
                 }
             }).ContinueWith(task =>
             {

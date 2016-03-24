@@ -3,7 +3,7 @@ using Newtonsoft.Json.Converters;
 
 namespace OctopusPuppet.DeploymentPlanner
 {
-    public class DeploymentPlan
+    public class ComponentDeploymentPlan
     {
         [JsonProperty(Required = Required.Always)]
         public string Name { get; set; }

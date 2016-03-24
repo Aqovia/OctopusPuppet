@@ -4,10 +4,10 @@ using OctopusPuppet.DeploymentPlanner;
 
 namespace OctopusPuppet.Scheduler
 {
-    [DebuggerDisplay("{OctopusProject} {Version}")]
-    public class ComponentVertex
+    [DebuggerDisplay("{Name} {Version}")]
+    public class ComponentDeploymentVertex
     {
-        public string OctopusProject { get; private set; }
+        public string Name { get; private set; }
         public string Version { get; private set; }
         public PlanAction Action { get; private set; }
         public TimeSpan? DeploymentDuration { get; set; }
@@ -16,9 +16,9 @@ namespace OctopusPuppet.Scheduler
         public int ProductGroup { get; set; }
         public int ExecutionOrder { get; set; }
 
-        public ComponentVertex(string octopusProject, string version, PlanAction action, TimeSpan? deploymentDuration)
+        public ComponentDeploymentVertex(string name, string version, PlanAction action, TimeSpan? deploymentDuration)
         {
-            OctopusProject = octopusProject;
+            Name = name;
             Version = version;
             Action = action;
             DeploymentDuration = deploymentDuration;
@@ -30,7 +30,7 @@ namespace OctopusPuppet.Scheduler
 
         public override string ToString()
         {
-            return string.Format("{0} {1}", OctopusProject, Version);
+            return string.Format("{0} {1}", Name, Version);
         }
     }
 }

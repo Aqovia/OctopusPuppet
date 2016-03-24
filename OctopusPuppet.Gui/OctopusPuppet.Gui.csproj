@@ -137,12 +137,18 @@
     </ApplicationDefinition>
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="AppBootstrapper.cs" />
+    <Compile Include="ViewModels\ComponentToDeployViewModel.cs" />
     <Compile Include="Views\ComponentGraphLayout.cs" />
     <Compile Include="ViewModels\DeploymentPlannerViewModel.cs" />
     <Compile Include="Views\DeploymentPlannerView.xaml.cs">
       <DependentUpon>DeploymentPlannerView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\VirtualToggleButton.cs" />
     <Page Include="Views\ComponentGraphDataTemplates.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ComponentGroupDataTemplates.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

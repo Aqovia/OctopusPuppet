@@ -7,20 +7,20 @@ namespace OctopusPuppet.Scheduler
 {
     public class DeploymentScheduler : IDeploymentScheduler
     {
-        public ComponentGraph GetDeploymentComponentGraph(List<DeploymentPlan> componentDependancies)
+        public ComponentDeploymentGraph GetComponentDeploymentGraph(EnvironmentDeploymentPlan environmentDeploymentPlan)
         {
-            var componentVertices = new Dictionary<string, ComponentVertex>();
-            foreach (var componentDependancy in componentDependancies)
+            var componentVertices = new Dictionary<string, ComponentDeploymentVertex>();
+            foreach (var componentDependancy in environmentDeploymentPlan.DeploymentPlans)
             {
                 var version = componentDependancy.ComponentFrom == null ? string.Empty : componentDependancy.ComponentFrom.Version.ToString();
                 var deploymentDuration = componentDependancy.ComponentFrom == null ? null : componentDependancy.ComponentFrom.DeploymentDuration;
 
-                var componentVertex = new ComponentVertex(componentDependancy.Name, version, componentDependancy.Action, deploymentDuration);
+                var componentVertex = new ComponentDeploymentVertex(componentDependancy.Name, version, componentDependancy.Action, deploymentDuration);
                 componentVertices.Add(componentDependancy.Name, componentVertex);
             }
 
-            var componentEdges = new List<ComponentEdge>();
-            foreach (var componentDependancy in componentDependancies)
+            var componentEdges = new List<ComponentDeploymentEdge>();
+            foreach (var componentDependancy in environmentDeploymentPlan.DeploymentPlans)
             {
                 var source = componentVertices[componentDependancy.Name];
 
@@ -29,22 +29,22 @@ namespace OctopusPuppet.Scheduler
                 foreach (var dependancy in componentDependancy.ComponentFrom.Dependancies)
                 {
                     var target = componentVertices[dependancy];
-                    var componentEdge = new ComponentEdge(source, target);
+                    var componentEdge = new ComponentDeploymentEdge(source, target);
                     componentEdges.Add(componentEdge);
                 }
             }
 
-            var componentDependanciesAdjacencyGraph = new ComponentGraph();
+            var componentDependanciesAdjacencyGraph = new ComponentDeploymentGraph();
             componentDependanciesAdjacencyGraph.AddVertexRange(componentVertices.Values);
             componentDependanciesAdjacencyGraph.AddEdgeRange(componentEdges);
 
             return componentDependanciesAdjacencyGraph;
         }
 
-        public List<List<ComponentGroupVertex>> GetDeploymentSchedule(ComponentGraph componentDependanciesAdjacencyGraph)
+        public EnvironmentDeployment GetEnvironmentDeployment(ComponentDeploymentGraph componentDeploymentDependanciesAdjacencyGraph)
         {
-            var weaklyConnectedComponents = (IDictionary<ComponentVertex, int>)new Dictionary<ComponentVertex, int>();
-            componentDependanciesAdjacencyGraph.WeaklyConnectedComponents(weaklyConnectedComponents);
+            var weaklyConnectedComponents = (IDictionary<ComponentDeploymentVertex, int>)new Dictionary<ComponentDeploymentVertex, int>();
+            componentDeploymentDependanciesAdjacencyGraph.WeaklyConnectedComponents(weaklyConnectedComponents);
 
             //Work out related components
             foreach (var connectedComponent in weaklyConnectedComponents)
@@ -56,15 +56,16 @@ namespace OctopusPuppet.Scheduler
                 .Distinct();
 
             var productDeploymentPlans = productGroupNames
-                .Select(productGroupName => GetComponentGroups(componentDependanciesAdjacencyGraph, productGroupName))
+                .Select(productGroupName => GetComponentGroups(componentDeploymentDependanciesAdjacencyGraph, productGroupName))
                 .ToList();
 
-            return productDeploymentPlans;
+            var environmentDeployment = new EnvironmentDeployment(productDeploymentPlans);
+            return environmentDeployment;
         }
 
-        private List<ComponentGroupVertex> GetComponentGroups(ComponentGraph componentDependancies, int productGroup)
+        private ProductDeployment GetComponentGroups(ComponentDeploymentGraph componentDeploymentDependancies, int productGroup)
         {
-            var adjacencyGraphForProductGroup = GetAdjacencyGraphForProductGroup(componentDependancies, productGroup);
+            var adjacencyGraphForProductGroup = GetAdjacencyGraphForProductGroup(componentDeploymentDependancies, productGroup);
 
             var numberOfComponentGroups = AddComponentGroupToComponent(adjacencyGraphForProductGroup);
 
@@ -78,27 +79,29 @@ namespace OctopusPuppet.Scheduler
                 .ThenByDescending(x => x.DeploymentDuration)
                 .ToList();
 
-            return relatedComponentGroupDependancies;
+            var productDeployment = new ProductDeployment(relatedComponentGroupDependancies);
+
+            return productDeployment;
         }
 
-        private ComponentGraph GetAdjacencyGraphForProductGroup(ComponentGraph componentDependancies, int productGroup)
+        private ComponentDeploymentGraph GetAdjacencyGraphForProductGroup(ComponentDeploymentGraph componentDeploymentDependancies, int productGroup)
         {
-            var vertices = componentDependancies.Vertices
+            var vertices = componentDeploymentDependancies.Vertices
                 .Where(vertex => vertex.ProductGroup == productGroup);
-            var edges = componentDependancies.Edges
+            var edges = componentDeploymentDependancies.Edges
                 .Where(edge => edge.Source.ProductGroup == productGroup);
 
-            var relatedComponentDependancies = new ComponentGraph();
+            var relatedComponentDependancies = new ComponentDeploymentGraph();
             relatedComponentDependancies.AddVertexRange(vertices);
             relatedComponentDependancies.AddEdgeRange(edges);
 
             return relatedComponentDependancies;
         }
 
-        private int AddComponentGroupToComponent(ComponentGraph adjacencyGraphForProductGroup)
+        private int AddComponentGroupToComponent(ComponentDeploymentGraph adjacencyDeploymentGraphForProductGroup)
         {
-            var stronglyConnectedComponents = (IDictionary<ComponentVertex, int>)new Dictionary<ComponentVertex, int>();
-            var numberOfComponentGroups = adjacencyGraphForProductGroup.StronglyConnectedComponents(out stronglyConnectedComponents);
+            var stronglyConnectedComponents = (IDictionary<ComponentDeploymentVertex, int>)new Dictionary<ComponentDeploymentVertex, int>();
+            var numberOfComponentGroups = adjacencyDeploymentGraphForProductGroup.StronglyConnectedComponents(out stronglyConnectedComponents);
 
             //Work out execution order of related components
             foreach (var connectedComponent in stronglyConnectedComponents)
@@ -109,9 +112,9 @@ namespace OctopusPuppet.Scheduler
             return numberOfComponentGroups;
         }
 
-        private void AddExecutionOrderToComponentGroupAndComponents(ComponentGroupGraph adjacencyGraphForComponentGroup)
+        private void AddExecutionOrderToComponentGroupAndComponents(DeploymentStepGraph adjacencyGraphForDeploymentStep)
         {
-            var adjacencyGraphForComponentGroupThatAreNotProcessed = adjacencyGraphForComponentGroup.Clone();
+            var adjacencyGraphForComponentGroupThatAreNotProcessed = adjacencyGraphForDeploymentStep.Clone();
 
             var executionOrder = -1;
             while (!adjacencyGraphForComponentGroupThatAreNotProcessed.IsVerticesEmpty)
@@ -123,7 +126,7 @@ namespace OctopusPuppet.Scheduler
                 {
                     rootComponentGroupVertex.ExecutionOrder = executionOrder;
 
-                    foreach (var componentVertex in rootComponentGroupVertex.Vertices)
+                    foreach (var componentVertex in rootComponentGroupVertex.ComponentDeployments)
                     {
                         componentVertex.ExecutionOrder = executionOrder;
                     }
@@ -133,37 +136,39 @@ namespace OctopusPuppet.Scheduler
             }
         }
 
-        private ComponentGroupGraph GetAdjacencyGraphForComponentGroup(ComponentGraph adjacencyGraphForProductGroup, int numberOfComponentGroups)
+        private DeploymentStepGraph GetAdjacencyGraphForComponentGroup(ComponentDeploymentGraph adjacencyDeploymentGraphForProductGroup, int numberOfComponentGroups)
         {
-            var relatedComponentGroupDependancies = new ComponentGroupGraph();
+            var relatedComponentGroupDependancies = new DeploymentStepGraph();
 
             for (var j = 0; j < numberOfComponentGroups; j++)
             {
                 var stepGroup = j;
 
-                var vertices = adjacencyGraphForProductGroup.Vertices
-                    .Where(vertex => vertex.ComponentGroup == stepGroup);
+                var vertices = adjacencyDeploymentGraphForProductGroup.Vertices
+                    .Where(vertex => vertex.ComponentGroup == stepGroup)
+                    .ToList();
 
-                var edges = adjacencyGraphForProductGroup.Edges
-                    .Where(edge => edge.Source.ComponentGroup == stepGroup);
+                var edges = adjacencyDeploymentGraphForProductGroup.Edges
+                    .Where(edge => edge.Source.ComponentGroup == stepGroup)
+                    .ToList();
 
-                var componentGroupVertex = new ComponentGroupVertex(vertices, edges);
+                var componentGroupVertex = new ProductDeploymentStep(vertices, edges);
                 relatedComponentGroupDependancies.AddVertex(componentGroupVertex);
             }
 
             foreach (var componentGroupVertexSource in relatedComponentGroupDependancies.Vertices)
             {
                 var relatedComponentGroupDependancyEdges = componentGroupVertexSource.Edges;
-                var relatedComponentGroupDependancyVertices = componentGroupVertexSource.Vertices;
+                var relatedComponentGroupDependancyVertices = componentGroupVertexSource.ComponentDeployments;
                 var componentGroupExternalEdges = relatedComponentGroupDependancyEdges
                     .Where(edge => relatedComponentGroupDependancyVertices.All(vertex => vertex != edge.Target));
 
                 foreach (var componentGroupExternalEdge in componentGroupExternalEdges)
                 {
                     var componentGroupVertexTarget = relatedComponentGroupDependancies.Vertices
-                        .First(vertex => vertex.Vertices.Any(x => x == componentGroupExternalEdge.Target));
+                        .First(vertex => vertex.ComponentDeployments.Any(x => x == componentGroupExternalEdge.Target));
 
-                    var componentGroupEdge = new ComponentGroupEdge(componentGroupVertexSource, componentGroupVertexTarget);
+                    var componentGroupEdge = new DeploymentStepEdge(componentGroupVertexSource, componentGroupVertexTarget);
                     relatedComponentGroupDependancies.AddEdge(componentGroupEdge);
                 }
             }

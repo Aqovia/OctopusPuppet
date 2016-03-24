@@ -63,26 +63,27 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DeploymentPlanner\Component.cs" />
+    <Compile Include="DeploymentPlanner\EnvironmentDeploymentPlan.cs" />
     <Compile Include="DeploymentPlanner\IDeploymentPlanner.cs" />
     <Compile Include="DeploymentPlanner\SemVer.cs" />
     <Compile Include="DeploymentPlanner\SemVerJsonConverter.cs" />
-    <Compile Include="Scheduler\ComponentGraph.cs" />
-    <Compile Include="Scheduler\ComponentGroupGraph.cs" />
-    <Compile Include="Scheduler\DeploymentSchedule.cs" />
+    <Compile Include="Scheduler\ComponentDeploymentGraph.cs" />
+    <Compile Include="Scheduler\DeploymentStepGraph.cs" />
     <Compile Include="DeploymentPlanner\BranchDeploymentPlans.cs" />
     <Compile Include="DeploymentPlanner\RedeployDeploymentPlans.cs" />
-    <Compile Include="Scheduler\EnvironmentDeploymentSchedule.cs" />
+    <Compile Include="Scheduler\EnvironmentDeployment.cs" />
     <Compile Include="DeploymentPlanner\EnvironmentDeploymentPlans.cs" />
     <Compile Include="DeploymentPlanner\PlanAction.cs" />
-    <Compile Include="DeploymentPlanner\DeploymentPlan.cs" />
-    <Compile Include="Scheduler\ComponentGroupEdge.cs" />
-    <Compile Include="Scheduler\ComponentEdge.cs" />
-    <Compile Include="Scheduler\ComponentGroupVertex.cs" />
-    <Compile Include="Scheduler\ComponentVertex.cs" />
+    <Compile Include="DeploymentPlanner\ComponentDeploymentPlan.cs" />
+    <Compile Include="Scheduler\DeploymentStepEdge.cs" />
+    <Compile Include="Scheduler\ComponentDeploymentEdge.cs" />
+    <Compile Include="Scheduler\ProductDeploymentStep.cs" />
+    <Compile Include="Scheduler\ComponentDeploymentVertex.cs" />
     <Compile Include="Scheduler\DeploymentScheduler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scheduler\IDeploymentScheduler.cs" />
+    <Compile Include="Scheduler\ProductDeployment.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

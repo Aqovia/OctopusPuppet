@@ -47,11 +47,11 @@ namespace OctopusPuppet.IntegrationTests
             var dashboard = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(environmentFrom, environmentTo);
 
             var deploymentScheduler = new DeploymentScheduler();
-            var products = deploymentScheduler.GetDeploymentComponentGraph(dashboard.DeploymentPlans);
+            var products = deploymentScheduler.GetComponentDeploymentGraph(dashboard.EnvironmentDeploymentPlan);
 
-            var difference = JsonConvert.SerializeObject(dashboard.DeploymentPlans.Where(x => x.Action != PlanAction.Skip));
+            var difference = JsonConvert.SerializeObject(dashboard.EnvironmentDeploymentPlan.DeploymentPlans.Where(x => x.Action != PlanAction.Skip));
 
-            Assert.AreEqual(2, dashboard.DeploymentPlans.Count);
+            Assert.AreEqual(2, dashboard.EnvironmentDeploymentPlan.DeploymentPlans.Count);
         }
 
         [Test]
@@ -66,9 +66,9 @@ namespace OctopusPuppet.IntegrationTests
 
             var dashboard = deploymentPlanner.GetBranchDeploymentPlans(environment, branch);
 
-            var difference = JsonConvert.SerializeObject(dashboard.DeploymentPlans.Where(x => x.Action != PlanAction.Skip));
+            var difference = JsonConvert.SerializeObject(dashboard.EnvironmentDeploymentPlan.DeploymentPlans.Where(x => x.Action != PlanAction.Skip));
 
-            Assert.AreEqual(2, dashboard.DeploymentPlans.Count);
+            Assert.AreEqual(2, dashboard.EnvironmentDeploymentPlan.DeploymentPlans.Count);
         }
 
         [Test]
@@ -82,9 +82,9 @@ namespace OctopusPuppet.IntegrationTests
 
             var dashboard = deploymentPlanner.GetRedeployDeploymentPlans(environment);
 
-            var difference = JsonConvert.SerializeObject(dashboard.DeploymentPlans.Where(x => x.Action != PlanAction.Skip));
+            var difference = JsonConvert.SerializeObject(dashboard.EnvironmentDeploymentPlan.DeploymentPlans.Where(x => x.Action != PlanAction.Skip));
 
-            Assert.AreEqual(2, dashboard.DeploymentPlans.Count);
+            Assert.AreEqual(2, dashboard.EnvironmentDeploymentPlan.DeploymentPlans.Count);
         }
     }
 }

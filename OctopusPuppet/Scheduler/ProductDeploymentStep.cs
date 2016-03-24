@@ -4,24 +4,25 @@ using System.Linq;
 
 namespace OctopusPuppet.Scheduler
 {
-    public class ComponentGroupVertex
+    public class ProductDeploymentStep
     {
-        public IEnumerable<ComponentVertex> Vertices { get; set; }
-        public IEnumerable<ComponentEdge> Edges { get; set; }
+        public List<ComponentDeploymentVertex> ComponentDeployments { get; set; }
+        public List<ComponentDeploymentEdge> Edges { get; set; }
+
         public int ExecutionOrder { get; set; }
 
         public TimeSpan? DeploymentDuration
         {
             get { 
-                return Vertices
+                return ComponentDeployments
                 .Select(x => x.DeploymentDuration)
                 .Max(); 
             }
         }
 
-        public ComponentGroupVertex(IEnumerable<ComponentVertex> vertices, IEnumerable<ComponentEdge> edges)
+        public ProductDeploymentStep(List<ComponentDeploymentVertex> componentDeployments, List<ComponentDeploymentEdge> edges)
         {
-            Vertices = vertices;
+            ComponentDeployments = componentDeployments;
             Edges = edges;
             ExecutionOrder = -1;
         }

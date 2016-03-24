@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace OctopusPuppet.DeploymentPlanner
 {
@@ -9,11 +8,6 @@ namespace OctopusPuppet.DeploymentPlanner
         public string EnvironmentId { get; set; }
        
         [JsonProperty(Required = Required.AllowNull)]
-        public List<DeploymentPlan> DeploymentPlans { get; set; }
-
-        public RedeployDeploymentPlans()
-        {
-            DeploymentPlans = new List<DeploymentPlan>();
-        }
+        public EnvironmentDeploymentPlan EnvironmentDeploymentPlan { get; set; }
     }
 }

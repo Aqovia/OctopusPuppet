@@ -183,9 +183,9 @@ namespace OctopusPuppet.OctopusProvider
             return component;
         }
 
-        private DeploymentPlan GetEnvironmentDeploymentPlan(string projectName, Component componentFrom, Component componentTo)
+        private ComponentDeploymentPlan GetEnvironmentDeploymentPlan(string projectName, Component componentFrom, Component componentTo)
         {
-            var deploymentPlan = new DeploymentPlan
+            var deploymentPlan = new ComponentDeploymentPlan
             {
                 Name = projectName,
                 ComponentFrom = componentFrom,
@@ -288,7 +288,7 @@ namespace OctopusPuppet.OctopusProvider
 
                 var deploymentPlan = GetEnvironmentDeploymentPlan(projectName, componentFrom, componentTo);
 
-                environmentDeploymentPlan.DeploymentPlans.Add(deploymentPlan);
+                environmentDeploymentPlan.EnvironmentDeploymentPlan.DeploymentPlans.Add(deploymentPlan);
             }
 
             return environmentDeploymentPlan;
@@ -330,7 +330,7 @@ namespace OctopusPuppet.OctopusProvider
                     
                 var deploymentPlan = GetEnvironmentDeploymentPlan(projectName, componentFrom, componentTo);
 
-                branchDeploymentPlan.DeploymentPlans.Add(deploymentPlan);
+                branchDeploymentPlan.EnvironmentDeploymentPlan.DeploymentPlans.Add(deploymentPlan);
             }
 
             return branchDeploymentPlan;
@@ -376,7 +376,7 @@ namespace OctopusPuppet.OctopusProvider
                     deploymentPlan.Action = PlanAction.Change;
                 }
 
-                redeployDeploymentPlans.DeploymentPlans.Add(deploymentPlan);
+                redeployDeploymentPlans.EnvironmentDeploymentPlan.DeploymentPlans.Add(deploymentPlan);
             }
 
             return redeployDeploymentPlans;

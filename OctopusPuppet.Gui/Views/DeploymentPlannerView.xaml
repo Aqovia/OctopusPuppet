@@ -6,6 +6,8 @@
              xmlns:controls="clr-namespace:WPFExtensions.Controls;assembly=WPFExtensions"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:views="clr-namespace:OctopusPuppet.Gui.Views"
+             xmlns:scheduler="clr-namespace:OctopusPuppet.Scheduler;assembly=OctopusPuppet"
+             xmlns:generic="clr-namespace:System.Collections.Generic;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DesignHeight="768" d:DesignWidth="768">
     <xctk:BusyIndicator IsBusy="{Binding IsLoadingData}">
@@ -104,6 +106,9 @@
                                       ShowAllStates="false"
                                       HighlightAlgorithmType="Simple"/>
                         </controls:ZoomControl>
+                        <DockPanel VerticalAlignment="Top" HorizontalAlignment="Stretch" DockPanel.Dock="Bottom">
+                           
+                        </DockPanel>
                     </DockPanel>
                 </GroupBox>
             </DockPanel>
