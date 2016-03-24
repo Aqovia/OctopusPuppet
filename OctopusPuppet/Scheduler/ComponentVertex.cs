@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using OctopusPuppet.DeploymentPlanner;
 
 namespace OctopusPuppet.Scheduler
 {
+    [DebuggerDisplay("{OctopusProject} {Version}")]
     public class ComponentVertex
     {
         public string OctopusProject { get; private set; }

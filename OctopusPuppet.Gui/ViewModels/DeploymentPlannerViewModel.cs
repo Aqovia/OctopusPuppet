@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Configuration;
+using System.Threading.Tasks;
 using Caliburn.Micro;
 using OctopusPuppet.DeploymentPlanner;
 using OctopusPuppet.OctopusProvider;
@@ -27,18 +28,35 @@ namespace OctopusPuppet.Gui.ViewModels
             _environmentMirrorToEnvironments = new List<string>();
             _selectedEnvironmentMirrorToEnvironment = string.Empty;
 
+            _layoutAlgorithmTypes = new List<string>(new []
+            {
+                "Tree",
+                "Circular",
+                "FR",
+                "BoundedFR",
+                "KK",
+                "ISOM",
+                "LinLog",
+                "EfficientSugiyama",
+                "Sugiyama",
+                "CompoundFDP"
+            });
+
+            _selectedLayoutAlgorithmType = "EfficientSugiyama";
+
             OctopusApiKey = ConfigurationManager.AppSettings["OctopusApiKey"];
             OctopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
         }
 
-        private bool _loading;
-        public bool Loading
+        private bool _isLoadingData;
+        public bool IsLoadingData
         {
-            get { return _loading; }
+            get { return _isLoadingData; }
             set
             {
-                _loading = value;
-                NotifyOfPropertyChange(() => Loading);
+                if (value == _isLoadingData) return;
+                _isLoadingData = value;
+                NotifyOfPropertyChange(() => IsLoadingData);
             }
         }
 
@@ -48,6 +66,7 @@ namespace OctopusPuppet.Gui.ViewModels
             get { return _branches; }
             set
             {
+                if (value == _branches) return;
                 _branches = value;
                 BranchDeploymentBranches = value;
             }
@@ -59,6 +78,7 @@ namespace OctopusPuppet.Gui.ViewModels
             get { return _environments; }
             set
             {
+                if (value == _environments) return;
                 _environments = value;
 
                 BranchDeploymentEnvironments = value;
@@ -74,6 +94,7 @@ namespace OctopusPuppet.Gui.ViewModels
             get { return _deploymentPlans; }
             set
             {
+                if (value == _deploymentPlans) return;
                 _deploymentPlans = value;
                 NotifyOfPropertyChange(() => DeploymentPlans);
             }
@@ -85,6 +106,7 @@ namespace OctopusPuppet.Gui.ViewModels
             get { return _graph; }
             private set
             {
+                if (value == _graph) return;
                 _graph = value;
                 NotifyOfPropertyChange(() => Graph);
             }
@@ -96,6 +118,7 @@ namespace OctopusPuppet.Gui.ViewModels
             get { return _products; }
             private set
             {
+                if (value == _products) return;
                 _products = value;
                 NotifyOfPropertyChange(() => Products);
             }
@@ -103,28 +126,34 @@ namespace OctopusPuppet.Gui.ViewModels
 
         private void GetBranchesAndEnvironments()
         {
-            Loading = true;
             if (!string.IsNullOrEmpty(_octopusUrl) && !string.IsNullOrEmpty(_octopusApiKey))
             {
-                try
+                IsLoadingData = true;
+                Task.Factory.StartNew(() =>
                 {
-                    var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
+                    try
+                    {
+                        var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
 
-                    Branches = deploymentPlanner.GetBranches();
-                    Environments = deploymentPlanner.GetEnvironments();
-                }
-                catch
+                        Branches = deploymentPlanner.GetBranches();
+                        Environments = deploymentPlanner.GetEnvironments();
+                    }
+                    catch
+                    {
+                        Branches = new List<string>();
+                        Environments = new List<string>();                  
+                    }
+                }).ContinueWith(task => 
                 {
-                    Branches = new List<string>();
-                    Environments = new List<string>();                  
-                }
+                    IsLoadingData = false;
+                });
             }
             else
             {
                 Branches = new List<string>();
                 Environments = new List<string>();
             }
-            Loading = false;
+            
         }
 
         private string _octopusApiKey;
@@ -133,6 +162,7 @@ namespace OctopusPuppet.Gui.ViewModels
             get { return _octopusApiKey; }
             set
             {
+                if (value == _octopusApiKey) return;
                 _octopusApiKey = value;
 
                 GetBranchesAndEnvironments();
@@ -151,6 +181,7 @@ namespace OctopusPuppet.Gui.ViewModels
             get { return _octopusUrl; }
             set
             {
+                if (value == _octopusUrl) return;
                 _octopusUrl = value;
 
                 GetBranchesAndEnvironments();
@@ -169,6 +200,7 @@ namespace OctopusPuppet.Gui.ViewModels
             get { return _branchDeploymentBranches; }
             private set
             {
+                if (value == _branchDeploymentBranches) return;
                 _branchDeploymentBranches = value;
                 NotifyOfPropertyChange(() => BranchDeploymentBranches);
             }
@@ -180,6 +212,7 @@ namespace OctopusPuppet.Gui.ViewModels
             get { return _selectedBranchDeploymentBranch; }
             set
             {
+                if (value == _selectedBranchDeploymentBranch) return;
                 _selectedBranchDeploymentBranch = value;
                 NotifyOfPropertyChange(() => SelectedBranchDeploymentBranch);
 
@@ -193,6 +226,7 @@ namespace OctopusPuppet.Gui.ViewModels
             get { return _branchDeploymentEnvironments; }
             private set
             {
+                if (value == _branchDeploymentEnvironments) return;
                 _branchDeploymentEnvironments = value;
                 NotifyOfPropertyChange(() => BranchDeploymentEnvironments);
             }
@@ -204,6 +238,7 @@ namespace OctopusPuppet.Gui.ViewModels
             get { return _selectedBranchDeploymentEnvironment; }
             set
             {
+                if (value == _selectedBranchDeploymentEnvironment) return;
                 _selectedBranchDeploymentEnvironment = value;
                 NotifyOfPropertyChange(() => SelectedBranchDeploymentEnvironment);
 
@@ -217,6 +252,7 @@ namespace OctopusPuppet.Gui.ViewModels
             get { return _redeploymentEnvironments; }
             private set
             {
+                if (value == _redeploymentEnvironments) return;
                 _redeploymentEnvironments = value;
                 NotifyOfPropertyChange(() => RedeploymentEnvironments);
             }
@@ -228,6 +264,7 @@ namespace OctopusPuppet.Gui.ViewModels
             get { return _selectedRedeploymentEnvironment; }
             set
             {
+                if (value == _selectedRedeploymentEnvironment) return;
                 _selectedRedeploymentEnvironment = value;
                 NotifyOfPropertyChange(() => SelectedRedeploymentEnvironment);
 
@@ -241,6 +278,7 @@ namespace OctopusPuppet.Gui.ViewModels
             get { return _environmentMirrorFromEnvironments; }
             private set
             {
+                if (value == _environmentMirrorFromEnvironments) return;
                 _environmentMirrorFromEnvironments = value;
                 NotifyOfPropertyChange(() => EnvironmentMirrorFromEnvironments);
             }
@@ -252,6 +290,7 @@ namespace OctopusPuppet.Gui.ViewModels
             get { return _selectedEnvironmentMirrorFromEnvironment; }
             set
             {
+                if (value == _selectedEnvironmentMirrorFromEnvironment) return;
                 _selectedEnvironmentMirrorFromEnvironment = value;
                 NotifyOfPropertyChange(() => SelectedEnvironmentMirrorFromEnvironment);
 
@@ -265,6 +304,7 @@ namespace OctopusPuppet.Gui.ViewModels
             get { return _environmentMirrorToEnvironments; }
             private set
             {
+                if (value == _environmentMirrorToEnvironments) return;
                 _environmentMirrorToEnvironments = value;
                 NotifyOfPropertyChange(() => EnvironmentMirrorToEnvironments);
             }
@@ -276,6 +316,7 @@ namespace OctopusPuppet.Gui.ViewModels
             get { return _selectedEnvironmentMirrorToEnvironment; }
             set
             {
+                if (value == _selectedEnvironmentMirrorToEnvironment) return;
                 _selectedEnvironmentMirrorToEnvironment = value;
                 NotifyOfPropertyChange(() => SelectedEnvironmentMirrorToEnvironment);
 
@@ -297,24 +338,32 @@ namespace OctopusPuppet.Gui.ViewModels
         public void BranchDeployment()
         {
             if (!CanBranchDeployment) return;
-            Loading = true;
-            try
-            {
-                var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
-                var branchDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(_selectedBranchDeploymentEnvironment, _selectedBranchDeploymentBranch);
-                DeploymentPlans = branchDeploymentPlans.DeploymentPlans;
 
-                var deploymentScheduler = new DeploymentScheduler();
-
-                var componentGraph = deploymentScheduler.GetDeploymentComponentGraph(DeploymentPlans);
-                Graph = componentGraph.ToBidirectionalGraph();
-                Products = deploymentScheduler.GetDeploymentSchedule(componentGraph);
-            }
-            catch
+            IsLoadingData = true;
+            Task.Factory.StartNew(() =>
             {
-                DeploymentPlans = new List<DeploymentPlan>();
-            }
-            Loading = false;
+                try
+                {
+                    var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
+                    var branchDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(_selectedBranchDeploymentEnvironment, _selectedBranchDeploymentBranch);
+                    DeploymentPlans = branchDeploymentPlans.DeploymentPlans;
+
+                    var deploymentScheduler = new DeploymentScheduler();
+
+                    var componentGraph = deploymentScheduler.GetDeploymentComponentGraph(DeploymentPlans);
+                    Graph = componentGraph.ToBidirectionalGraph();
+                    Products = deploymentScheduler.GetDeploymentSchedule(componentGraph);
+                }
+                catch
+                {
+                    DeploymentPlans = new List<DeploymentPlan>();
+                    Graph = null;
+                    Products = new List<List<ComponentGroupVertex>>();
+                }
+            }).ContinueWith(task =>
+            {
+                IsLoadingData = false;
+            });
         }
 
         public bool CanRedeployment
@@ -330,23 +379,31 @@ namespace OctopusPuppet.Gui.ViewModels
         public void Redeployment()
         {
             if (!CanRedeployment) return;
-            Loading = true;
-            try
-            {
-                var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
-                var redeployDeploymentPlans = deploymentPlanner.GetRedeployDeploymentPlans(_selectedRedeploymentEnvironment);
-                DeploymentPlans = redeployDeploymentPlans.DeploymentPlans;
 
-                var deploymentScheduler = new DeploymentScheduler();
-                var componentGraph = deploymentScheduler.GetDeploymentComponentGraph(DeploymentPlans);
-                Graph = componentGraph.ToBidirectionalGraph();
-                Products = deploymentScheduler.GetDeploymentSchedule(componentGraph);
-            }
-            catch
+            IsLoadingData = true;
+            Task.Factory.StartNew(() =>
             {
-                DeploymentPlans = new List<DeploymentPlan>();
-            }
-            Loading = false;
+                try
+                {
+                    var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
+                    var redeployDeploymentPlans = deploymentPlanner.GetRedeployDeploymentPlans(_selectedRedeploymentEnvironment);
+                    DeploymentPlans = redeployDeploymentPlans.DeploymentPlans;
+
+                    var deploymentScheduler = new DeploymentScheduler();
+                    var componentGraph = deploymentScheduler.GetDeploymentComponentGraph(DeploymentPlans);
+                    Graph = componentGraph.ToBidirectionalGraph();
+                    Products = deploymentScheduler.GetDeploymentSchedule(componentGraph);
+                }
+                catch
+                {
+                    DeploymentPlans = new List<DeploymentPlan>();
+                    Graph = null;
+                    Products = new List<List<ComponentGroupVertex>>();
+                }
+            }).ContinueWith(task =>
+            {
+                IsLoadingData = false;
+            });
         }
 
         public bool CanEnvironmentMirror
@@ -363,24 +420,56 @@ namespace OctopusPuppet.Gui.ViewModels
         public void EnvironmentMirror()
         {
             if (!CanEnvironmentMirror) return;
-            Loading = true;
-            try
-            {
-                var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
-                var environmentMirrorDeploymentPlans = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(_selectedEnvironmentMirrorFromEnvironment, _selectedEnvironmentMirrorToEnvironment);
 
-                DeploymentPlans = environmentMirrorDeploymentPlans.DeploymentPlans;
-
-                var deploymentScheduler = new DeploymentScheduler();
-                var componentGraph = deploymentScheduler.GetDeploymentComponentGraph(DeploymentPlans);
-                Graph = componentGraph.ToBidirectionalGraph();
-                Products = deploymentScheduler.GetDeploymentSchedule(componentGraph);
-            }
-            catch
+            IsLoadingData = true;
+            Task.Factory.StartNew(() =>
             {
-                DeploymentPlans = new List<DeploymentPlan>();
+                try
+                {
+                    var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
+                    var environmentMirrorDeploymentPlans = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(_selectedEnvironmentMirrorFromEnvironment, _selectedEnvironmentMirrorToEnvironment);
+
+                    DeploymentPlans = environmentMirrorDeploymentPlans.DeploymentPlans;
+
+                    var deploymentScheduler = new DeploymentScheduler();
+                    var componentGraph = deploymentScheduler.GetDeploymentComponentGraph(DeploymentPlans);
+                    Graph = componentGraph.ToBidirectionalGraph();
+                    Products = deploymentScheduler.GetDeploymentSchedule(componentGraph);
+                }
+                catch
+                {
+                    DeploymentPlans = new List<DeploymentPlan>();
+                    Graph = null;
+                    Products = new List<List<ComponentGroupVertex>>();
+                }
+            }).ContinueWith(task =>
+            {
+                IsLoadingData = false;
+            });
+        }
+
+        private List<string> _layoutAlgorithmTypes;
+        public List<string> LayoutAlgorithmTypes
+        {
+            get { return _layoutAlgorithmTypes; }
+            set
+            {
+                if (value == _layoutAlgorithmTypes) return;
+                _layoutAlgorithmTypes = value;
+                NotifyOfPropertyChange(() => LayoutAlgorithmTypes);
             }
-            Loading = false;
+        }
+
+        private string _selectedLayoutAlgorithmType;
+        public string SelectedLayoutAlgorithmType
+        {
+            get { return _selectedLayoutAlgorithmType; }
+            set
+            {
+                if (value == _selectedLayoutAlgorithmType) return;
+                _selectedLayoutAlgorithmType = value;
+                NotifyOfPropertyChange(() => SelectedLayoutAlgorithmType);
+            }
         }
     }
 }
