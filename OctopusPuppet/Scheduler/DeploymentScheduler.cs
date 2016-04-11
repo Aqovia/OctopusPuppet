@@ -20,15 +20,25 @@ namespace OctopusPuppet.Scheduler
             }
 
             var componentEdges = new List<ComponentDeploymentEdge>();
+
             foreach (var componentDependancy in environmentDeploymentPlan.DeploymentPlans)
             {
-                var source = componentVertices[componentDependancy.Name];
-
                 if (componentDependancy.ComponentFrom == null) continue;
+
+                var source = componentVertices[componentDependancy.Name];
 
                 foreach (var dependancy in componentDependancy.ComponentFrom.Dependancies)
                 {
-                    var target = componentVertices[dependancy];
+                    ComponentDeploymentVertex target;
+                    var targetExists = componentVertices.TryGetValue(dependancy, out target);
+
+                    if (!targetExists)
+                    {
+                        //The dependancy points to a vertex that does not exist (spelling mistake/dependant components have changed their name/component dependancies have changed)
+                        target = new ComponentDeploymentVertex(dependancy, string.Empty, PlanAction.Skip, null, false);
+                        componentVertices.Add(componentDependancy.Name, target);
+                    }
+                    
                     var componentEdge = new ComponentDeploymentEdge(source, target);
                     componentEdges.Add(componentEdge);
                 }
