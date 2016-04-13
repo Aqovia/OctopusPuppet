@@ -36,7 +36,7 @@ namespace OctopusPuppet.Scheduler
                     {
                         //The dependancy points to a vertex that does not exist (spelling mistake/dependant components have changed their name/component dependancies have changed)
                         target = new ComponentDeploymentVertex(dependancy, string.Empty, PlanAction.Skip, null, false);
-                        componentVertices.Add(componentDependancy.Name, target);
+                        componentVertices.Add(dependancy, target);
                     }
                     
                     var componentEdge = new ComponentDeploymentEdge(source, target);

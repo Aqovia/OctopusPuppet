@@ -20,8 +20,15 @@
     <SolidColorBrush x:Key="SemiHighlightedOutEdgeBrush" Color="#FFD6A51C" />
 
     <DataTemplate DataType="{x:Type scheduler:ComponentDeploymentVertex}">
-        <TextBlock Text="{Binding Mode=OneWay}" />
+        <TextBlock Name="VertexName"  Text="{Binding Mode=OneWay}" />
+
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding Path=Exists}" Value="false">
+                <Setter TargetName="VertexName" Property="Background" Value="Red"/>
+            </DataTrigger>            
+        </DataTemplate.Triggers>
     </DataTemplate>
+    
 
     <!-- VERTEX CONTROL -->
     <Style TargetType="{x:Type GraphSharp_Controls:VertexControl}">
