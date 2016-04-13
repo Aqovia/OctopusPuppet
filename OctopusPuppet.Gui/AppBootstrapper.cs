@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Windows;
 using Caliburn.Micro;
 using OctopusPuppet.Gui.ViewModels;
 
@@ -13,7 +14,14 @@ namespace OctopusPuppet.Gui
 
         protected override void OnStartup(object sender, StartupEventArgs e)
         {
-            DisplayRootViewFor<DeploymentPlannerViewModel>();
+            var settings = new Dictionary<string, object>
+               {
+                   { "SizeToContent", SizeToContent.Manual },
+                   { "Height" , 768  },
+                   { "Width"  , 768 },
+               };
+
+            DisplayRootViewFor<DeploymentPlannerViewModel>(settings);
         }
     }
 }
