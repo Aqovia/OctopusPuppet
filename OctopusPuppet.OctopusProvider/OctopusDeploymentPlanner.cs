@@ -272,7 +272,8 @@ namespace OctopusPuppet.OctopusProvider
             var environmentDeploymentPlan = new EnvironmentDeploymentPlans
             {
                 EnvironmentFromId = environmentFromId,
-                EnvironmentToId = environmentToId
+                EnvironmentToId = environmentToId,
+                EnvironmentDeploymentPlan = new EnvironmentDeploymentPlan(new List<ComponentDeploymentPlan>())
             };
 
             foreach (var dashboardProjectResource in dashboard.Projects)
