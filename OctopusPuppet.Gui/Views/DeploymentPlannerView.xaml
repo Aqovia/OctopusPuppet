@@ -8,8 +8,10 @@
              xmlns:views="clr-namespace:OctopusPuppet.Gui.Views"
              xmlns:scheduler="clr-namespace:OctopusPuppet.Scheduler;assembly=OctopusPuppet"
              xmlns:generic="clr-namespace:System.Collections.Generic;assembly=mscorlib"
+             xmlns:viewModels="clr-namespace:OctopusPuppet.Gui.ViewModels"
              mc:Ignorable="d" 
-             d:DesignHeight="768" d:DesignWidth="768">
+             d:DesignHeight="768" d:DesignWidth="768"
+             d:DataContext="{d:DesignInstance viewModels:DeploymentPlannerViewModel}">
     <xctk:BusyIndicator IsBusy="{Binding IsLoadingData}">
         <Grid>
             <DockPanel
@@ -17,99 +19,133 @@
                 VerticalAlignment="Stretch" 
                 Height="Auto" 
                 Margin="10">
-                <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="False" Margin="5" DockPanel.Dock="Top" >
-                    <GroupBox Header="Octopus" Margin="10">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
 
-                            <Label Grid.Column="0" HorizontalAlignment="left" VerticalAlignment="Center" Content="Api Key"/>
-                            <TextBox Name="OctopusApiKey" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="10 3" MinWidth="200" ></TextBox>
-                            <Label Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Url"/>
-                            <TextBox Name="OctopusUrl" Grid.Column="3" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="10 3" MinWidth="200" ></TextBox>
-                        </Grid>
-                    </GroupBox>
-                    <Separator />
-                    <GroupBox Header="Branch Deployment" Margin="10">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
+                <Expander Header="Settings" IsExpanded="True" DockPanel.Dock="Top">
+                    <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="False" Margin="5">
+                        <GroupBox Header="Octopus" Margin="10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
 
-                            <Label Grid.Column="0" HorizontalAlignment="left" VerticalAlignment="Center" Content="Branch"/>
-                            <ComboBox Grid.Column="1" x:Name="BranchDeploymentBranches" SelectedItem="{Binding SelectedBranchDeploymentBranch}" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="10 3" MinWidth="150"/>
+                                <Label Grid.Column="0" HorizontalAlignment="left" VerticalAlignment="Center" Content="Api Key"/>
+                                <TextBox Name="OctopusApiKey" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="10 3" MinWidth="200" ></TextBox>
+                                <Label Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Url"/>
+                                <TextBox Name="OctopusUrl" Grid.Column="3" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="10 3" MinWidth="200" ></TextBox>
+                            </Grid>
+                        </GroupBox>
+                        <Separator />
+                        <GroupBox Header="Branch Deployment" Margin="10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
 
-                            <Label Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Content="To"/>
-                            <ComboBox Grid.Column="3" x:Name="BranchDeploymentEnvironments" SelectedItem="{Binding SelectedBranchDeploymentEnvironment}" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"/>
+                                <Label Grid.Column="0" HorizontalAlignment="left" VerticalAlignment="Center" Content="Branch"/>
+                                <ComboBox Grid.Column="1" x:Name="BranchDeploymentBranches" SelectedItem="{Binding SelectedBranchDeploymentBranch}" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="10 3" MinWidth="150"/>
 
-                            <Button Grid.Column="4" x:Name="BranchDeployment" Content="Settings" HorizontalAlignment="left" VerticalAlignment="Center" Margin="10" Padding="10 3" />
-                        </Grid>
-                    </GroupBox>
-                    <GroupBox Header="Redeployment" Margin="10">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
+                                <Label Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Content="To"/>
+                                <ComboBox Grid.Column="3" x:Name="BranchDeploymentEnvironments" SelectedItem="{Binding SelectedBranchDeploymentEnvironment}" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"/>
 
-                            <Label Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Content="Environment"/>
-                            <ComboBox Grid.Column="1" x:Name="RedeploymentEnvironments" SelectedItem="{Binding SelectedRedeploymentEnvironment}" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150" Padding="10 3" />
+                                <Button Grid.Column="4" x:Name="BranchDeployment" Content="Settings" HorizontalAlignment="left" VerticalAlignment="Center" Margin="10" Padding="10 3" />
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox Header="Redeployment" Margin="10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
 
-                            <Button Grid.Column="4" x:Name="Redeployment" Content="Settings" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10" Padding="10 3"/>
-                        </Grid>
-                    </GroupBox>
-                    <GroupBox Header="Copy Environment" Margin="10">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Content="Environment"/>
+                                <ComboBox Grid.Column="1" x:Name="RedeploymentEnvironments" SelectedItem="{Binding SelectedRedeploymentEnvironment}" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150" Padding="10 3" />
 
-                            <Label Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Content="From"/>
-                            <ComboBox Grid.Column="1" x:Name="EnvironmentMirrorFromEnvironments" SelectedItem="{Binding SelectedEnvironmentMirrorFromEnvironment}" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"/>
+                                <Button Grid.Column="4" x:Name="Redeployment" Content="Settings" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10" Padding="10 3"/>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox Header="Copy Environment" Margin="10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
 
-                            <Label Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Content="To"/>
-                            <ComboBox Grid.Column="3" x:Name="EnvironmentMirrorToEnvironments" SelectedItem="{Binding SelectedEnvironmentMirrorToEnvironment}" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"/>
+                                <Label Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Content="From"/>
+                                <ComboBox Grid.Column="1" x:Name="EnvironmentMirrorFromEnvironments" SelectedItem="{Binding SelectedEnvironmentMirrorFromEnvironment}" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"/>
 
-                            <Button Grid.Column="4" x:Name="EnvironmentMirror" Content="Settings" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10" Padding="10 3"/>
-                        </Grid>
-                    </GroupBox>
-                    <Separator />
-                </StackPanel>
-                <GroupBox Header="Deployment Plan" Padding="5" Margin="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-                    <DockPanel>
-                        <DockPanel VerticalAlignment="Top" HorizontalAlignment="Right" DockPanel.Dock="Top">
-                            <Label HorizontalAlignment="Right" VerticalAlignment="Center" Content="Layout"/>
-                            <ComboBox x:Name="LayoutAlgorithmTypes" SelectedItem="{Binding SelectedLayoutAlgorithmType}" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"/>
+                                <Label Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Content="To"/>
+                                <ComboBox Grid.Column="3" x:Name="EnvironmentMirrorToEnvironments" SelectedItem="{Binding SelectedEnvironmentMirrorToEnvironment}" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"/>
+
+                                <Button Grid.Column="4" x:Name="EnvironmentMirror" Content="Settings" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10" Padding="10 3"/>
+                            </Grid>
+                        </GroupBox>
+                        <Separator />
+                    </StackPanel>
+                </Expander>
+
+                <GroupBox Header="Deployment Plan" Padding="5" Margin="10">
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="5" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <DockPanel>
+                            <DockPanel VerticalAlignment="Top" HorizontalAlignment="Right" DockPanel.Dock="Top">
+                                <Label HorizontalAlignment="Right" VerticalAlignment="Center" Content="Layout"/>
+                                <ComboBox x:Name="LayoutAlgorithmTypes" SelectedItem="{Binding SelectedLayoutAlgorithmType}" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"/>
+                            </DockPanel>
+                            <controls:ZoomControl>
+                                <views:ComponentGraphLayout x:Name="layout"
+                                          LayoutAlgorithmType="{Binding SelectedLayoutAlgorithmType, Mode=OneWay}"
+                                          OverlapRemovalAlgorithmType="FSA"
+                                          Graph="{Binding Graph, Mode=OneWay}"
+                                          AsyncCompute="true"
+                                          ShowAllStates="false"
+                                          HighlightAlgorithmType="Simple"/>
+                            </controls:ZoomControl>
                         </DockPanel>
-                        <controls:ZoomControl>
-                            <views:ComponentGraphLayout x:Name="layout"
-                                      LayoutAlgorithmType="{Binding SelectedLayoutAlgorithmType, Mode=OneWay}"
-                                      OverlapRemovalAlgorithmType="FSA"
-                                      Graph="{Binding Graph, Mode=OneWay}"
-                                      AsyncCompute="true"
-                                      ShowAllStates="false"
-                                      HighlightAlgorithmType="Simple"/>
-                        </controls:ZoomControl>
-                        <DockPanel VerticalAlignment="Top" HorizontalAlignment="Stretch" DockPanel.Dock="Bottom">
-                           
+                        <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" />
+                        <DockPanel Grid.Row="2">
+                            <Label HorizontalAlignment="Right" VerticalAlignment="Center" Content="" DockPanel.Dock="Top"/>
+                            <TreeView ItemsSource="{Binding EnvironmentDeployment.ProductDeployments}">
+                                <TreeView.Resources>
+                                    <HierarchicalDataTemplate DataType="{x:Type scheduler:ProductDeployment}" ItemsSource="{Binding DeploymentSteps}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Product Deployment Plan - " />
+                                            <TextBlock Text="{Binding DeploymentDuration}" />
+                                        </StackPanel>
+                                    </HierarchicalDataTemplate>
+                                    <HierarchicalDataTemplate DataType="{x:Type scheduler:ProductDeploymentStep}" ItemsSource="{Binding ComponentDeployments}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Product Deployment Step - " />
+                                            <TextBlock Text="{Binding ExecutionOrder}" />
+                                        </StackPanel>
+                                    </HierarchicalDataTemplate>
+                                    <DataTemplate DataType="{x:Type scheduler:ComponentDeploymentVertex}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Component Deployment Vertex - " />
+                                            <TextBlock Text="{Binding Name}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </TreeView.Resources>
+                            </TreeView>
                         </DockPanel>
-                    </DockPanel>
+                    </Grid>
                 </GroupBox>
             </DockPanel>
         </Grid>
