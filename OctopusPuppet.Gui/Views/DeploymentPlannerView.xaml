@@ -9,9 +9,17 @@
              xmlns:scheduler="clr-namespace:OctopusPuppet.Scheduler;assembly=OctopusPuppet"
              xmlns:generic="clr-namespace:System.Collections.Generic;assembly=mscorlib"
              xmlns:viewModels="clr-namespace:OctopusPuppet.Gui.ViewModels"
+             xmlns:deploymentPlanner="clr-namespace:OctopusPuppet.DeploymentPlanner;assembly=OctopusPuppet"
              mc:Ignorable="d" 
              d:DesignHeight="768" d:DesignWidth="768"
              d:DataContext="{d:DesignInstance viewModels:DeploymentPlannerViewModel}">
+    <UserControl.Resources>
+        <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type deploymentPlanner:PlanAction}" x:Key="PlanActionTypeValues">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="deploymentPlanner:PlanAction" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </UserControl.Resources>
     <xctk:BusyIndicator IsBusy="{Binding IsLoadingData}">
         <Grid>
             <DockPanel
@@ -132,14 +140,17 @@
                                     </HierarchicalDataTemplate>
                                     <HierarchicalDataTemplate DataType="{x:Type scheduler:ProductDeploymentStep}" ItemsSource="{Binding ComponentDeployments}">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="Product Deployment Step - " />
+                                            <TextBlock Text="Step - " />
                                             <TextBlock Text="{Binding ExecutionOrder}" />
+                                            <TextBlock Text=" - " />
+                                            <TextBlock Text="{Binding DeploymentDuration}" />
                                         </StackPanel>
                                     </HierarchicalDataTemplate>
                                     <DataTemplate DataType="{x:Type scheduler:ComponentDeploymentVertex}">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="Component Deployment Vertex - " />
-                                            <TextBlock Text="{Binding Name}" />
+                                            <TextBlock Text="Deploy - " />
+                                            <TextBlock Text="{Binding}" />
+                                            <ComboBox SelectedItem="{Binding Action, Mode=TwoWay}" ItemsSource="{Binding Source={StaticResource PlanActionTypeValues}}"/>
                                         </StackPanel>
                                     </DataTemplate>
                                 </TreeView.Resources>

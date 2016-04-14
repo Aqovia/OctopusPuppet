@@ -9,7 +9,7 @@ namespace OctopusPuppet.Scheduler
     {
         public string Name { get; private set; }
         public string Version { get; private set; }
-        public PlanAction Action { get; private set; }
+        public PlanAction Action { get; set; }
         public TimeSpan? DeploymentDuration { get; set; }
         public bool Exists { get; set; }
 
