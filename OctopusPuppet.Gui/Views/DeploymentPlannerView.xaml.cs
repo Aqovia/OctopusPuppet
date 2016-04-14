@@ -10,6 +10,7 @@ namespace OctopusPuppet.Gui.Views
         public DeploymentPlannerView()
         {
             InitializeComponent();
+            EnvironmentDeploymentTreeList.HiearchyFlattener = new EnvironmentDeploymentHiearchyFlattener();
         }
     }
 }

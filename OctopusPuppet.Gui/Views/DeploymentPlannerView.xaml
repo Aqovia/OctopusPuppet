@@ -10,7 +10,11 @@
              xmlns:generic="clr-namespace:System.Collections.Generic;assembly=mscorlib"
              xmlns:viewModels="clr-namespace:OctopusPuppet.Gui.ViewModels"
              xmlns:deploymentPlanner="clr-namespace:OctopusPuppet.DeploymentPlanner;assembly=OctopusPuppet"
-             mc:Ignorable="d" 
+             
+            xmlns:sd="http://icsharpcode.net/sharpdevelop/treeview"
+            xmlns:tree="clr-namespace:Aga.Controls.Tree;assembly=Aga.Controls"
+
+            mc:Ignorable="d" 
              d:DesignHeight="768" d:DesignWidth="768"
              d:DataContext="{d:DesignInstance viewModels:DeploymentPlannerViewModel}">
     <UserControl.Resources>
@@ -130,31 +134,138 @@
                         <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" />
                         <DockPanel Grid.Row="2">
                             <Label HorizontalAlignment="Right" VerticalAlignment="Center" Content="" DockPanel.Dock="Top"/>
-                            <TreeView ItemsSource="{Binding EnvironmentDeployment.ProductDeployments}">
-                                <TreeView.Resources>
-                                    <HierarchicalDataTemplate DataType="{x:Type scheduler:ProductDeployment}" ItemsSource="{Binding DeploymentSteps}">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="Product Deployment Plan - " />
-                                            <TextBlock Text="{Binding DeploymentDuration}" />
-                                        </StackPanel>
-                                    </HierarchicalDataTemplate>
-                                    <HierarchicalDataTemplate DataType="{x:Type scheduler:ProductDeploymentStep}" ItemsSource="{Binding ComponentDeployments}">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="Step - " />
-                                            <TextBlock Text="{Binding ExecutionOrder}" />
-                                            <TextBlock Text=" - " />
-                                            <TextBlock Text="{Binding DeploymentDuration}" />
-                                        </StackPanel>
-                                    </HierarchicalDataTemplate>
-                                    <DataTemplate DataType="{x:Type scheduler:ComponentDeploymentVertex}">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="Deploy - " />
-                                            <TextBlock Text="{Binding}" />
-                                            <ComboBox SelectedItem="{Binding Action, Mode=TwoWay}" ItemsSource="{Binding Source={StaticResource PlanActionTypeValues}}"/>
-                                        </StackPanel>
+
+                            <tree:TreeList Name="EnvironmentDeploymentTreeList" Model="{Binding EnvironmentDeployment}" HorizontalAlignment="Stretch" tree:GridViewColumnResize.Enabled="True">
+                                <tree:TreeList.ItemTemplate>
+                                    <DataTemplate>
+                                        <ContentControl Content="{Binding}">
+                                            <ContentControl.Resources>
+                                                <HierarchicalDataTemplate DataType="{x:Type scheduler:ProductDeployment}" ItemsSource="{Binding DeploymentSteps}">
+                                                </HierarchicalDataTemplate>
+                                                <HierarchicalDataTemplate DataType="{x:Type scheduler:ProductDeploymentStep}" ItemsSource="{Binding ComponentDeployments}">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <tree:RowExpander/>
+                                                        <TextBlock Text="Step - " />
+                                                        <TextBlock Text="{Binding ExecutionOrder}" />
+                                                    </StackPanel>
+                                                </HierarchicalDataTemplate>
+                                                <DataTemplate DataType="{x:Type scheduler:ComponentDeploymentVertex}">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <tree:RowExpander/>
+                                                        <TextBlock Text="{Binding Name}" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ContentControl.Resources>
+                                        </ContentControl>
                                     </DataTemplate>
-                                </TreeView.Resources>
-                            </TreeView>
+                                </tree:TreeList.ItemTemplate>
+                                <tree:TreeList.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Name" tree:GridViewColumnResize.Width="*">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <ContentControl Content="{Binding}">
+                                                        <ContentControl.Resources>
+                                                            <HierarchicalDataTemplate DataType="{x:Type scheduler:ProductDeployment}" ItemsSource="{Binding DeploymentSteps}">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <tree:RowExpander/>
+                                                                    <TextBlock Text="Product" HorizontalAlignment="Stretch" />
+                                                                </StackPanel>
+                                                            </HierarchicalDataTemplate>
+                                                            <HierarchicalDataTemplate DataType="{x:Type scheduler:ProductDeploymentStep}" ItemsSource="{Binding ComponentDeployments}">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <tree:RowExpander/>
+                                                                    <TextBlock Text="Step - " />
+                                                                    <TextBlock Text="{Binding ExecutionOrder}" />
+                                                                </StackPanel>
+                                                            </HierarchicalDataTemplate>
+                                                            <DataTemplate DataType="{x:Type scheduler:ComponentDeploymentVertex}">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <tree:RowExpander/>
+                                                                    <TextBlock Text="{Binding Name}" />
+                                                                </StackPanel>
+                                                            </DataTemplate>
+                                                        </ContentControl.Resources>
+                                                    </ContentControl>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Version" Width="125">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <ContentControl Content="{Binding}">
+                                                        <ContentControl.Resources>
+                                                            <HierarchicalDataTemplate DataType="{x:Type scheduler:ProductDeployment}" ItemsSource="{Binding DeploymentSteps}">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    
+                                                                </StackPanel>
+                                                            </HierarchicalDataTemplate>
+                                                            <HierarchicalDataTemplate DataType="{x:Type scheduler:ProductDeploymentStep}" ItemsSource="{Binding ComponentDeployments}">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    
+                                                                </StackPanel>
+                                                            </HierarchicalDataTemplate>
+                                                            <DataTemplate DataType="{x:Type scheduler:ComponentDeploymentVertex}">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <TextBlock Text="{Binding Version}" />
+                                                                </StackPanel>
+                                                            </DataTemplate>
+                                                        </ContentControl.Resources>
+                                                    </ContentControl>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Duration" Width="125">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <ContentControl Content="{Binding}">
+                                                        <ContentControl.Resources>
+                                                            <HierarchicalDataTemplate DataType="{x:Type scheduler:ProductDeployment}" ItemsSource="{Binding DeploymentSteps}">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <TextBlock Text="{Binding DeploymentDuration}" />
+                                                                </StackPanel>
+                                                            </HierarchicalDataTemplate>
+                                                            <HierarchicalDataTemplate DataType="{x:Type scheduler:ProductDeploymentStep}" ItemsSource="{Binding ComponentDeployments}">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <TextBlock Text="{Binding DeploymentDuration}" />
+                                                                </StackPanel>
+                                                            </HierarchicalDataTemplate>
+                                                            <DataTemplate DataType="{x:Type scheduler:ComponentDeploymentVertex}">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <TextBlock Text="{Binding DeploymentDuration}" />
+                                                                </StackPanel>
+                                                            </DataTemplate>
+                                                        </ContentControl.Resources>
+                                                    </ContentControl>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Action" Width="125">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <ContentControl Content="{Binding}">
+                                                        <ContentControl.Resources>
+                                                            <HierarchicalDataTemplate DataType="{x:Type scheduler:ProductDeployment}" ItemsSource="{Binding DeploymentSteps}">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                </StackPanel>
+                                                            </HierarchicalDataTemplate>
+                                                            <HierarchicalDataTemplate DataType="{x:Type scheduler:ProductDeploymentStep}" ItemsSource="{Binding ComponentDeployments}">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                </StackPanel>
+                                                            </HierarchicalDataTemplate>
+                                                            <DataTemplate DataType="{x:Type scheduler:ComponentDeploymentVertex}">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <ComboBox SelectedItem="{Binding Action, Mode=TwoWay}" ItemsSource="{Binding Source={StaticResource PlanActionTypeValues}}"/>
+                                                                </StackPanel>
+                                                            </DataTemplate>
+                                                        </ContentControl.Resources>
+                                                    </ContentControl>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>                                            
+                                        </GridViewColumn>
+                                    </GridView>
+                                </tree:TreeList.View>
+                            </tree:TreeList>
                         </DockPanel>
                     </Grid>
                 </GroupBox>

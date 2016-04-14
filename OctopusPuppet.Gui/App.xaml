@@ -6,7 +6,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Views/ComponentGraphDataTemplates.xaml" />
-                <ResourceDictionary Source="Views/ComponentGroupDataTemplates.xaml" />
+                
                 <ResourceDictionary>
                     <gui:AppBootstrapper x:Key="bootstrapper"/>
                 </ResourceDictionary>
