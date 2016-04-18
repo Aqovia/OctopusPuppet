@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Threading.Tasks;
 using Caliburn.Micro;
+using Microsoft.Win32;
+using Newtonsoft.Json;
 using OctopusPuppet.DeploymentPlanner;
 using OctopusPuppet.OctopusProvider;
 using OctopusPuppet.Scheduler;
@@ -470,6 +473,37 @@ namespace OctopusPuppet.Gui.ViewModels
                 _selectedLayoutAlgorithmType = value;
                 NotifyOfPropertyChange(() => SelectedLayoutAlgorithmType);
             }
+        }
+
+        public void SaveJson()
+        {
+            var saveFileDialog = new SaveFileDialog
+            {
+                DefaultExt = "json",
+                Filter =  "Text files (*.json)|*.json|All files (*.*)|*.*"
+            };
+            if (saveFileDialog.ShowDialog() != true) return;
+            var json = JsonConvert.SerializeObject(EnvironmentDeployment, Formatting.Indented);
+            File.WriteAllText(saveFileDialog.FileName, json);
+        }
+
+        public void LoadJson()
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                DefaultExt = "json",
+                Filter = "Text files (*.json)|*.json|All files (*.*)|*.*"
+            };
+            if (openFileDialog.ShowDialog() != true) return;
+
+            var json = File.ReadAllText(openFileDialog.FileName);
+            var environmentDeployment = JsonConvert.DeserializeObject<EnvironmentDeployment>(json);
+            EnvironmentDeployment = environmentDeployment;
+        }
+
+        public void ExecuteEnvironmentDeployment()
+        {
+
         }
     }
 }

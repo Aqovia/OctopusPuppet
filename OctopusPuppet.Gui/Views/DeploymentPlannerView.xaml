@@ -133,8 +133,12 @@
                         </DockPanel>
                         <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" />
                         <DockPanel Grid.Row="2">
-                            <Label HorizontalAlignment="Right" VerticalAlignment="Center" Content="" DockPanel.Dock="Top"/>
-
+                            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" >
+                                <Button x:Name="SaveJson" Content="Save" VerticalAlignment="Center" Margin="10" Padding="10 3" />
+                                <Button x:Name="LoadJson" Content="Load" VerticalAlignment="Center" Margin="10" Padding="10 3" />
+                                <Button x:Name="ExecuteEnvironmentDeployment" Content="Deploy" VerticalAlignment="Center" Margin="10" Padding="10 3" />
+                            </StackPanel>
+                            
                             <tree:TreeList Name="EnvironmentDeploymentTreeList" Model="{Binding EnvironmentDeployment}" HorizontalAlignment="Stretch" tree:GridViewColumnResize.Enabled="True">
                                 <tree:TreeList.ItemTemplate>
                                     <DataTemplate>
