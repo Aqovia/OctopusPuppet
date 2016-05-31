@@ -62,10 +62,10 @@
                                 </Grid.ColumnDefinitions>
 
                                 <Label Grid.Column="0" HorizontalAlignment="left" VerticalAlignment="Center" Content="Branch"/>
-                                <ComboBox Grid.Column="1" x:Name="BranchDeploymentBranches" SelectedItem="{Binding SelectedBranchDeploymentBranch}" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="10 3" MinWidth="150"/>
+                                <ComboBox Grid.Column="1" x:Name="BranchDeploymentBranches" SelectedItem="{Binding SelectedBranchDeploymentBranch}" DisplayMemberPath="Name" SelectedValuePath="Id" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="10 3" MinWidth="150"/>
 
                                 <Label Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Content="To"/>
-                                <ComboBox Grid.Column="3" x:Name="BranchDeploymentEnvironments" SelectedItem="{Binding SelectedBranchDeploymentEnvironment}" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"/>
+                                <ComboBox Grid.Column="3" x:Name="BranchDeploymentEnvironments" SelectedItem="{Binding SelectedBranchDeploymentEnvironment}" DisplayMemberPath="Name" SelectedValuePath="Id" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"/>
 
                                 <Button Grid.Column="4" x:Name="BranchDeployment" Content="Settings" HorizontalAlignment="left" VerticalAlignment="Center" Margin="10" Padding="10 3" />
                             </Grid>
@@ -81,7 +81,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <Label Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Content="Environment"/>
-                                <ComboBox Grid.Column="1" x:Name="RedeploymentEnvironments" SelectedItem="{Binding SelectedRedeploymentEnvironment}" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150" Padding="10 3" />
+                                <ComboBox Grid.Column="1" x:Name="RedeploymentEnvironments" SelectedItem="{Binding SelectedRedeploymentEnvironment}" DisplayMemberPath="Name" SelectedValuePath="Id" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150" Padding="10 3" />
 
                                 <Button Grid.Column="4" x:Name="Redeployment" Content="Settings" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10" Padding="10 3"/>
                             </Grid>
@@ -97,10 +97,10 @@
                                 </Grid.ColumnDefinitions>
 
                                 <Label Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Content="From"/>
-                                <ComboBox Grid.Column="1" x:Name="EnvironmentMirrorFromEnvironments" SelectedItem="{Binding SelectedEnvironmentMirrorFromEnvironment}" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"/>
+                                <ComboBox Grid.Column="1" x:Name="EnvironmentMirrorFromEnvironments" SelectedItem="{Binding SelectedEnvironmentMirrorFromEnvironment}" DisplayMemberPath="Name" SelectedValuePath="Id"  HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"/>
 
                                 <Label Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Content="To"/>
-                                <ComboBox Grid.Column="3" x:Name="EnvironmentMirrorToEnvironments" SelectedItem="{Binding SelectedEnvironmentMirrorToEnvironment}" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"/>
+                                <ComboBox Grid.Column="3" x:Name="EnvironmentMirrorToEnvironments" SelectedItem="{Binding SelectedEnvironmentMirrorToEnvironment}" DisplayMemberPath="Name" SelectedValuePath="Id" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"/>
 
                                 <Button Grid.Column="4" x:Name="EnvironmentMirror" Content="Settings" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10" Padding="10 3"/>
                             </Grid>

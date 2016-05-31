@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using Microsoft.Win32;
 using Newtonsoft.Json;
+using OctopusPuppet.Deployer;
 using OctopusPuppet.DeploymentPlanner;
 using OctopusPuppet.OctopusProvider;
 using OctopusPuppet.Scheduler;
@@ -16,20 +18,20 @@ namespace OctopusPuppet.Gui.ViewModels
     {
         public DeploymentPlannerViewModel()
         {
-            _branchDeploymentBranches = new List<string>();
-            _selectedBranchDeploymentBranch = string.Empty;
+            _branchDeploymentBranches = new List<Branch>();
+            _selectedBranchDeploymentBranch = null;
 
-            _branchDeploymentEnvironments = new List<string>();
-            _selectedBranchDeploymentEnvironment = string.Empty;
+            _branchDeploymentEnvironments = new List<Environment>();
+            _selectedBranchDeploymentEnvironment = null;
 
-            _redeploymentEnvironments = new List<string>();
-            _selectedRedeploymentEnvironment = string.Empty;
+            _redeploymentEnvironments = new List<Environment>();
+            _selectedRedeploymentEnvironment = null;
 
-            _environmentMirrorFromEnvironments = new List<string>();
-            _selectedEnvironmentMirrorFromEnvironment = string.Empty;
+            _environmentMirrorFromEnvironments = new List<Environment>();
+            _selectedEnvironmentMirrorFromEnvironment = null;
 
-            _environmentMirrorToEnvironments = new List<string>();
-            _selectedEnvironmentMirrorToEnvironment = string.Empty;
+            _environmentMirrorToEnvironments = new List<Environment>();
+            _selectedEnvironmentMirrorToEnvironment = null;
 
             _layoutAlgorithmTypes = new List<string>(new []
             {
@@ -63,8 +65,8 @@ namespace OctopusPuppet.Gui.ViewModels
             }
         }
 
-        private List<string> _branches;
-        private List<string> Branches
+        private List<Branch> _branches;
+        private List<Branch> Branches
         {
             get { return _branches; }
             set
@@ -75,8 +77,8 @@ namespace OctopusPuppet.Gui.ViewModels
             }
         }
 
-        private List<string> _environments;
-        private List<string> Environments
+        private List<Environment> _environments;
+        private List<Environment> Environments
         {
             get { return _environments; }
             set
@@ -143,8 +145,8 @@ namespace OctopusPuppet.Gui.ViewModels
                     }
                     catch
                     {
-                        Branches = new List<string>();
-                        Environments = new List<string>();                  
+                        Branches = new List<Branch>();
+                        Environments = new List<Environment>();                  
                     }
                 }).ContinueWith(task => 
                 {
@@ -153,10 +155,9 @@ namespace OctopusPuppet.Gui.ViewModels
             }
             else
             {
-                Branches = new List<string>();
-                Environments = new List<string>();
+                Branches = new List<Branch>();
+                Environments = new List<Environment>();
             }
-            
         }
 
         private string _octopusApiKey;
@@ -197,8 +198,8 @@ namespace OctopusPuppet.Gui.ViewModels
             }
         }
 
-        private List<string> _branchDeploymentBranches;
-        public List<string> BranchDeploymentBranches
+        private List<Branch> _branchDeploymentBranches;
+        public List<Branch> BranchDeploymentBranches
         {
             get { return _branchDeploymentBranches; }
             private set
@@ -209,8 +210,8 @@ namespace OctopusPuppet.Gui.ViewModels
             }
         }
 
-        private string _selectedBranchDeploymentBranch;
-        public string SelectedBranchDeploymentBranch
+        private Branch _selectedBranchDeploymentBranch;
+        public Branch SelectedBranchDeploymentBranch
         {
             get { return _selectedBranchDeploymentBranch; }
             set
@@ -223,8 +224,8 @@ namespace OctopusPuppet.Gui.ViewModels
             }
         }
 
-        private List<string> _branchDeploymentEnvironments;
-        public List<string> BranchDeploymentEnvironments
+        private List<Environment> _branchDeploymentEnvironments;
+        public List<Environment> BranchDeploymentEnvironments
         {
             get { return _branchDeploymentEnvironments; }
             private set
@@ -235,8 +236,8 @@ namespace OctopusPuppet.Gui.ViewModels
             }
         }
 
-        private string _selectedBranchDeploymentEnvironment;
-        public string SelectedBranchDeploymentEnvironment
+        private Environment _selectedBranchDeploymentEnvironment;
+        public Environment SelectedBranchDeploymentEnvironment
         {
             get { return _selectedBranchDeploymentEnvironment; }
             set
@@ -249,8 +250,8 @@ namespace OctopusPuppet.Gui.ViewModels
             }
         }
 
-        private List<string> _redeploymentEnvironments;
-        public List<string> RedeploymentEnvironments
+        private List<Environment> _redeploymentEnvironments;
+        public List<Environment> RedeploymentEnvironments
         {
             get { return _redeploymentEnvironments; }
             private set
@@ -261,8 +262,8 @@ namespace OctopusPuppet.Gui.ViewModels
             }
         }
 
-        private string _selectedRedeploymentEnvironment;
-        public string SelectedRedeploymentEnvironment
+        private Environment _selectedRedeploymentEnvironment;
+        public Environment SelectedRedeploymentEnvironment
         {
             get { return _selectedRedeploymentEnvironment; }
             set
@@ -275,8 +276,8 @@ namespace OctopusPuppet.Gui.ViewModels
             }
         }
 
-        private List<string> _environmentMirrorFromEnvironments;
-        public List<string> EnvironmentMirrorFromEnvironments
+        private List<Environment> _environmentMirrorFromEnvironments;
+        public List<Environment> EnvironmentMirrorFromEnvironments
         {
             get { return _environmentMirrorFromEnvironments; }
             private set
@@ -287,8 +288,8 @@ namespace OctopusPuppet.Gui.ViewModels
             }
         }
 
-        private string _selectedEnvironmentMirrorFromEnvironment;
-        public string SelectedEnvironmentMirrorFromEnvironment
+        private Environment _selectedEnvironmentMirrorFromEnvironment;
+        public Environment SelectedEnvironmentMirrorFromEnvironment
         {
             get { return _selectedEnvironmentMirrorFromEnvironment; }
             set
@@ -301,8 +302,8 @@ namespace OctopusPuppet.Gui.ViewModels
             }
         }
 
-        private List<string> _environmentMirrorToEnvironments;
-        public List<string> EnvironmentMirrorToEnvironments
+        private List<Environment> _environmentMirrorToEnvironments;
+        public List<Environment> EnvironmentMirrorToEnvironments
         {
             get { return _environmentMirrorToEnvironments; }
             private set
@@ -313,8 +314,8 @@ namespace OctopusPuppet.Gui.ViewModels
             }
         }
 
-        private string _selectedEnvironmentMirrorToEnvironment;
-        public string SelectedEnvironmentMirrorToEnvironment
+        private Environment _selectedEnvironmentMirrorToEnvironment;
+        public Environment SelectedEnvironmentMirrorToEnvironment
         {
             get { return _selectedEnvironmentMirrorToEnvironment; }
             set
@@ -333,8 +334,8 @@ namespace OctopusPuppet.Gui.ViewModels
             {
                 return !(string.IsNullOrEmpty(_octopusApiKey) 
                     || string.IsNullOrEmpty(_octopusApiKey) 
-                    || string.IsNullOrEmpty(_selectedBranchDeploymentEnvironment) 
-                    || string.IsNullOrEmpty(_selectedBranchDeploymentBranch));
+                    || _selectedBranchDeploymentEnvironment == null 
+                    || _selectedBranchDeploymentBranch == null);
             }
         }
 
@@ -348,7 +349,7 @@ namespace OctopusPuppet.Gui.ViewModels
                 try
                 {
                     var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
-                    var branchDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(_selectedBranchDeploymentEnvironment, _selectedBranchDeploymentBranch);
+                    var branchDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(_selectedBranchDeploymentEnvironment.Id, _selectedBranchDeploymentBranch.Id);
                     EnvironmentDeploymentPlan = branchDeploymentPlans.EnvironmentDeploymentPlan;
 
                     var deploymentScheduler = new DeploymentScheduler();
@@ -357,6 +358,7 @@ namespace OctopusPuppet.Gui.ViewModels
                     Graph = componentGraph.ToBidirectionalGraph();
                     EnvironmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
                     SaveFileName = "branch " + _selectedBranchDeploymentBranch + " to " + _selectedBranchDeploymentEnvironment + ".json";
+                    EnvironmentToDeployTo = _selectedBranchDeploymentEnvironment;
                 }
                 catch
                 {
@@ -364,6 +366,7 @@ namespace OctopusPuppet.Gui.ViewModels
                     Graph = null;
                     EnvironmentDeployment = new EnvironmentDeployment(new List<ProductDeployment>());
                     SaveFileName = string.Empty;
+                    EnvironmentToDeployTo = null;
                 }
             }).ContinueWith(task =>
             {
@@ -377,7 +380,7 @@ namespace OctopusPuppet.Gui.ViewModels
             {
                 return !(string.IsNullOrEmpty(_octopusApiKey) 
                     || string.IsNullOrEmpty(_octopusApiKey) 
-                    || string.IsNullOrEmpty(_selectedRedeploymentEnvironment));
+                    || _selectedRedeploymentEnvironment == null);
             }
         }
 
@@ -391,7 +394,7 @@ namespace OctopusPuppet.Gui.ViewModels
                 try
                 {
                     var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
-                    var redeployDeploymentPlans = deploymentPlanner.GetRedeployDeploymentPlans(_selectedRedeploymentEnvironment);
+                    var redeployDeploymentPlans = deploymentPlanner.GetRedeployDeploymentPlans(_selectedRedeploymentEnvironment.Id);
                     EnvironmentDeploymentPlan = redeployDeploymentPlans.EnvironmentDeploymentPlan;
 
                     var deploymentScheduler = new DeploymentScheduler();
@@ -399,6 +402,7 @@ namespace OctopusPuppet.Gui.ViewModels
                     Graph = componentGraph.ToBidirectionalGraph();
                     EnvironmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
                     SaveFileName = "redeploy " + _selectedRedeploymentEnvironment + ".json";
+                    EnvironmentToDeployTo = _selectedRedeploymentEnvironment;
                 }
                 catch
                 {
@@ -406,6 +410,7 @@ namespace OctopusPuppet.Gui.ViewModels
                     Graph = null;
                     EnvironmentDeployment = new EnvironmentDeployment(new List<ProductDeployment>());
                     SaveFileName = string.Empty;
+                    EnvironmentToDeployTo = null;
                 }
             }).ContinueWith(task =>
             {
@@ -419,8 +424,8 @@ namespace OctopusPuppet.Gui.ViewModels
             {
                 return !(string.IsNullOrEmpty(_octopusApiKey) 
                     || string.IsNullOrEmpty(_octopusApiKey) 
-                    || string.IsNullOrEmpty(_selectedEnvironmentMirrorFromEnvironment) 
-                    || string.IsNullOrEmpty(_selectedEnvironmentMirrorToEnvironment));
+                    || _selectedEnvironmentMirrorFromEnvironment == null
+                    || _selectedEnvironmentMirrorToEnvironment == null);
             }
         }
 
@@ -434,7 +439,7 @@ namespace OctopusPuppet.Gui.ViewModels
                 try
                 {
                     var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
-                    var environmentMirrorDeploymentPlans = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(_selectedEnvironmentMirrorFromEnvironment, _selectedEnvironmentMirrorToEnvironment);
+                    var environmentMirrorDeploymentPlans = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(_selectedEnvironmentMirrorFromEnvironment.Id, _selectedEnvironmentMirrorToEnvironment.Id);
 
                     EnvironmentDeploymentPlan = environmentMirrorDeploymentPlans.EnvironmentDeploymentPlan;
 
@@ -443,6 +448,7 @@ namespace OctopusPuppet.Gui.ViewModels
                     Graph = componentGraph.ToBidirectionalGraph();
                     EnvironmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
                     SaveFileName = "mirror " + _selectedEnvironmentMirrorFromEnvironment + " to " + _selectedEnvironmentMirrorToEnvironment + ".json";
+                    EnvironmentToDeployTo = _selectedEnvironmentMirrorToEnvironment;
                 }
                 catch
                 {
@@ -450,6 +456,7 @@ namespace OctopusPuppet.Gui.ViewModels
                     Graph = null;
                     EnvironmentDeployment = new EnvironmentDeployment(new List<ProductDeployment>());
                     SaveFileName = string.Empty;
+                    EnvironmentToDeployTo = null;
                 }
             }).ContinueWith(task =>
             {
@@ -520,9 +527,38 @@ namespace OctopusPuppet.Gui.ViewModels
             EnvironmentDeployment = environmentDeployment;
         }
 
+        private Environment _environmentToDeployTo;
+        public Environment EnvironmentToDeployTo
+        {
+            get { return _environmentToDeployTo; }
+            set
+            {
+                if (value == _environmentToDeployTo) return;
+                _environmentToDeployTo = value;
+                NotifyOfPropertyChange(() => EnvironmentToDeployTo);
+            }
+        }
+
         public void ExecuteEnvironmentDeployment()
         {
+            IsLoadingData = true;
+            Task.Factory.StartNew(() =>
+            {
+                try
+                {
+                    var componentVertexDeployer = new OctopusComponentVertexDeployer(_octopusUrl, _octopusApiKey, EnvironmentToDeployTo);
+                    var cancellationTokenSource = new CancellationTokenSource();
+                    var deploymentExecutor = new DeploymentExecutor(componentVertexDeployer, EnvironmentDeployment, cancellationTokenSource.Token);
+                    deploymentExecutor.Execute().ConfigureAwait(false).GetAwaiter().GetResult();
+                }
+                catch
+                {
 
+                }
+            }).ContinueWith(task =>
+            {
+                IsLoadingData = false;
+            });
         }
     }
 }

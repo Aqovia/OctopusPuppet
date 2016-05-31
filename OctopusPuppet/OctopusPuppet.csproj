@@ -64,7 +64,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Deployer\CancellationTokenExtensions.cs" />
+    <Compile Include="Deployer\DeploymentExecutor.cs" />
+    <Compile Include="Deployer\IComponentVertexDeployer.cs" />
+    <Compile Include="Deployer\TaskConstants.cs" />
+    <Compile Include="DeploymentPlanner\Branch.cs" />
     <Compile Include="DeploymentPlanner\Component.cs" />
+    <Compile Include="DeploymentPlanner\EnumerableExtensions.cs" />
+    <Compile Include="DeploymentPlanner\Environment.cs" />
     <Compile Include="DeploymentPlanner\EnvironmentDeploymentPlan.cs" />
     <Compile Include="DeploymentPlanner\IDeploymentPlanner.cs" />
     <Compile Include="DeploymentPlanner\SemVer.cs" />

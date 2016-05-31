@@ -84,16 +84,20 @@ namespace OctopusPuppet.OctopusProvider
         /// </summary>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        private List<string> GetBranchesForProject(string projectId)
+        private List<Branch> GetBranchesForProject(string projectId)
         {
             var branches = GetReleaseResources(projectId)
-                .Select(x=>new SemanticVersion(x.Version).SpecialVersion)
+                .Select(x=> new Branch
+                    {
+                        Name = new SemanticVersion(x.Version).SpecialVersion,
+                        Id = new SemanticVersion(x.Version).SpecialVersion
+                    }
+                )
                 .Distinct()
                 .ToList();
 
             return branches;
         }
-
 
         /// <summary>
         /// Get component for a branch. If release does not exist for branch then master branch is assumed.
@@ -216,19 +220,24 @@ namespace OctopusPuppet.OctopusProvider
             return deploymentPlan;
         }
 
-        public List<string> GetEnvironments()
+        public List<DeploymentPlanner.Environment> GetEnvironments()
         {
             var environments = _repository.Environments
                 .GetAll()
-                .Select(x => x.Name)
+                .Select(x => new DeploymentPlanner.Environment()
+                {
+                    Id = x.Id,
+                    Name = x.Name
+                })
+                .DistinctBy(x=> x.Id)
                 .ToList();
 
             return environments;
         }
 
-        public List<string> GetBranches()
+        public List<Branch> GetBranches()
         {
-            var branches = new List<string>();
+            var branches = new List<Branch>();
 
             var projectIds = _repository.Projects.GetAll().Select(x=>x.Id);
 
@@ -237,7 +246,9 @@ namespace OctopusPuppet.OctopusProvider
                 branches.AddRange(GetBranchesForProject(projectId));
             }
 
-            branches = branches.Distinct().ToList();
+            branches = branches
+                .DistinctBy(x=>x.Id)
+                .ToList();
 
             return branches;
         }
