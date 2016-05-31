@@ -12,7 +12,7 @@ namespace OctopusPuppet.Scheduler
             var componentVertices = new Dictionary<string, ComponentDeploymentVertex>();
             foreach (var componentDependancy in environmentDeploymentPlan.DeploymentPlans)
             {
-                var version = componentDependancy.ComponentFrom == null ? string.Empty : componentDependancy.ComponentFrom.Version.ToString();
+                var version = componentDependancy.ComponentTo == null ? null : componentDependancy.ComponentTo.Version;
                 var deploymentDuration = componentDependancy.ComponentFrom == null ? null : componentDependancy.ComponentFrom.DeploymentDuration;
 
                 var componentVertex = new ComponentDeploymentVertex(componentDependancy.Id, componentDependancy.Name, version, componentDependancy.Action, deploymentDuration);
@@ -35,7 +35,7 @@ namespace OctopusPuppet.Scheduler
                     if (!targetExists)
                     {
                         //The dependancy points to a vertex that does not exist (spelling mistake/dependant components have changed their name/component dependancies have changed)
-                        target = new ComponentDeploymentVertex(dependancy, dependancy, string.Empty, PlanAction.Skip, null, false);
+                        target = new ComponentDeploymentVertex(dependancy, dependancy, null, PlanAction.Skip, null, false);
                         componentVertices.Add(dependancy, target);
                     }
                     

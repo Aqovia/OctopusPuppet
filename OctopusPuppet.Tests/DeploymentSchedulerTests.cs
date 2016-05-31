@@ -74,18 +74,18 @@ namespace OctopusPuppet.Tests
 
             //Add vertices
 
-            var a = new ComponentDeploymentVertex("a", "a", "1.0.0", PlanAction.Skip, null);
-            var b = new ComponentDeploymentVertex("b", "b", "1.0.0", PlanAction.Change, null);
-            var c = new ComponentDeploymentVertex("c", "c", "1.0.0", PlanAction.Skip, null);
-            var d = new ComponentDeploymentVertex("d", "d", "1.0.0", PlanAction.Change, null);
-            var e = new ComponentDeploymentVertex("e", "e", "1.0.0", PlanAction.Skip, null);
-            var f = new ComponentDeploymentVertex("f", "f", "1.0.0", PlanAction.Change, null);
-            var g = new ComponentDeploymentVertex("g", "g", "1.0.0", PlanAction.Remove, null);
-            var h = new ComponentDeploymentVertex("h", "h", "1.0.0", PlanAction.Change, null);
+            var a = new ComponentDeploymentVertex("a", "a", new SemVer("1.0.0"), PlanAction.Skip, null);
+            var b = new ComponentDeploymentVertex("b", "b", new SemVer("1.0.0"), PlanAction.Change, null);
+            var c = new ComponentDeploymentVertex("c", "c", new SemVer("1.0.0"), PlanAction.Skip, null);
+            var d = new ComponentDeploymentVertex("d", "d", new SemVer("1.0.0"), PlanAction.Change, null);
+            var e = new ComponentDeploymentVertex("e", "e", new SemVer("1.0.0"), PlanAction.Skip, null);
+            var f = new ComponentDeploymentVertex("f", "f", new SemVer("1.0.0"), PlanAction.Change, null);
+            var g = new ComponentDeploymentVertex("g", "g", new SemVer("1.0.0"), PlanAction.Remove, null);
+            var h = new ComponentDeploymentVertex("h", "h", new SemVer("1.0.0"), PlanAction.Change, null);
 
-            var x = new ComponentDeploymentVertex("x", "x", "1.0.0", PlanAction.Skip, null);
-            var y = new ComponentDeploymentVertex("y", "y", "1.0.0", PlanAction.Change, null);
-            var z = new ComponentDeploymentVertex("z", "z", "1.0.0", PlanAction.Skip, null);
+            var x = new ComponentDeploymentVertex("x", "x", new SemVer("1.0.0"), PlanAction.Skip, null);
+            var y = new ComponentDeploymentVertex("y", "y", new SemVer("1.0.0"), PlanAction.Change, null);
+            var z = new ComponentDeploymentVertex("z", "z", new SemVer("1.0.0"), PlanAction.Skip, null);
 
             componentDeploymentGraph.AddVertexRange(new ComponentDeploymentVertex[]
             {

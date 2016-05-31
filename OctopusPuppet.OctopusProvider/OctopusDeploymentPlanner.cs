@@ -37,25 +37,6 @@ namespace OctopusPuppet.OctopusProvider
             return releases;
         }
 
-        private List<DeploymentResource> GetDeploymentResources(string projectId)
-        {
-            var projects = new[] { projectId };
-            var environments = new string[] { };
-
-            var deployments = new List<DeploymentResource>();
-            var skip = 0;
-            var shouldPage = false;
-            do
-            {
-                var releasePages = _repository.Deployments.FindAll(projects, environments, skip);
-                deployments.AddRange(releasePages.Items);
-                skip += releasePages.ItemsPerPage;
-                shouldPage = releasePages.TotalResults > skip;
-            } while (shouldPage);
-
-            return deployments;
-        }
-
         private DashboardItemResource GetClosestMatchingDashboardItemResource(DashboardResource dashboard, string environmentId, string projectId, string branch)
         {
             var dashboardItemResources = dashboard.Items

@@ -9,7 +9,12 @@ namespace OctopusPuppet.Scheduler
     {
         public string Id { get; private set; }
         public string Name { get; private set; }
-        public string Version { get; private set; }
+
+        /// <summary>
+        /// The version of the component that should be deployed
+        /// </summary>
+        public SemVer Version { get; private set; }
+        
         public PlanAction Action { get; set; }
         public TimeSpan? DeploymentDuration { get; set; }
         public bool Exists { get; set; }
@@ -18,7 +23,7 @@ namespace OctopusPuppet.Scheduler
         public int ProductGroup { get; set; }
         public int ExecutionOrder { get; set; }
 
-        public ComponentDeploymentVertex(string id, string name, string version, PlanAction action, TimeSpan? deploymentDuration, bool exists = true)
+        public ComponentDeploymentVertex(string id, string name, SemVer version, PlanAction action, TimeSpan? deploymentDuration, bool exists = true)
         {
             Id = id;
             Name = name;
