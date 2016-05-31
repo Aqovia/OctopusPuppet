@@ -349,7 +349,7 @@ namespace OctopusPuppet.Gui.ViewModels
                 try
                 {
                     var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
-                    var branchDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(_selectedBranchDeploymentEnvironment.Id, _selectedBranchDeploymentBranch.Id);
+                    var branchDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(_selectedBranchDeploymentEnvironment.Name, _selectedBranchDeploymentBranch.Name);
                     EnvironmentDeploymentPlan = branchDeploymentPlans.EnvironmentDeploymentPlan;
 
                     var deploymentScheduler = new DeploymentScheduler();
@@ -357,7 +357,7 @@ namespace OctopusPuppet.Gui.ViewModels
                     var componentGraph = deploymentScheduler.GetComponentDeploymentGraph(EnvironmentDeploymentPlan);
                     Graph = componentGraph.ToBidirectionalGraph();
                     EnvironmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
-                    SaveFileName = "branch " + _selectedBranchDeploymentBranch + " to " + _selectedBranchDeploymentEnvironment + ".json";
+                    SaveFileName = "branch " + _selectedBranchDeploymentBranch.Name + " to " + _selectedBranchDeploymentEnvironment.Name + ".json";
                     EnvironmentToDeployTo = _selectedBranchDeploymentEnvironment;
                 }
                 catch
@@ -394,14 +394,14 @@ namespace OctopusPuppet.Gui.ViewModels
                 try
                 {
                     var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
-                    var redeployDeploymentPlans = deploymentPlanner.GetRedeployDeploymentPlans(_selectedRedeploymentEnvironment.Id);
+                    var redeployDeploymentPlans = deploymentPlanner.GetRedeployDeploymentPlans(_selectedRedeploymentEnvironment.Name);
                     EnvironmentDeploymentPlan = redeployDeploymentPlans.EnvironmentDeploymentPlan;
 
                     var deploymentScheduler = new DeploymentScheduler();
                     var componentGraph = deploymentScheduler.GetComponentDeploymentGraph(EnvironmentDeploymentPlan);
                     Graph = componentGraph.ToBidirectionalGraph();
                     EnvironmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
-                    SaveFileName = "redeploy " + _selectedRedeploymentEnvironment + ".json";
+                    SaveFileName = "redeploy " + _selectedRedeploymentEnvironment.Name + ".json";
                     EnvironmentToDeployTo = _selectedRedeploymentEnvironment;
                 }
                 catch
@@ -439,7 +439,7 @@ namespace OctopusPuppet.Gui.ViewModels
                 try
                 {
                     var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
-                    var environmentMirrorDeploymentPlans = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(_selectedEnvironmentMirrorFromEnvironment.Id, _selectedEnvironmentMirrorToEnvironment.Id);
+                    var environmentMirrorDeploymentPlans = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(_selectedEnvironmentMirrorFromEnvironment.Name, _selectedEnvironmentMirrorToEnvironment.Name);
 
                     EnvironmentDeploymentPlan = environmentMirrorDeploymentPlans.EnvironmentDeploymentPlan;
 
@@ -447,7 +447,7 @@ namespace OctopusPuppet.Gui.ViewModels
                     var componentGraph = deploymentScheduler.GetComponentDeploymentGraph(EnvironmentDeploymentPlan);
                     Graph = componentGraph.ToBidirectionalGraph();
                     EnvironmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
-                    SaveFileName = "mirror " + _selectedEnvironmentMirrorFromEnvironment + " to " + _selectedEnvironmentMirrorToEnvironment + ".json";
+                    SaveFileName = "mirror " + _selectedEnvironmentMirrorFromEnvironment.Name + " to " + _selectedEnvironmentMirrorToEnvironment.Name + ".json";
                     EnvironmentToDeployTo = _selectedEnvironmentMirrorToEnvironment;
                 }
                 catch

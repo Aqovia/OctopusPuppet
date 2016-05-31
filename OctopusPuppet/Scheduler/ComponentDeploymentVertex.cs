@@ -7,6 +7,7 @@ namespace OctopusPuppet.Scheduler
     [DebuggerDisplay("{Name} {Version}")]
     public class ComponentDeploymentVertex
     {
+        public string Id { get; private set; }
         public string Name { get; private set; }
         public string Version { get; private set; }
         public PlanAction Action { get; set; }
@@ -17,8 +18,9 @@ namespace OctopusPuppet.Scheduler
         public int ProductGroup { get; set; }
         public int ExecutionOrder { get; set; }
 
-        public ComponentDeploymentVertex(string name, string version, PlanAction action, TimeSpan? deploymentDuration, bool exists = true)
+        public ComponentDeploymentVertex(string id, string name, string version, PlanAction action, TimeSpan? deploymentDuration, bool exists = true)
         {
+            Id = id;
             Name = name;
             Version = version;
             Action = action;

@@ -187,11 +187,12 @@ namespace OctopusPuppet.OctopusProvider
             return component;
         }
 
-        private ComponentDeploymentPlan GetEnvironmentDeploymentPlan(string projectName, Component componentFrom, Component componentTo)
+        private ComponentDeploymentPlan GetEnvironmentDeploymentPlan(string projectId, string projectName, Component componentFrom, Component componentTo)
         {
             var deploymentPlan = new ComponentDeploymentPlan
             {
                 Name = projectName,
+                Id = projectId,
                 ComponentFrom = componentFrom,
                 ComponentTo = componentTo
             };
@@ -298,7 +299,7 @@ namespace OctopusPuppet.OctopusProvider
                     ? componentFrom 
                     : GetComponentForEnvironment(dashboard, environmentToId, projectId);
 
-                var deploymentPlan = GetEnvironmentDeploymentPlan(projectName, componentFrom, componentTo);
+                var deploymentPlan = GetEnvironmentDeploymentPlan(projectId, projectName, componentFrom, componentTo);
 
                 environmentDeploymentPlan.EnvironmentDeploymentPlan.DeploymentPlans.Add(deploymentPlan);
             }
@@ -340,8 +341,8 @@ namespace OctopusPuppet.OctopusProvider
 
                 var componentFrom = GetComponentForBranch(dashboard, environmentId, projectId, branch);
                 var componentTo = GetComponentForEnvironment(dashboard, environmentId, projectId);
-                    
-                var deploymentPlan = GetEnvironmentDeploymentPlan(projectName, componentFrom, componentTo);
+
+                var deploymentPlan = GetEnvironmentDeploymentPlan(projectId, projectName, componentFrom, componentTo);
 
                 branchDeploymentPlan.EnvironmentDeploymentPlan.DeploymentPlans.Add(deploymentPlan);
             }
@@ -382,7 +383,7 @@ namespace OctopusPuppet.OctopusProvider
                 var componentFrom = GetComponentForEnvironment(dashboard, environmentId, projectId);
                 var componentTo = componentFrom;
 
-                var deploymentPlan = GetEnvironmentDeploymentPlan(projectName, componentFrom, componentTo);
+                var deploymentPlan = GetEnvironmentDeploymentPlan(projectId, projectName, componentFrom, componentTo);
 
                 //If the component is installed. Then re-install it
                 if (componentFrom != null)

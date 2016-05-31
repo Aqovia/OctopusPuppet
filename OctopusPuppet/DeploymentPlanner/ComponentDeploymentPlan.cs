@@ -6,6 +6,9 @@ namespace OctopusPuppet.DeploymentPlanner
     public class ComponentDeploymentPlan
     {
         [JsonProperty(Required = Required.Always)]
+        public string Id { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
         public string Name { get; set; }
 
         [JsonProperty(Required = Required.AllowNull)]

@@ -14,18 +14,18 @@ namespace OctopusPuppet.Tests
         {
             var componentDeploymentPlans = new List<ComponentDeploymentPlan>()
             {
-                new ComponentDeploymentPlan() {Name = "a", Action = PlanAction.Skip, ComponentFrom = new Component(){Dependancies = {}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,100)}, ComponentTo = null},
-                new ComponentDeploymentPlan() {Name = "b", Action = PlanAction.Change, ComponentFrom = new Component(){Dependancies = {"a", "c"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,20)}, ComponentTo = null},
-                new ComponentDeploymentPlan() {Name = "c", Action = PlanAction.Skip, ComponentFrom = new Component(){Dependancies = {"b"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,20)}, ComponentTo = null},
-                new ComponentDeploymentPlan() {Name = "d", Action = PlanAction.Change, ComponentFrom = new Component(){Dependancies = {"a"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,20)}, ComponentTo = null},
-                new ComponentDeploymentPlan() {Name = "e", Action = PlanAction.Skip, ComponentFrom = new Component(){Dependancies = {"d"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,60)}, ComponentTo = null},
-                new ComponentDeploymentPlan() {Name = "f", Action = PlanAction.Change, ComponentFrom = new Component(){Dependancies = {"e"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,20)}, ComponentTo = null},
-                new ComponentDeploymentPlan() {Name = "g", Action = PlanAction.Remove, ComponentFrom = new Component(){Dependancies = {"d"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,20)}, ComponentTo = null},
-                new ComponentDeploymentPlan() {Name = "h", Action = PlanAction.Change, ComponentFrom = new Component(){Dependancies = {"d", "e"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,10)}, ComponentTo = null},
+                new ComponentDeploymentPlan() {Id = "a", Name = "a", Action = PlanAction.Skip, ComponentFrom = new Component(){Dependancies = {}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,100)}, ComponentTo = null},
+                new ComponentDeploymentPlan() {Id = "b", Name = "b", Action = PlanAction.Change, ComponentFrom = new Component(){Dependancies = {"a", "c"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,20)}, ComponentTo = null},
+                new ComponentDeploymentPlan() {Id = "c", Name = "c", Action = PlanAction.Skip, ComponentFrom = new Component(){Dependancies = {"b"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,20)}, ComponentTo = null},
+                new ComponentDeploymentPlan() {Id = "d", Name = "d", Action = PlanAction.Change, ComponentFrom = new Component(){Dependancies = {"a"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,20)}, ComponentTo = null},
+                new ComponentDeploymentPlan() {Id = "e", Name = "e", Action = PlanAction.Skip, ComponentFrom = new Component(){Dependancies = {"d"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,60)}, ComponentTo = null},
+                new ComponentDeploymentPlan() {Id = "f", Name = "f", Action = PlanAction.Change, ComponentFrom = new Component(){Dependancies = {"e"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,20)}, ComponentTo = null},
+                new ComponentDeploymentPlan() {Id = "g", Name = "g", Action = PlanAction.Remove, ComponentFrom = new Component(){Dependancies = {"d"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,20)}, ComponentTo = null},
+                new ComponentDeploymentPlan() {Id = "h", Name = "h", Action = PlanAction.Change, ComponentFrom = new Component(){Dependancies = {"d", "e"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,10)}, ComponentTo = null},
 
-                new ComponentDeploymentPlan() {Name = "x", Action = PlanAction.Skip, ComponentFrom = new Component(){Dependancies = {}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,20)}, ComponentTo = null},
-                new ComponentDeploymentPlan() {Name = "y", Action = PlanAction.Change, ComponentFrom = new Component(){Dependancies = {"x"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,40)}, ComponentTo = null},
-                new ComponentDeploymentPlan() {Name = "z", Action = PlanAction.Skip, ComponentFrom = new Component(){Dependancies = {"y"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,50)}, ComponentTo = null},
+                new ComponentDeploymentPlan() {Id = "x", Name = "x", Action = PlanAction.Skip, ComponentFrom = new Component(){Dependancies = {}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,20)}, ComponentTo = null},
+                new ComponentDeploymentPlan() {Id = "y", Name = "y", Action = PlanAction.Change, ComponentFrom = new Component(){Dependancies = {"x"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,40)}, ComponentTo = null},
+                new ComponentDeploymentPlan() {Id = "z", Name = "z", Action = PlanAction.Skip, ComponentFrom = new Component(){Dependancies = {"y"}, Version = new SemVer("1.0.0.0"), DeploymentDuration = new TimeSpan(0,0,50)}, ComponentTo = null},
             };
 
             var environmentDeploymentPlan = new EnvironmentDeploymentPlan(componentDeploymentPlans);
@@ -74,18 +74,18 @@ namespace OctopusPuppet.Tests
 
             //Add vertices
 
-            var a = new ComponentDeploymentVertex("a", "1.0.0", PlanAction.Skip, null);
-            var b = new ComponentDeploymentVertex("b", "1.0.0", PlanAction.Change, null);
-            var c = new ComponentDeploymentVertex("c", "1.0.0", PlanAction.Skip, null);
-            var d = new ComponentDeploymentVertex("d", "1.0.0", PlanAction.Change, null);
-            var e = new ComponentDeploymentVertex("e", "1.0.0", PlanAction.Skip, null);
-            var f = new ComponentDeploymentVertex("f", "1.0.0", PlanAction.Change, null);
-            var g = new ComponentDeploymentVertex("g", "1.0.0", PlanAction.Remove, null);
-            var h = new ComponentDeploymentVertex("h", "1.0.0", PlanAction.Change, null);
+            var a = new ComponentDeploymentVertex("a", "a", "1.0.0", PlanAction.Skip, null);
+            var b = new ComponentDeploymentVertex("b", "b", "1.0.0", PlanAction.Change, null);
+            var c = new ComponentDeploymentVertex("c", "c", "1.0.0", PlanAction.Skip, null);
+            var d = new ComponentDeploymentVertex("d", "d", "1.0.0", PlanAction.Change, null);
+            var e = new ComponentDeploymentVertex("e", "e", "1.0.0", PlanAction.Skip, null);
+            var f = new ComponentDeploymentVertex("f", "f", "1.0.0", PlanAction.Change, null);
+            var g = new ComponentDeploymentVertex("g", "g", "1.0.0", PlanAction.Remove, null);
+            var h = new ComponentDeploymentVertex("h", "h", "1.0.0", PlanAction.Change, null);
 
-            var x = new ComponentDeploymentVertex("x", "1.0.0", PlanAction.Skip, null);
-            var y = new ComponentDeploymentVertex("y", "1.0.0", PlanAction.Change, null);
-            var z = new ComponentDeploymentVertex("z", "1.0.0", PlanAction.Skip, null);
+            var x = new ComponentDeploymentVertex("x", "x", "1.0.0", PlanAction.Skip, null);
+            var y = new ComponentDeploymentVertex("y", "y", "1.0.0", PlanAction.Change, null);
+            var z = new ComponentDeploymentVertex("z", "z", "1.0.0", PlanAction.Skip, null);
 
             componentDeploymentGraph.AddVertexRange(new ComponentDeploymentVertex[]
             {

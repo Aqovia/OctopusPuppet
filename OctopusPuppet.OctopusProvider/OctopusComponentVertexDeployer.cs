@@ -39,8 +39,8 @@ namespace OctopusPuppet.OctopusProvider
         {
             await Task.Factory.StartNew(() =>
             {
-                var releaseId = ""; 
-                var environmentId = "";// _environmentToDeployTo;
+                var releaseId = "";
+                var environmentId = _environmentToDeployTo.Id;
 
                 var deployment = new DeploymentResource
                 {
