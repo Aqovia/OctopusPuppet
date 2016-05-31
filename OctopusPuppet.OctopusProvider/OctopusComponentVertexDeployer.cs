@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -92,13 +91,19 @@ namespace OctopusPuppet.OctopusProvider
 
         public async Task Deploy(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken)
         {
-            if (!componentDeploymentVertex.Exists || componentDeploymentVertex.Action == PlanAction.Skip)
-            {
-                return;
-            }
-
             await Task.Factory.StartNew(() =>
             {
+                
+                if (!componentDeploymentVertex.Exists || componentDeploymentVertex.Action == PlanAction.Skip)
+                {
+                    return;
+                }
+
+                if (componentDeploymentVertex.Version == null)
+                {
+                    throw new Exception("Version for release is null");
+                }
+
                 var environment = GetEnvironment(_environmentToDeployTo.Name);
                 if (environment == null)
                 {
