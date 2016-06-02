@@ -25,7 +25,7 @@ namespace OctopusPuppet.Gui.Views
             {
                 return ((ProductDeploymentStep)currentItem).ComponentDeployments;
             }
-            if (currentItem is ComponentDeploymentVertex)
+            if (currentItem is ComponentDeployment)
             {
                 return null;
             }
@@ -50,7 +50,7 @@ namespace OctopusPuppet.Gui.Views
             {
                 return ((ProductDeploymentStep)currentItem).ComponentDeployments.Any();
             }
-            if (currentItem is ComponentDeploymentVertex)
+            if (currentItem is ComponentDeployment)
             {
                 return false;
             }

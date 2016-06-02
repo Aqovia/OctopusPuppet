@@ -51,6 +51,26 @@
                             </Grid>
                         </GroupBox>
                         <Separator />
+                        <GroupBox Header="Component Filter" Margin="10">
+                            <DockPanel>
+                                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" >
+                                    <Button x:Name="SaveComponentFilterJson" Content="Save" VerticalAlignment="Center" Margin="10" Padding="10 3" />
+                                    <Button x:Name="LoadComponentFilterJson" Content="Load" VerticalAlignment="Center" Margin="10" Padding="10 3" />
+                                    <Label HorizontalAlignment="Right" VerticalAlignment="Center" Content="Include"/>
+                                    <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center" IsChecked="{Binding ComponentFilterInclude, Mode=TwoWay}" ></CheckBox>
+                                </StackPanel>
+
+                                <DataGrid ItemsSource="{Binding ComponentFilterExpressions}" AutoGenerateColumns="False" 
+                                          CanUserAddRows="True" 
+                                          CanUserDeleteRows="True" 
+                                          IsReadOnly="False"  >
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Expression" Binding="{Binding Text}"></DataGridTextColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </DockPanel>
+                        </GroupBox>
+                        <Separator />
                         <GroupBox Header="Branch Deployment" Margin="10">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -134,8 +154,8 @@
                         <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" />
                         <DockPanel Grid.Row="2">
                             <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" >
-                                <Button x:Name="SaveJson" Content="Save" VerticalAlignment="Center" Margin="10" Padding="10 3" />
-                                <Button x:Name="LoadJson" Content="Load" VerticalAlignment="Center" Margin="10" Padding="10 3" />
+                                <Button x:Name="SaveEnvironmentDeploymentJson" Content="Save" VerticalAlignment="Center" Margin="10" Padding="10 3" />
+                                <Button x:Name="LoadEnvironmentDeploymentJson" Content="Load" VerticalAlignment="Center" Margin="10" Padding="10 3" />
                                 <Button x:Name="ExecuteEnvironmentDeployment" Content="Deploy" VerticalAlignment="Center" Margin="10" Padding="10 3" />
                             </StackPanel>
                             
@@ -153,10 +173,10 @@
                                                         <TextBlock Text="{Binding ExecutionOrder}" />
                                                     </StackPanel>
                                                 </HierarchicalDataTemplate>
-                                                <DataTemplate DataType="{x:Type scheduler:ComponentDeploymentVertex}">
+                                                <DataTemplate DataType="{x:Type scheduler:ComponentDeployment}">
                                                     <StackPanel Orientation="Horizontal">
                                                         <tree:RowExpander/>
-                                                        <TextBlock Text="{Binding Name}" />
+                                                        <TextBlock Text="{Binding Vertex.Name}" />
                                                     </StackPanel>
                                                 </DataTemplate>
                                             </ContentControl.Resources>
@@ -183,10 +203,10 @@
                                                                     <TextBlock Text="{Binding ExecutionOrder}" />
                                                                 </StackPanel>
                                                             </HierarchicalDataTemplate>
-                                                            <DataTemplate DataType="{x:Type scheduler:ComponentDeploymentVertex}">
+                                                            <DataTemplate DataType="{x:Type scheduler:ComponentDeployment}">
                                                                 <StackPanel Orientation="Horizontal">
                                                                     <tree:RowExpander/>
-                                                                    <TextBlock Text="{Binding Name}" />
+                                                                    <TextBlock Text="{Binding Vertex.Name}" />
                                                                 </StackPanel>
                                                             </DataTemplate>
                                                         </ContentControl.Resources>
@@ -209,9 +229,9 @@
                                                                     
                                                                 </StackPanel>
                                                             </HierarchicalDataTemplate>
-                                                            <DataTemplate DataType="{x:Type scheduler:ComponentDeploymentVertex}">
+                                                            <DataTemplate DataType="{x:Type scheduler:ComponentDeployment}">
                                                                 <StackPanel Orientation="Horizontal">
-                                                                    <TextBlock Text="{Binding Version}" />
+                                                                    <TextBlock Text="{Binding Vertex.Version}" />
                                                                 </StackPanel>
                                                             </DataTemplate>
                                                         </ContentControl.Resources>
@@ -234,9 +254,9 @@
                                                                     <TextBlock Text="{Binding DeploymentDuration}" />
                                                                 </StackPanel>
                                                             </HierarchicalDataTemplate>
-                                                            <DataTemplate DataType="{x:Type scheduler:ComponentDeploymentVertex}">
+                                                            <DataTemplate DataType="{x:Type scheduler:ComponentDeployment}">
                                                                 <StackPanel Orientation="Horizontal">
-                                                                    <TextBlock Text="{Binding DeploymentDuration}" />
+                                                                    <TextBlock Text="{Binding Vertex.DeploymentDuration}" />
                                                                 </StackPanel>
                                                             </DataTemplate>
                                                         </ContentControl.Resources>
@@ -257,9 +277,9 @@
                                                                 <StackPanel Orientation="Horizontal">
                                                                 </StackPanel>
                                                             </HierarchicalDataTemplate>
-                                                            <DataTemplate DataType="{x:Type scheduler:ComponentDeploymentVertex}">
+                                                            <DataTemplate DataType="{x:Type scheduler:ComponentDeployment}">
                                                                 <StackPanel Orientation="Horizontal">
-                                                                    <ComboBox SelectedItem="{Binding Action, Mode=TwoWay}" ItemsSource="{Binding Source={StaticResource PlanActionTypeValues}}"/>
+                                                                    <ComboBox SelectedItem="{Binding Vertex.Action, Mode=TwoWay}" ItemsSource="{Binding Source={StaticResource PlanActionTypeValues}}"/>
                                                                 </StackPanel>
                                                             </DataTemplate>
                                                         </ContentControl.Resources>

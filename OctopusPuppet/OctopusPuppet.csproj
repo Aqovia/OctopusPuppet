@@ -70,12 +70,14 @@
     <Compile Include="Deployer\TaskConstants.cs" />
     <Compile Include="DeploymentPlanner\Branch.cs" />
     <Compile Include="DeploymentPlanner\Component.cs" />
+    <Compile Include="DeploymentPlanner\ComponentFilter.cs" />
     <Compile Include="DeploymentPlanner\EnumerableExtensions.cs" />
     <Compile Include="DeploymentPlanner\Environment.cs" />
     <Compile Include="DeploymentPlanner\EnvironmentDeploymentPlan.cs" />
     <Compile Include="DeploymentPlanner\IDeploymentPlanner.cs" />
     <Compile Include="DeploymentPlanner\SemVer.cs" />
     <Compile Include="DeploymentPlanner\SemVerJsonConverter.cs" />
+    <Compile Include="Scheduler\ComponentDeployment.cs" />
     <Compile Include="Scheduler\ComponentDeploymentGraph.cs" />
     <Compile Include="Scheduler\DeploymentStepGraph.cs" />
     <Compile Include="DeploymentPlanner\BranchDeploymentPlans.cs" />

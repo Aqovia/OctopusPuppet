@@ -6,24 +6,22 @@ namespace OctopusPuppet.Scheduler
 {
     public class ProductDeploymentStep
     {
-        public List<ComponentDeploymentVertex> ComponentDeployments { get; set; }
-        public List<ComponentDeploymentEdge> Edges { get; set; }
-
+        public List<ComponentDeployment> ComponentDeployments { get; set; }
+        
         public int ExecutionOrder { get; set; }
 
         public TimeSpan? DeploymentDuration
         {
             get { 
                 return ComponentDeployments
-                .Select(x => x.DeploymentDuration)
+                .Select(x => x.Vertex.DeploymentDuration)
                 .Max(); 
             }
         }
 
-        public ProductDeploymentStep(List<ComponentDeploymentVertex> componentDeployments, List<ComponentDeploymentEdge> edges)
+        public ProductDeploymentStep(List<ComponentDeployment> componentDeployments)
         {
             ComponentDeployments = componentDeployments;
-            Edges = edges;
             ExecutionOrder = -1;
         }
     }

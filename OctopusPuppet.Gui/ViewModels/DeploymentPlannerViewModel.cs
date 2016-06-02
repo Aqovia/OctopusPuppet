@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Caliburn.Micro;
@@ -328,6 +330,80 @@ namespace OctopusPuppet.Gui.ViewModels
             }
         }
 
+        private bool _componentFilterInclude = false;
+        public bool ComponentFilterInclude
+        {
+            get { return _componentFilterInclude; }
+            set
+            {
+                if (value == _componentFilterInclude) return;
+                _componentFilterInclude = value;
+                NotifyOfPropertyChange(() => ComponentFilterInclude);
+            }
+        }
+
+        private ObservableCollection<StringWrapper> _componentFilterExpressions = new ObservableCollection<StringWrapper>();
+        public ObservableCollection<StringWrapper> ComponentFilterExpressions
+        {
+            get { return _componentFilterExpressions; }
+            set
+            {
+                if (value == _componentFilterExpressions) return;
+                _componentFilterExpressions = value;
+                NotifyOfPropertyChange(() => ComponentFilterExpressions);
+            }
+        }
+
+        private string _componentFilterSaveFileName;
+        public string ComponentFilterSaveFileName
+        {
+            get { return _componentFilterSaveFileName; }
+            set
+            {
+                if (value == _componentFilterSaveFileName) return;
+                _componentFilterSaveFileName = value;
+                NotifyOfPropertyChange(() => ComponentFilterSaveFileName);
+            }
+        }
+
+        public void SaveComponentFilterJson()
+        {
+            var saveFileDialog = new SaveFileDialog
+            {
+                DefaultExt = "json",
+                Filter = "Text files (*.json)|*.json|All files (*.*)|*.*",
+                FileName = ComponentFilterSaveFileName
+            };
+            if (saveFileDialog.ShowDialog() != true) return;
+
+            var componentFilter = new ComponentFilter()
+            {
+                Include = ComponentFilterInclude,
+                Expressions = ComponentFilterExpressions.Select(x=>x.Text).ToList()
+            };
+
+            var json = JsonConvert.SerializeObject(componentFilter, Formatting.Indented);
+            File.WriteAllText(saveFileDialog.FileName, json);
+        }
+
+        public void LoadComponentFilterJson()
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                DefaultExt = "json",
+                Filter = "Text files (*.json)|*.json|All files (*.*)|*.*"
+            };
+            if (openFileDialog.ShowDialog() != true) return;
+
+            var json = File.ReadAllText(openFileDialog.FileName);
+            var componentFilter = JsonConvert.DeserializeObject<ComponentFilter>(json);
+            var expressions = componentFilter.Expressions
+                .Select(x => new StringWrapper {Text = x})
+                .ToList();
+            ComponentFilterExpressions = new ObservableCollection<StringWrapper>(expressions);
+            ComponentFilterInclude = componentFilter.Include;
+        }
+
         public bool CanBranchDeployment
         {
             get
@@ -349,7 +425,13 @@ namespace OctopusPuppet.Gui.ViewModels
                 try
                 {
                     var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
-                    var branchDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(_selectedBranchDeploymentEnvironment.Name, _selectedBranchDeploymentBranch.Name);
+                    var componentFilter = new ComponentFilter
+                    {
+                        Expressions = ComponentFilterExpressions.Select(x=>x.Text).ToList(),
+                        Include = ComponentFilterInclude
+                    };
+
+                    var branchDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(_selectedBranchDeploymentEnvironment.Name, _selectedBranchDeploymentBranch.Name, componentFilter);
                     EnvironmentDeploymentPlan = branchDeploymentPlans.EnvironmentDeploymentPlan;
 
                     var deploymentScheduler = new DeploymentScheduler();
@@ -357,7 +439,7 @@ namespace OctopusPuppet.Gui.ViewModels
                     var componentGraph = deploymentScheduler.GetComponentDeploymentGraph(EnvironmentDeploymentPlan);
                     Graph = componentGraph.ToBidirectionalGraph();
                     EnvironmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
-                    SaveFileName = "branch " + _selectedBranchDeploymentBranch.Name + " to " + _selectedBranchDeploymentEnvironment.Name + ".json";
+                    EnvironmentDeploymentSaveFileName = "branch " + _selectedBranchDeploymentBranch.Name + " to " + _selectedBranchDeploymentEnvironment.Name + ".json";
                     EnvironmentToDeployTo = _selectedBranchDeploymentEnvironment;
                 }
                 catch
@@ -365,7 +447,7 @@ namespace OctopusPuppet.Gui.ViewModels
                     EnvironmentDeploymentPlan = new EnvironmentDeploymentPlan(new List<ComponentDeploymentPlan>());
                     Graph = null;
                     EnvironmentDeployment = new EnvironmentDeployment(new List<ProductDeployment>());
-                    SaveFileName = string.Empty;
+                    EnvironmentDeploymentSaveFileName = string.Empty;
                     EnvironmentToDeployTo = null;
                 }
             }).ContinueWith(task =>
@@ -394,14 +476,19 @@ namespace OctopusPuppet.Gui.ViewModels
                 try
                 {
                     var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
-                    var redeployDeploymentPlans = deploymentPlanner.GetRedeployDeploymentPlans(_selectedRedeploymentEnvironment.Name);
+                    var componentFilter = new ComponentFilter
+                    {
+                        Expressions = ComponentFilterExpressions.Select(x => x.Text).ToList(),
+                        Include = ComponentFilterInclude
+                    };
+                    var redeployDeploymentPlans = deploymentPlanner.GetRedeployDeploymentPlans(_selectedRedeploymentEnvironment.Name, componentFilter);
                     EnvironmentDeploymentPlan = redeployDeploymentPlans.EnvironmentDeploymentPlan;
 
                     var deploymentScheduler = new DeploymentScheduler();
                     var componentGraph = deploymentScheduler.GetComponentDeploymentGraph(EnvironmentDeploymentPlan);
                     Graph = componentGraph.ToBidirectionalGraph();
                     EnvironmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
-                    SaveFileName = "redeploy " + _selectedRedeploymentEnvironment.Name + ".json";
+                    EnvironmentDeploymentSaveFileName = "redeploy " + _selectedRedeploymentEnvironment.Name + ".json";
                     EnvironmentToDeployTo = _selectedRedeploymentEnvironment;
                 }
                 catch
@@ -409,7 +496,7 @@ namespace OctopusPuppet.Gui.ViewModels
                     EnvironmentDeploymentPlan = new EnvironmentDeploymentPlan(new List<ComponentDeploymentPlan>());
                     Graph = null;
                     EnvironmentDeployment = new EnvironmentDeployment(new List<ProductDeployment>());
-                    SaveFileName = string.Empty;
+                    EnvironmentDeploymentSaveFileName = string.Empty;
                     EnvironmentToDeployTo = null;
                 }
             }).ContinueWith(task =>
@@ -439,7 +526,12 @@ namespace OctopusPuppet.Gui.ViewModels
                 try
                 {
                     var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
-                    var environmentMirrorDeploymentPlans = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(_selectedEnvironmentMirrorFromEnvironment.Name, _selectedEnvironmentMirrorToEnvironment.Name);
+                    var componentFilter = new ComponentFilter
+                    {
+                        Expressions = ComponentFilterExpressions.Select(x => x.Text).ToList(),
+                        Include = ComponentFilterInclude
+                    };
+                    var environmentMirrorDeploymentPlans = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(_selectedEnvironmentMirrorFromEnvironment.Name, _selectedEnvironmentMirrorToEnvironment.Name, componentFilter);
 
                     EnvironmentDeploymentPlan = environmentMirrorDeploymentPlans.EnvironmentDeploymentPlan;
 
@@ -447,7 +539,7 @@ namespace OctopusPuppet.Gui.ViewModels
                     var componentGraph = deploymentScheduler.GetComponentDeploymentGraph(EnvironmentDeploymentPlan);
                     Graph = componentGraph.ToBidirectionalGraph();
                     EnvironmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
-                    SaveFileName = "mirror " + _selectedEnvironmentMirrorFromEnvironment.Name + " to " + _selectedEnvironmentMirrorToEnvironment.Name + ".json";
+                    EnvironmentDeploymentSaveFileName = "mirror " + _selectedEnvironmentMirrorFromEnvironment.Name + " to " + _selectedEnvironmentMirrorToEnvironment.Name + ".json";
                     EnvironmentToDeployTo = _selectedEnvironmentMirrorToEnvironment;
                 }
                 catch
@@ -455,7 +547,7 @@ namespace OctopusPuppet.Gui.ViewModels
                     EnvironmentDeploymentPlan = new EnvironmentDeploymentPlan(new List<ComponentDeploymentPlan>());
                     Graph = null;
                     EnvironmentDeployment = new EnvironmentDeployment(new List<ProductDeployment>());
-                    SaveFileName = string.Empty;
+                    EnvironmentDeploymentSaveFileName = string.Empty;
                     EnvironmentToDeployTo = null;
                 }
             }).ContinueWith(task =>
@@ -488,32 +580,32 @@ namespace OctopusPuppet.Gui.ViewModels
             }
         }
 
-        private string _saveFileName;
-        public string SaveFileName
+        private string _environmentDeploymentSaveFileName;
+        public string EnvironmentDeploymentSaveFileName
         {
-            get { return _saveFileName; }
+            get { return _environmentDeploymentSaveFileName; }
             set
             {
-                if (value == _saveFileName) return;
-                _saveFileName = value;
-                NotifyOfPropertyChange(() => SaveFileName);
+                if (value == _environmentDeploymentSaveFileName) return;
+                _environmentDeploymentSaveFileName = value;
+                NotifyOfPropertyChange(() => EnvironmentDeploymentSaveFileName);
             }
         }
 
-        public void SaveJson()
+        public void SaveEnvironmentDeploymentJson()
         {
             var saveFileDialog = new SaveFileDialog
             {
                 DefaultExt = "json",
                 Filter =  "Text files (*.json)|*.json|All files (*.*)|*.*",
-                FileName = SaveFileName
+                FileName = EnvironmentDeploymentSaveFileName
             };
             if (saveFileDialog.ShowDialog() != true) return;
             var json = JsonConvert.SerializeObject(EnvironmentDeployment, Formatting.Indented);
             File.WriteAllText(saveFileDialog.FileName, json);
         }
 
-        public void LoadJson()
+        public void LoadEnvironmentDeploymentJson()
         {
             var openFileDialog = new OpenFileDialog
             {

@@ -37,6 +37,11 @@ namespace OctopusPuppet.OctopusProvider
             _repository = new OctopusRepository(octopusServerEndpoint);
         }
 
+        /// <summary>
+        /// Find first environment by name
+        /// </summary>
+        /// <param name="environment">The environment name</param>
+        /// <returns>Environment object or null</returns>
         private DeploymentPlanner.Environment GetEnvironment(string environment)
         {
             var environments = _repository.Environments
@@ -51,6 +56,11 @@ namespace OctopusPuppet.OctopusProvider
             return environments;
         }
 
+        /// <summary>
+        /// Find first project by name
+        /// </summary>
+        /// <param name="project"></param>
+        /// <returns>Reference object or null</returns>
         private ReferenceDataItem GetProject(string project)
         {
             var release = _repository.Projects
@@ -93,7 +103,6 @@ namespace OctopusPuppet.OctopusProvider
         {
             await Task.Factory.StartNew(() =>
             {
-                
                 if (!componentDeploymentVertex.Exists || componentDeploymentVertex.Action == PlanAction.Skip)
                 {
                     return;

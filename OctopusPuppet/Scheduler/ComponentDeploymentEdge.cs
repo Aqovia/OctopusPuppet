@@ -3,7 +3,7 @@ using QuickGraph;
 
 namespace OctopusPuppet.Scheduler
 {
-    [DebuggerDisplay("{Source.Name} {Source.Version} -> {Target.OctopusProject} {Target.Version}")]
+    [DebuggerDisplay("{Source.Name} {Source.Version} -> {Target.Name} {Target.Version}")]
     public class ComponentDeploymentEdge : Edge<ComponentDeploymentVertex>
     {
         public ComponentDeploymentEdge(ComponentDeploymentVertex source, ComponentDeploymentVertex target)

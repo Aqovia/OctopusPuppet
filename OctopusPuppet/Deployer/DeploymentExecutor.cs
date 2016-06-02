@@ -43,7 +43,7 @@ namespace OctopusPuppet.Deployer
 
         private async Task DeployProductStep(ProductDeploymentStep productDeploymentStep, CancellationToken cancellationToken)
         {
-            var componentDeploymentTasks = productDeploymentStep.ComponentDeployments
+            var componentDeploymentTasks = productDeploymentStep.ComponentDeployments.Select(x=>x.Vertex)
                 .OrderBy(x => x.ExecutionOrder)
                 .Select(x => DeployComponent(x, cancellationToken));
 

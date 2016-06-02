@@ -87,8 +87,9 @@ namespace OctopusPuppet.OctopusProvider
         /// <param name="projectId"></param>
         /// <param name="branch"></param>
         /// <param name="dashboard"></param>
+        /// <param name="componentFilter"></param>
         /// <returns></returns>
-        private Component GetComponentForBranch(DashboardResource dashboard, string environmentId, string projectId, string branch)
+        private Component GetComponentForBranch(DashboardResource dashboard, string environmentId, string projectId, string branch, ComponentFilter componentFilter)
         {
             var releaseResources = GetReleaseResources(projectId);
 
@@ -119,6 +120,7 @@ namespace OctopusPuppet.OctopusProvider
             var componentDependancies = projectVariables.Variables
                 .Where(x => x.Name == ComponentDependancies)
                 .SelectMany(x => JsonConvert.DeserializeObject<string[]>(x.Value))
+                .Where(x => componentFilter == null || componentFilter.Match(x))
                 .ToList();
 
             var component = new Component
@@ -137,8 +139,9 @@ namespace OctopusPuppet.OctopusProvider
         /// <param name="dashboard"></param>
         /// <param name="environmentId"></param>
         /// <param name="projectId"></param>
+        /// <param name="componentFilter"></param>
         /// <returns></returns>
-        private Component GetComponentForEnvironment(DashboardResource dashboard, string environmentId, string projectId)
+        private Component GetComponentForEnvironment(DashboardResource dashboard, string environmentId, string projectId, ComponentFilter componentFilter)
         {
             var dashboardItemResources = dashboard.Items
                 .Where(x => x.EnvironmentId == environmentId && x.ProjectId == projectId);
@@ -156,6 +159,7 @@ namespace OctopusPuppet.OctopusProvider
             var componentDependancies = projectVariables.Variables
                 .Where(x => x.Name == ComponentDependancies)
                 .SelectMany(x => JsonConvert.DeserializeObject<string[]>(x.Value))
+                .Where(x => componentFilter == null || componentFilter.Match(x))
                 .ToList();
 
             var component = new Component
@@ -235,7 +239,7 @@ namespace OctopusPuppet.OctopusProvider
             return branches;
         }
 
-        public EnvironmentDeploymentPlans GetEnvironmentMirrorDeploymentPlans(string environmentFrom, string environmentTo)
+        public EnvironmentDeploymentPlans GetEnvironmentMirrorDeploymentPlans(string environmentFrom, string environmentTo, ComponentFilter componentFilter = null)
         {
             var environments = environmentFrom == environmentTo ? 
                 new[] {environmentFrom} : 
@@ -271,14 +275,20 @@ namespace OctopusPuppet.OctopusProvider
 
             foreach (var dashboardProjectResource in dashboard.Projects)
             {
-                var projectId = dashboardProjectResource.Id;
                 var projectName = dashboardProjectResource.Name;
 
-                var componentFrom = GetComponentForEnvironment(dashboard, environmentFromId, projectId);                
+                if (componentFilter != null && !componentFilter.Match(projectName))
+                {
+                    continue;
+                }
+
+                var projectId = dashboardProjectResource.Id;
+
+                var componentFrom = GetComponentForEnvironment(dashboard, environmentFromId, projectId, componentFilter);                
 
                 var componentTo = environmentFromId == environmentToId 
-                    ? componentFrom 
-                    : GetComponentForEnvironment(dashboard, environmentToId, projectId);
+                    ? componentFrom
+                    : GetComponentForEnvironment(dashboard, environmentToId, projectId, componentFilter);
 
                 var deploymentPlan = GetEnvironmentDeploymentPlan(projectId, projectName, componentFrom, componentTo);
 
@@ -289,7 +299,7 @@ namespace OctopusPuppet.OctopusProvider
         }
 
 
-        public BranchDeploymentPlans GetBranchDeploymentPlans(string environment, string branch)
+        public BranchDeploymentPlans GetBranchDeploymentPlans(string environment, string branch, ComponentFilter componentFilter = null)
         {
             var environments = new[] { environment };
 
@@ -317,11 +327,17 @@ namespace OctopusPuppet.OctopusProvider
 
             foreach (var dashboardProjectResource in dashboard.Projects)
             {
-                var projectId = dashboardProjectResource.Id;
                 var projectName = dashboardProjectResource.Name;
 
-                var componentFrom = GetComponentForBranch(dashboard, environmentId, projectId, branch);
-                var componentTo = GetComponentForEnvironment(dashboard, environmentId, projectId);
+                if (componentFilter != null && !componentFilter.Match(projectName))
+                {
+                    continue;
+                }
+
+                var projectId = dashboardProjectResource.Id;
+
+                var componentFrom = GetComponentForBranch(dashboard, environmentId, projectId, branch, componentFilter);
+                var componentTo = GetComponentForEnvironment(dashboard, environmentId, projectId, componentFilter);
 
                 var deploymentPlan = GetEnvironmentDeploymentPlan(projectId, projectName, componentFrom, componentTo);
 
@@ -331,7 +347,7 @@ namespace OctopusPuppet.OctopusProvider
             return branchDeploymentPlan;
         }
 
-        public RedeployDeploymentPlans GetRedeployDeploymentPlans(string environment)
+        public RedeployDeploymentPlans GetRedeployDeploymentPlans(string environment, ComponentFilter componentFilter = null)
         {
             var environments = new[] { environment };
 
@@ -358,10 +374,16 @@ namespace OctopusPuppet.OctopusProvider
 
             foreach (var dashboardProjectResource in dashboard.Projects)
             {
-                var projectId = dashboardProjectResource.Id;
                 var projectName = dashboardProjectResource.Name;
 
-                var componentFrom = GetComponentForEnvironment(dashboard, environmentId, projectId);
+                if (componentFilter != null && !componentFilter.Match(projectName))
+                {
+                    continue;
+                }
+
+                var projectId = dashboardProjectResource.Id;
+
+                var componentFrom = GetComponentForEnvironment(dashboard, environmentId, projectId, componentFilter);
                 var componentTo = componentFrom;
 
                 var deploymentPlan = GetEnvironmentDeploymentPlan(projectId, projectName, componentFrom, componentTo);

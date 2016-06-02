@@ -136,9 +136,9 @@ namespace OctopusPuppet.Scheduler
                 {
                     rootComponentGroupVertex.ExecutionOrder = executionOrder;
 
-                    foreach (var componentVertex in rootComponentGroupVertex.ComponentDeployments)
+                    foreach (var componentDeployment in rootComponentGroupVertex.ComponentDeployments)
                     {
-                        componentVertex.ExecutionOrder = executionOrder;
+                        componentDeployment.Vertex.ExecutionOrder = executionOrder;
                     }
 
                     adjacencyGraphForComponentGroupThatAreNotProcessed.RemoveVertex(rootComponentGroupVertex);
@@ -162,23 +162,35 @@ namespace OctopusPuppet.Scheduler
                     .Where(edge => edge.Source.ComponentGroup == stepGroup)
                     .ToList();
 
-                var componentGroupVertex = new ProductDeploymentStep(vertices, edges);
-                relatedComponentGroupDependancies.AddVertex(componentGroupVertex);
+                var componentDeployments = vertices.Select(x => new ComponentDeployment
+                {
+                   Vertex = x,
+                   Edges = edges
+                }).ToList();
+
+                var productDeploymentStep = new ProductDeploymentStep(componentDeployments);
+                relatedComponentGroupDependancies.AddVertex(productDeploymentStep);
             }
 
-            foreach (var componentGroupVertexSource in relatedComponentGroupDependancies.Vertices)
+            foreach (var productDeploymentStep in relatedComponentGroupDependancies.Vertices)
             {
-                var relatedComponentGroupDependancyEdges = componentGroupVertexSource.Edges;
-                var relatedComponentGroupDependancyVertices = componentGroupVertexSource.ComponentDeployments;
+                var relatedComponentGroupDependancyEdges = productDeploymentStep.ComponentDeployments
+                    .SelectMany(x=>x.Edges)
+                    .ToList();
+
+                var relatedComponentGroupDependancyVertices = productDeploymentStep.ComponentDeployments
+                    .Select(x => x.Vertex)
+                    .ToList();
+
                 var componentGroupExternalEdges = relatedComponentGroupDependancyEdges
                     .Where(edge => relatedComponentGroupDependancyVertices.All(vertex => vertex != edge.Target));
 
                 foreach (var componentGroupExternalEdge in componentGroupExternalEdges)
                 {
                     var componentGroupVertexTarget = relatedComponentGroupDependancies.Vertices
-                        .First(vertex => vertex.ComponentDeployments.Any(x => x == componentGroupExternalEdge.Target));
+                        .First(vertex => vertex.ComponentDeployments.Select(x=>x.Vertex).Any(x => x == componentGroupExternalEdge.Target));
 
-                    var componentGroupEdge = new DeploymentStepEdge(componentGroupVertexSource, componentGroupVertexTarget);
+                    var componentGroupEdge = new DeploymentStepEdge(productDeploymentStep, componentGroupVertexTarget);
                     relatedComponentGroupDependancies.AddEdge(componentGroupEdge);
                 }
             }
