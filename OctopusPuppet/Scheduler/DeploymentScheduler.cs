@@ -85,11 +85,18 @@ namespace OctopusPuppet.Scheduler
 
             var relatedComponentGroupDependancies = adjacencyGraphForComponentGroup
                 .TopologicalSort()
+                .ToList();
+
+            var relatedComponentGroupDependanciesGroupedByExecutionOrder = relatedComponentGroupDependancies
+                .GroupBy(keySelector => keySelector.ExecutionOrder, elementSelector => elementSelector, (executionOrder, productDeploymentSteps) => new ProductDeploymentStep(productDeploymentSteps.SelectMany(x=>x.ComponentDeployments).OrderBy(x=>x.Vertex.Name).ToList())
+                {
+                    ExecutionOrder = executionOrder
+                })
                 .OrderBy(x => x.ExecutionOrder)
                 .ThenByDescending(x => x.DeploymentDuration)
                 .ToList();
 
-            var productDeployment = new ProductDeployment(relatedComponentGroupDependancies);
+            var productDeployment = new ProductDeployment(relatedComponentGroupDependanciesGroupedByExecutionOrder);
 
             return productDeployment;
         }
@@ -169,9 +176,9 @@ namespace OctopusPuppet.Scheduler
                 }).ToList();
 
                 var productDeploymentStep = new ProductDeploymentStep(componentDeployments);
-                relatedComponentGroupDependancies.AddVertex(productDeploymentStep);
+                relatedComponentGroupDependancies.AddVertex(productDeploymentStep); 
             }
-
+            
             foreach (var productDeploymentStep in relatedComponentGroupDependancies.Vertices)
             {
                 var relatedComponentGroupDependancyEdges = productDeploymentStep.ComponentDeployments
@@ -190,8 +197,8 @@ namespace OctopusPuppet.Scheduler
                     var componentGroupVertexTarget = relatedComponentGroupDependancies.Vertices
                         .First(vertex => vertex.ComponentDeployments.Select(x=>x.Vertex).Any(x => x == componentGroupExternalEdge.Target));
 
-                    var componentGroupEdge = new DeploymentStepEdge(productDeploymentStep, componentGroupVertexTarget);
-                    relatedComponentGroupDependancies.AddEdge(componentGroupEdge);
+                    var deploymentStepEdge = new DeploymentStepEdge(productDeploymentStep, componentGroupVertexTarget);
+                    relatedComponentGroupDependancies.AddEdge(deploymentStepEdge);
                 }
             }
 
