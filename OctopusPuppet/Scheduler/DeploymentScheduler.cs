@@ -12,7 +12,7 @@ namespace OctopusPuppet.Scheduler
             var componentVertices = new Dictionary<string, ComponentDeploymentVertex>();
             foreach (var componentDependancy in environmentDeploymentPlan.DeploymentPlans)
             {
-                var version = componentDependancy.ComponentTo == null ? null : componentDependancy.ComponentTo.Version;
+                var version = componentDependancy.ComponentFrom == null ? null : componentDependancy.ComponentFrom.Version;
                 var deploymentDuration = componentDependancy.ComponentFrom == null ? null : componentDependancy.ComponentFrom.DeploymentDuration;
 
                 var componentVertex = new ComponentDeploymentVertex(componentDependancy.Id, componentDependancy.Name, version, componentDependancy.Action, deploymentDuration);
