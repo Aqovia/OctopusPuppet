@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using OctopusPuppet.Scheduler;
 
@@ -6,6 +7,6 @@ namespace OctopusPuppet.Deployer
 {
     public interface IComponentVertexDeployer
     {
-        Task Deploy(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken);
+        Task<ComponentVertexDeploymentStatus> Deploy(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken, IProgress<ComponentVertexDeploymentProgress> progress);
     }
 }

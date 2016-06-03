@@ -99,13 +99,13 @@ namespace OctopusPuppet.OctopusProvider
             return null;
         }
 
-        public async Task Deploy(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken)
+        public async Task<ComponentVertexDeploymentStatus> Deploy(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken, IProgress<ComponentVertexDeploymentProgress> progress)
         {
-            await Task.Factory.StartNew(() =>
+            return await Task.Run(() =>
             {
                 if (!componentDeploymentVertex.Exists || componentDeploymentVertex.Action == PlanAction.Skip)
                 {
-                    return;
+                    return ComponentVertexDeploymentStatus.Success;
                 }
 
                 if (componentDeploymentVertex.Version == null)
@@ -145,16 +145,67 @@ namespace OctopusPuppet.OctopusProvider
 
                 Action<TaskResource[]> interval = tasks =>
                 {
-                    if (cancellationToken.IsCancellationRequested)
+                    foreach (var task in tasks)
                     {
-                        foreach (var task in tasks)
+                        if (cancellationToken.IsCancellationRequested)
                         {
                             _repository.Tasks.Cancel(task);
+                        }
+
+                        var duration = new TimeSpan(0);
+
+                        if (task.StartTime.HasValue)
+                        {
+                            var now = new DateTimeOffset(DateTime.UtcNow);
+                            duration = now.Subtract(task.StartTime.Value);
+                        }
+
+                        if (progress != null)
+                        {
+                            progress.Report(new ComponentVertexDeploymentProgress
+                            {
+                                Vertex = componentDeploymentVertex,
+                                Status = ComponentVertexDeploymentStatus.InProgress,
+                                MinimumValue = 0,
+                                MaximumValue =
+                                    componentDeploymentVertex.DeploymentDuration.HasValue
+                                        ? componentDeploymentVertex.DeploymentDuration.Value.Ticks
+                                        : 0,
+                                Value = duration.Ticks,
+                                Text = task.Description
+                            });
                         }
                     }
                 };
 
                 _repository.Tasks.WaitForCompletion(deploymentTask, _pollIntervalSeconds, _timeoutAfterMinutes, interval);
+
+                deploymentTask = _repository.Tasks.Get(queuedDeployment.TaskId);
+
+                ComponentVertexDeploymentStatus status;
+
+                switch (deploymentTask.State)
+                {
+                    case TaskState.Success:
+                        status = ComponentVertexDeploymentStatus.Success;
+                        break;
+
+                    case TaskState.Canceled:
+                    case TaskState.Cancelling:
+                        status = ComponentVertexDeploymentStatus.Cancelled;
+                        break;
+
+                    case TaskState.Failed:
+                    case TaskState.TimedOut:
+                        status = ComponentVertexDeploymentStatus.Failure;
+                        break;
+
+                    default:
+                        status = ComponentVertexDeploymentStatus.Failure;
+                        break;
+                }
+
+                return status;
             }, cancellationToken);
         }
     }

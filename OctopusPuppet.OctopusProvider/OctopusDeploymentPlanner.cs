@@ -248,28 +248,26 @@ namespace OctopusPuppet.OctopusProvider
             var environmentIds = _repository.Environments
                 .GetAll()
                 .Where(x=>environments.Contains(x.Name))
-                .Select(x=>x.Id)
                 .ToArray();
 
-            var environmentFromId = environmentIds[0];
-            var environmentToId = environmentFromId;
-
-            if (environmentIds.Length > 1)
+            var environmentReferenceFrom = environmentIds.FirstOrDefault(x => x.Name == environmentFrom);
+            if (environmentReferenceFrom == null)
             {
-                environmentToId = environmentIds[1];
+                throw new Exception(string.Format("Unable to find environment - {0}", environmentFrom));
             }
 
-            if (environmentIds.Length != environments.Length)
+            var environmentReferenceTo = environmentIds.FirstOrDefault(x => x.Name == environmentTo);
+            if (environmentReferenceTo == null)
             {
-                throw new Exception("Unable to find environment");
+                throw new Exception(string.Format("Unable to find environment - {0}", environmentTo));
             }
 
-            var dashboard = _repository.Dashboards.GetDynamicDashboard(null, environmentIds);
+            var dashboard = _repository.Dashboards.GetDynamicDashboard(null, environmentIds.Select(x=>x.Id).ToArray());
 
             var environmentDeploymentPlan = new EnvironmentDeploymentPlans
             {
-                EnvironmentFromId = environmentFromId,
-                EnvironmentToId = environmentToId,
+                EnvironmentFromId = environmentReferenceFrom.Id,
+                EnvironmentToId = environmentReferenceTo.Id,
                 EnvironmentDeploymentPlan = new EnvironmentDeploymentPlan(new List<ComponentDeploymentPlan>())
             };
 
@@ -284,11 +282,11 @@ namespace OctopusPuppet.OctopusProvider
 
                 var projectId = dashboardProjectResource.Id;
 
-                var componentFrom = GetComponentForEnvironment(dashboard, environmentFromId, projectId, componentFilter);                
+                var componentFrom = GetComponentForEnvironment(dashboard, environmentReferenceFrom.Id, projectId, componentFilter);                
 
-                var componentTo = environmentFromId == environmentToId 
+                var componentTo = environmentReferenceFrom.Id == environmentReferenceTo.Id 
                     ? componentFrom
-                    : GetComponentForEnvironment(dashboard, environmentToId, projectId, componentFilter);
+                    : GetComponentForEnvironment(dashboard, environmentReferenceTo.Id, projectId, componentFilter);
 
                 var deploymentPlan = GetEnvironmentDeploymentPlan(projectId, projectName, componentFrom, componentTo);
 
@@ -306,21 +304,19 @@ namespace OctopusPuppet.OctopusProvider
             var environmentIds = _repository.Environments
                 .GetAll()
                 .Where(x => environments.Contains(x.Name))
-                .Select(x => x.Id)
                 .ToArray();
 
-            if (environmentIds.Length != 1)
+            var environmentReference = environmentIds.FirstOrDefault(x => x.Name == environment);
+            if (environmentReference == null)
             {
-                throw new Exception("Unable to find environment");
+                throw new Exception(string.Format("Unable to find environment - {0}", environment));
             }
-
-            var environmentId = environmentIds[0];
             
-            var dashboard = _repository.Dashboards.GetDynamicDashboard(null, environmentIds);
+            var dashboard = _repository.Dashboards.GetDynamicDashboard(null, environmentIds.Select(x=>x.Id).ToArray());
 
             var branchDeploymentPlan = new BranchDeploymentPlans
             {
-                EnvironmentId = environmentId,
+                EnvironmentId = environmentReference.Id,
                 Branch = branch,
                 EnvironmentDeploymentPlan = new EnvironmentDeploymentPlan(new List<ComponentDeploymentPlan>())
             };
@@ -336,8 +332,8 @@ namespace OctopusPuppet.OctopusProvider
 
                 var projectId = dashboardProjectResource.Id;
 
-                var componentFrom = GetComponentForBranch(dashboard, environmentId, projectId, branch, componentFilter);
-                var componentTo = GetComponentForEnvironment(dashboard, environmentId, projectId, componentFilter);
+                var componentFrom = GetComponentForBranch(dashboard, environmentReference.Id, projectId, branch, componentFilter);
+                var componentTo = GetComponentForEnvironment(dashboard, environmentReference.Id, projectId, componentFilter);
 
                 var deploymentPlan = GetEnvironmentDeploymentPlan(projectId, projectName, componentFrom, componentTo);
 
@@ -354,21 +350,19 @@ namespace OctopusPuppet.OctopusProvider
             var environmentIds = _repository.Environments
                 .GetAll()
                 .Where(x => environments.Contains(x.Name))
-                .Select(x => x.Id)
                 .ToArray();
 
-            if (environmentIds.Length != 1)
+            var environmentReference = environmentIds.FirstOrDefault(x => x.Name == environment);
+            if (environmentReference == null)
             {
-                throw new Exception("Unable to find environment");
+                throw new Exception(string.Format("Unable to find environment - {0}", environment));
             }
 
-            var environmentId = environmentIds[0];
-
-            var dashboard = _repository.Dashboards.GetDynamicDashboard(null, environmentIds);
+            var dashboard = _repository.Dashboards.GetDynamicDashboard(null, environmentIds.Select(x=>x.Id).ToArray());
 
             var redeployDeploymentPlans = new RedeployDeploymentPlans
             {
-                EnvironmentId = environmentId,
+                EnvironmentId = environmentReference.Id,
                 EnvironmentDeploymentPlan = new EnvironmentDeploymentPlan(new List<ComponentDeploymentPlan>())
             };
 
@@ -383,7 +377,7 @@ namespace OctopusPuppet.OctopusProvider
 
                 var projectId = dashboardProjectResource.Id;
 
-                var componentFrom = GetComponentForEnvironment(dashboard, environmentId, projectId, componentFilter);
+                var componentFrom = GetComponentForEnvironment(dashboard, environmentReference.Id, projectId, componentFilter);
                 var componentTo = componentFrom;
 
                 var deploymentPlan = GetEnvironmentDeploymentPlan(projectId, projectName, componentFrom, componentTo);

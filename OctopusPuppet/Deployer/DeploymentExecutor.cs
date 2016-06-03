@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,12 +12,14 @@ namespace OctopusPuppet.Deployer
         private readonly IComponentVertexDeployer _componentVertexDeployer;
         private readonly EnvironmentDeployment _environmentDeployment;
         private readonly CancellationToken _cancellationToken;
+        private readonly IProgress<ComponentVertexDeploymentProgress> _progress;
 
-        public DeploymentExecutor(IComponentVertexDeployer componentVertexDeployer, EnvironmentDeployment environmentDeployment, CancellationToken cancellationToken)
+        public DeploymentExecutor(IComponentVertexDeployer componentVertexDeployer, EnvironmentDeployment environmentDeployment, CancellationToken cancellationToken, IProgress<ComponentVertexDeploymentProgress> progress)
         {
             _componentVertexDeployer = componentVertexDeployer;
             _environmentDeployment = environmentDeployment;
             _cancellationToken = cancellationToken;
+            _progress = progress;
         }
 
         public async Task Execute()
@@ -57,7 +60,44 @@ namespace OctopusPuppet.Deployer
                 return;
             }
 
-            await _componentVertexDeployer.Deploy(componentDeploymentVertex, cancellationToken);
+            //Start progress
+            if (_progress != null)
+            {
+                _progress.Report(new ComponentVertexDeploymentProgress
+                {
+                    Vertex = componentDeploymentVertex,
+                    Status = ComponentVertexDeploymentStatus.Started,
+                    MinimumValue = 0,
+                    MaximumValue =
+                        componentDeploymentVertex.DeploymentDuration.HasValue
+                            ? componentDeploymentVertex.DeploymentDuration.Value.Ticks
+                            : 0,
+                    Value = 0,
+                    Text = "Started"
+                });
+            }
+
+            var status = await _componentVertexDeployer.Deploy(componentDeploymentVertex, cancellationToken, _progress);
+
+            //Finish progress    
+            if (_progress != null)
+            {
+                _progress.Report(new ComponentVertexDeploymentProgress
+                {
+                    Vertex = componentDeploymentVertex,
+                    Status = status,
+                    MinimumValue = 0,
+                    MaximumValue =
+                        componentDeploymentVertex.DeploymentDuration.HasValue
+                            ? componentDeploymentVertex.DeploymentDuration.Value.Ticks
+                            : 0,
+                    Value =
+                        componentDeploymentVertex.DeploymentDuration.HasValue
+                            ? componentDeploymentVertex.DeploymentDuration.Value.Ticks
+                            : 0,
+                    Text = status.ToString()
+                });
+            }
         }
 
         private static async Task RunInParallel(IEnumerable<Task> tasks, CancellationToken cancellationToken)

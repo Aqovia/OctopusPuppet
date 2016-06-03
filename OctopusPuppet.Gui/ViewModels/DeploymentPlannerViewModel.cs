@@ -640,7 +640,7 @@ namespace OctopusPuppet.Gui.ViewModels
                 {
                     var componentVertexDeployer = new OctopusComponentVertexDeployer(_octopusUrl, _octopusApiKey, EnvironmentToDeployTo);
                     var cancellationTokenSource = new CancellationTokenSource();
-                    var deploymentExecutor = new DeploymentExecutor(componentVertexDeployer, EnvironmentDeployment, cancellationTokenSource.Token);
+                    var deploymentExecutor = new DeploymentExecutor(componentVertexDeployer, EnvironmentDeployment, cancellationTokenSource.Token, null);
                     deploymentExecutor.Execute().ConfigureAwait(false).GetAwaiter().GetResult();
                 }
                 catch
