@@ -27,37 +27,79 @@ namespace OctopusPuppet.Deployer
             await DeployEnvironment(_environmentDeployment, _cancellationToken);
         }
 
-        private async Task DeployEnvironment(EnvironmentDeployment environmentDeployment, CancellationToken cancellationToken)
+        /// <summary>
+        /// Deploy all products in parallel
+        /// </summary>
+        /// <param name="environmentDeployment"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>True if all products were deployed successfully; else false</returns>
+        private async Task<bool> DeployEnvironment(EnvironmentDeployment environmentDeployment, CancellationToken cancellationToken)
         {
             var productTasks = environmentDeployment.ProductDeployments
                 .Select(productDeployment => DeployProduct(productDeployment, cancellationToken));
 
-            await RunInParallel(productTasks, cancellationToken);
+            var productDeploymentResults = await WhenAll(productTasks, cancellationToken);
+
+            return productDeploymentResults != null && !productDeploymentResults.Any(x => x != true);
         }
 
-        private async Task DeployProduct(ProductDeployment productDeployment, CancellationToken cancellationToken)
+        /// <summary>
+        /// Deploy product steps in series
+        /// </summary>
+        /// <param name="productDeployment"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>True if all product steps were deployed successfully; else false</returns>
+        private async Task<bool> DeployProduct(ProductDeployment productDeployment, CancellationToken cancellationToken)
         {
-            var productStepTasks = productDeployment.DeploymentSteps
-                .OrderBy(x => x.ExecutionOrder)
-                .Select(x => DeployProductStep(x, cancellationToken));
+            var productSteps = productDeployment.DeploymentSteps
+                .OrderBy(x => x.ExecutionOrder);
 
-            await RunInParallel(productStepTasks, cancellationToken);
+            foreach (var productDeploymentStep in productSteps)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return false;
+                }
+
+                var deployProductStepResults = await DeployProductStep(productDeploymentStep, cancellationToken);
+
+                if (!deployProductStepResults)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
-        private async Task DeployProductStep(ProductDeploymentStep productDeploymentStep, CancellationToken cancellationToken)
+        /// <summary>
+        /// Deploy all components in a product step in parallel
+        /// </summary>
+        /// <param name="productDeploymentStep"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>True if all components were deployed successfully; else false</returns>
+        private async Task<bool> DeployProductStep(ProductDeploymentStep productDeploymentStep, CancellationToken cancellationToken)
         {
-            var componentDeploymentTasks = productDeploymentStep.ComponentDeployments.Select(x=>x.Vertex)
-                .OrderBy(x => x.ExecutionOrder)
-                .Select(x => DeployComponent(x, cancellationToken));
+            var componentDeploymentForProductDeploymentStepTasks = productDeploymentStep.ComponentDeployments
+                .Select(x=>x.Vertex)
+                .OrderBy(x=>x.ExecutionOrder) //does not matter if other components finish before this one
+                .Select(x => Task.Run(() => DeployComponent(x, cancellationToken), cancellationToken));
 
-            await RunInSeries(componentDeploymentTasks, cancellationToken);
+            var deployComponentResults = await WhenAll(componentDeploymentForProductDeploymentStepTasks, cancellationToken);
+
+            return deployComponentResults != null && !deployComponentResults.Any(x => x != ComponentVertexDeploymentStatus.Success);
         }
 
-        private async Task DeployComponent(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken)
+        /// <summary>
+        /// Deploy component
+        /// </summary>
+        /// <param name="componentDeploymentVertex"></param>
+        /// <param name="cancellationToken"></param>
+        private ComponentVertexDeploymentStatus DeployComponent(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)
             {
-                return;
+                return ComponentVertexDeploymentStatus.Cancelled;
             }
 
             //Start progress
@@ -77,7 +119,7 @@ namespace OctopusPuppet.Deployer
                 });
             }
 
-            var status = await _componentVertexDeployer.Deploy(componentDeploymentVertex, cancellationToken, _progress);
+            var status = _componentVertexDeployer.Deploy(componentDeploymentVertex, cancellationToken, _progress);
 
             //Finish progress    
             if (_progress != null)
@@ -98,24 +140,20 @@ namespace OctopusPuppet.Deployer
                     Text = status.ToString()
                 });
             }
+
+            return status;
         }
 
-        private static async Task RunInParallel(IEnumerable<Task> tasks, CancellationToken cancellationToken)
+        private static async Task<TResult[]> WhenAll<TResult>(IEnumerable<Task<TResult>> tasks, CancellationToken cancellationToken)
         {
-            await Task.WhenAny(Task.WhenAll(tasks), cancellationToken.AsTask());
-        }
+            var resultsForTasks = Task.WhenAll(tasks);
 
-        private static async Task RunInSeries(IEnumerable<Task> tasks, CancellationToken cancellationToken)
-        {
-            foreach (var task in tasks)
+            if (await Task.WhenAny(resultsForTasks, cancellationToken.AsTask()) == resultsForTasks)
             {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    break;
-                }
-
-                await task;
+                return await resultsForTasks;
             }
+
+            return null;
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Octopus.Client;
 using Octopus.Client.Model;
 using OctopusPuppet.Deployer;
@@ -99,114 +98,111 @@ namespace OctopusPuppet.OctopusProvider
             return null;
         }
 
-        public async Task<ComponentVertexDeploymentStatus> Deploy(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken, IProgress<ComponentVertexDeploymentProgress> progress)
+        public ComponentVertexDeploymentStatus Deploy(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken, IProgress<ComponentVertexDeploymentProgress> progress)
         {
-            return await Task.Run(() =>
+            if (!componentDeploymentVertex.Exists || componentDeploymentVertex.Action == PlanAction.Skip)
             {
-                if (!componentDeploymentVertex.Exists || componentDeploymentVertex.Action == PlanAction.Skip)
-                {
-                    return ComponentVertexDeploymentStatus.Success;
-                }
+                return ComponentVertexDeploymentStatus.Success;
+            }
 
-                if (componentDeploymentVertex.Version == null)
-                {
-                    throw new Exception("Version for release is null");
-                }
+            if (componentDeploymentVertex.Version == null)
+            {
+                throw new Exception("Version for release is null");
+            }
 
-                var environment = GetEnvironment(_environmentToDeployTo.Name);
-                if (environment == null)
-                {
-                    throw new Exception(string.Format("Can't find environment name of {0}", _environmentToDeployTo.Name));
-                }
+            var environment = GetEnvironment(_environmentToDeployTo.Name);
+            if (environment == null)
+            {
+                throw new Exception(string.Format("Can't find environment name of {0}", _environmentToDeployTo.Name));
+            }
 
-                var project = GetProject(componentDeploymentVertex.Name);
-                if (project == null)
-                {
-                    throw new Exception(string.Format("Can't find project with name of {0}", componentDeploymentVertex.Name));
-                }
+            var project = GetProject(componentDeploymentVertex.Name);
+            if (project == null)
+            {
+                throw new Exception(string.Format("Can't find project with name of {0}", componentDeploymentVertex.Name));
+            }
 
-                var release = GetReleaseResources(project.Id, componentDeploymentVertex.Version);
-                if (release == null)
-                {
-                    throw new Exception(string.Format("Can't find release with project id {0} and version of {1}", componentDeploymentVertex.Name, componentDeploymentVertex.Version));
-                }
+            var release = GetReleaseResources(project.Id, componentDeploymentVertex.Version);
+            if (release == null)
+            {
+                throw new Exception(string.Format("Can't find release with project id {0} and version of {1}", componentDeploymentVertex.Name, componentDeploymentVertex.Version));
+            }
 
-                var deployment = new DeploymentResource
-                {
-                    ReleaseId = release.Id,
-                    EnvironmentId = environment.Id,
-                    Comments = _comments,
-                    ForcePackageDownload = _forcePackageDownload,
-                    ForcePackageRedeployment = _forcePackageRedeployment,
-                };
+            var deployment = new DeploymentResource
+            {
+                ReleaseId = release.Id,
+                EnvironmentId = environment.Id,
+                Comments = _comments,
+                ForcePackageDownload = _forcePackageDownload,
+                ForcePackageRedeployment = _forcePackageRedeployment,
+            };
 
-                var queuedDeployment = _repository.Deployments.Create(deployment);
-                var deploymentTask = _repository.Tasks.Get(queuedDeployment.TaskId);
+            var queuedDeployment = _repository.Deployments.Create(deployment);
+            var deploymentTask = _repository.Tasks.Get(queuedDeployment.TaskId);
 
-                Action<TaskResource[]> interval = tasks =>
+            Action<TaskResource[]> interval = tasks =>
+            {
+                foreach (var task in tasks)
                 {
-                    foreach (var task in tasks)
+                    if (cancellationToken.IsCancellationRequested)
                     {
-                        if (cancellationToken.IsCancellationRequested)
-                        {
-                            _repository.Tasks.Cancel(task);
-                        }
-
-                        var duration = new TimeSpan(0);
-
-                        if (task.StartTime.HasValue)
-                        {
-                            var now = new DateTimeOffset(DateTime.UtcNow);
-                            duration = now.Subtract(task.StartTime.Value);
-                        }
-
-                        if (progress != null)
-                        {
-                            progress.Report(new ComponentVertexDeploymentProgress
-                            {
-                                Vertex = componentDeploymentVertex,
-                                Status = ComponentVertexDeploymentStatus.InProgress,
-                                MinimumValue = 0,
-                                MaximumValue =
-                                    componentDeploymentVertex.DeploymentDuration.HasValue
-                                        ? componentDeploymentVertex.DeploymentDuration.Value.Ticks
-                                        : 0,
-                                Value = duration.Ticks,
-                                Text = task.Description
-                            });
-                        }
+                        _repository.Tasks.Cancel(task);
                     }
-                };
 
-                _repository.Tasks.WaitForCompletion(deploymentTask, _pollIntervalSeconds, _timeoutAfterMinutes, interval);
+                    var duration = new TimeSpan(0);
 
-                deploymentTask = _repository.Tasks.Get(queuedDeployment.TaskId);
+                    if (task.StartTime.HasValue)
+                    {
+                        var now = new DateTimeOffset(DateTime.UtcNow);
+                        duration = now.Subtract(task.StartTime.Value);
+                    }
 
-                ComponentVertexDeploymentStatus status;
-
-                switch (deploymentTask.State)
-                {
-                    case TaskState.Success:
-                        status = ComponentVertexDeploymentStatus.Success;
-                        break;
-
-                    case TaskState.Canceled:
-                    case TaskState.Cancelling:
-                        status = ComponentVertexDeploymentStatus.Cancelled;
-                        break;
-
-                    case TaskState.Failed:
-                    case TaskState.TimedOut:
-                        status = ComponentVertexDeploymentStatus.Failure;
-                        break;
-
-                    default:
-                        status = ComponentVertexDeploymentStatus.Failure;
-                        break;
+                    if (progress != null)
+                    {
+                        progress.Report(new ComponentVertexDeploymentProgress
+                        {
+                            Vertex = componentDeploymentVertex,
+                            Status = ComponentVertexDeploymentStatus.InProgress,
+                            MinimumValue = 0,
+                            MaximumValue =
+                                componentDeploymentVertex.DeploymentDuration.HasValue
+                                    ? componentDeploymentVertex.DeploymentDuration.Value.Ticks
+                                    : 0,
+                            Value = duration.Ticks,
+                            Text = task.Description
+                        });
+                    }
                 }
+            };
 
-                return status;
-            }, cancellationToken);
+            _repository.Tasks.WaitForCompletion(deploymentTask, _pollIntervalSeconds, _timeoutAfterMinutes, interval);
+
+            deploymentTask = _repository.Tasks.Get(queuedDeployment.TaskId);
+
+            ComponentVertexDeploymentStatus status;
+
+            switch (deploymentTask.State)
+            {
+                case TaskState.Success:
+                    status = ComponentVertexDeploymentStatus.Success;
+                    break;
+
+                case TaskState.Canceled:
+                case TaskState.Cancelling:
+                    status = ComponentVertexDeploymentStatus.Cancelled;
+                    break;
+
+                case TaskState.Failed:
+                case TaskState.TimedOut:
+                    status = ComponentVertexDeploymentStatus.Failure;
+                    break;
+
+                default:
+                    status = ComponentVertexDeploymentStatus.Failure;
+                    break;
+            }
+
+            return status;
         }
     }
 }
