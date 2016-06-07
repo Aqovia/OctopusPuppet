@@ -111,6 +111,8 @@ namespace OctopusPuppet.OctopusProvider
             // No other way to calculate duration otherwise :<
             var dashboardItemResource = GetClosestMatchingDashboardItemResource(dashboard, environmentId, projectId, branch);
 
+            var healthy = dashboardItemResource.State == TaskState.Success;
+
             var componentDeployedOnEnvironmentFromDuration = dashboardItemResource == null 
                 ? null 
                 : dashboardItemResource.CompletedTime - dashboardItemResource.QueueTime;
@@ -125,6 +127,7 @@ namespace OctopusPuppet.OctopusProvider
 
             var component = new Component
             {
+                Healthy = healthy,
                 Version = new SemVer(releaseResource.Version),
                 DeploymentDuration = componentDeployedOnEnvironmentFromDuration,
                 Dependancies = componentDependancies
@@ -150,9 +153,10 @@ namespace OctopusPuppet.OctopusProvider
 
             if (dashboardItemResource == null) return null;
 
-            var componentDeployedOnEnvironmentFromDuration = dashboardItemResource.CompletedTime -
-                                                             dashboardItemResource.QueueTime;
+            var componentDeployedOnEnvironmentFromDuration = dashboardItemResource.CompletedTime - dashboardItemResource.QueueTime;
 
+            var healthy = dashboardItemResource.State == TaskState.Success;
+            
             var release = _repository.Releases.Get(dashboardItemResource.ReleaseId);
             var projectVariables = _repository.VariableSets.Get(release.ProjectVariableSetSnapshotId);
 
@@ -164,6 +168,7 @@ namespace OctopusPuppet.OctopusProvider
 
             var component = new Component
             {
+                Healthy = healthy,
                 Version = new SemVer(dashboardItemResource.ReleaseVersion),
                 DeploymentDuration = componentDeployedOnEnvironmentFromDuration,
                 Dependancies = componentDependancies
@@ -194,7 +199,7 @@ namespace OctopusPuppet.OctopusProvider
             {
                 deploymentPlan.Action = PlanAction.Change;
             }
-            else if (componentFrom.Version == componentTo.Version)
+            else if (componentFrom.Version == componentTo.Version && componentTo.Healthy)
             {
                 deploymentPlan.Action = PlanAction.Skip;
             }

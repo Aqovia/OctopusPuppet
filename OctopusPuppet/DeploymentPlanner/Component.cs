@@ -7,6 +7,9 @@ namespace OctopusPuppet.DeploymentPlanner
     public class Component
     {
         [JsonProperty(Required = Required.Always)]
+        public bool Healthy { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
         public SemVer Version { get; set; }
 
         [JsonProperty(Required = Required.AllowNull)]
