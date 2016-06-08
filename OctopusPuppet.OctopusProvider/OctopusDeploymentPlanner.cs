@@ -111,7 +111,7 @@ namespace OctopusPuppet.OctopusProvider
             // No other way to calculate duration otherwise :<
             var dashboardItemResource = GetClosestMatchingDashboardItemResource(dashboard, environmentId, projectId, branch);
 
-            var healthy = dashboardItemResource.State == TaskState.Success;
+            var healthy = dashboardItemResource != null && dashboardItemResource.State == TaskState.Success;
 
             var componentDeployedOnEnvironmentFromDuration = dashboardItemResource == null 
                 ? null 
