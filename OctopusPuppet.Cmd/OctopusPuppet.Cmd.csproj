@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BranchDeploymentOptions.cs" />
+    <Compile Include="IBranchOptions.cs" />
     <Compile Include="IComponentFilterOptions.cs" />
     <Compile Include="IDeploymentOptions.cs" />
     <Compile Include="IInlineDeploymentOptions.cs" />

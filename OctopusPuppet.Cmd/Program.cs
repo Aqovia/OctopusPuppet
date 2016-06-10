@@ -30,7 +30,7 @@ namespace OctopusPuppet.Cmd
         {
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
             var componentFilter = GetComponentFilter(opts.ComponentFilterPath);
-            var redeployDeploymentPlans = deploymentPlanner.GetRedeployDeploymentPlans(opts.TargetEnvironment, componentFilter);
+            var redeployDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(opts.TargetEnvironment, opts.Branch, componentFilter);
             var environmentDeploymentPlan = redeployDeploymentPlans.EnvironmentDeploymentPlan;
 
             var deploymentScheduler = new DeploymentScheduler();
