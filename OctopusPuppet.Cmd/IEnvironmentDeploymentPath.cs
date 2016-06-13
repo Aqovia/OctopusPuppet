@@ -1,13 +1,14 @@
-using CommandLine;
+﻿using CommandLine;
 
 namespace OctopusPuppet.Cmd
 {
-    interface IDeploymentOptions : ITargetEnvironmentOptions
+    interface IEnvironmentDeploymentPath
     {
         [Option("EnvironmentDeploymentPath",
-            Required = true,
+            Required = false, 
+            Default = "",
             SetName = "EnvironmentDeploymentPath",
-            HelpText = "Environment Deployment path to load from.")]
+            HelpText = "Environment Deployment path to save to.")]
         string EnvironmentDeploymentPath { get; set; }
     }
 }
