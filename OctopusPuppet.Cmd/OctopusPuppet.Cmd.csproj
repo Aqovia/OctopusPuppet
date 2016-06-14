@@ -63,13 +63,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BranchDeploymentOptions.cs" />
-    <Compile Include="IBranchOptions.cs" />
-    <Compile Include="IComponentFilterOptions.cs" />
-    <Compile Include="IDeploymentOptions.cs" />
-    <Compile Include="IInlineDeploymentOptions.cs" />
-    <Compile Include="IOctopusOptions.cs" />
-    <Compile Include="ISourceEnvironmentOptions.cs" />
-    <Compile Include="ITargetEnvironmentOptions.cs" />
     <Compile Include="MirrorEnvironmentOptions.cs" />
     <Compile Include="DeployOptions.cs" />
     <Compile Include="Program.cs" />

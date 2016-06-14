@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using CommandLine;
+using CommandLine.Text;
 using Newtonsoft.Json;
 using OctopusPuppet.Deployer;
 using OctopusPuppet.DeploymentPlanner;
@@ -12,17 +15,70 @@ using Environment = OctopusPuppet.DeploymentPlanner.Environment;
 
 namespace OctopusPuppet.Cmd
 {
+
     class Program
     {
+        private static string CompanyName
+        {
+            get
+            {
+                var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                var fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+                var companyName = fileVersionInfo.CompanyName;
+                if (string.IsNullOrEmpty(companyName))
+                {
+                    companyName = "Taliesin Sisson";
+                }
+
+                return companyName;
+            }
+        }
+
+        private static string FileVersion
+        {
+            get
+            {
+                var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                var fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+                var fileVersion = fileVersionInfo.FileVersion;
+                if (string.IsNullOrEmpty(fileVersion))
+                {
+                    fileVersion = "1.0.0.0";
+                }
+
+                return fileVersion;
+            }
+        }
+
+        private static int GetCopyrightStartYear
+        {
+            get { return 2016; }
+        }
+
+        private static int GetCopyrightEndYear
+        {
+            get { return DateTime.Now.Year; }
+        }
+
+        private static ParserResult<object> ParsedResult { get; set; }
+
         public static int Main(string[] args)
         {
-            var result = Parser.Default.ParseArguments<BranchDeploymentOptions, MirrorEnvironmentOptions, RedploymentOptions, DeployOptions>(args);
-            var exitCode = result
+            var parser = new Parser(settings =>
+            {
+                settings.EnableDashDash = true;
+                settings.CaseSensitive = true;
+                settings.HelpWriter = null;
+            });
+
+            ParsedResult = parser.ParseArguments<BranchDeploymentOptions, MirrorEnvironmentOptions, RedploymentOptions, DeployOptions>(args);
+            var exitCode = ParsedResult
                 .MapResult<BranchDeploymentOptions, MirrorEnvironmentOptions, RedploymentOptions, DeployOptions, int>(
                     BranchDeployment,
                     MirrorEnvironment,
                     Redeployment,
                     Deploy,
+     
                     CommandLineParsingError);
 
             return exitCode;
@@ -33,7 +89,7 @@ namespace OctopusPuppet.Cmd
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
             var componentFilter = GetComponentFilter(opts.ComponentFilterPath);
 
-            Console.WriteLine("Retrieve branch deployment plans for TargetEnvironment={0} Branch={1}", opts.TargetEnvironment, opts.Branch);
+            Console.WriteLine("Retrieve branch deployment plans for TargetEnvironment=\"{0}\" Branch=\"{1}\"", opts.TargetEnvironment, opts.Branch);
             var redeployDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(opts.TargetEnvironment, opts.Branch, componentFilter);
             var environmentDeploymentPlan = redeployDeploymentPlans.EnvironmentDeploymentPlan;
 
@@ -42,11 +98,7 @@ namespace OctopusPuppet.Cmd
             var environmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
 
             PrintEnvironmentDeploy(environmentDeployment);
-
-            if (!string.IsNullOrEmpty(opts.EnvironmentDeploymentPath))
-            {
-                SaveEnvironmentDeploy(opts.EnvironmentDeploymentPath, environmentDeployment);
-            }
+            SaveEnvironmentDeploy(opts.EnvironmentDeploymentPath, environmentDeployment);
 
             if (opts.Deploy)
             {
@@ -61,7 +113,7 @@ namespace OctopusPuppet.Cmd
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
             var componentFilter = GetComponentFilter(opts.ComponentFilterPath);
 
-            Console.WriteLine("Retrieve mirror environment plans for SourceEnvironment={0} TargetEnvironment={1}", opts.SourceEnvironment, opts.TargetEnvironment);
+            Console.WriteLine("Retrieve mirror environment plans for SourceEnvironment=\"{0}\" TargetEnvironment=\"{1}\"", opts.SourceEnvironment, opts.TargetEnvironment);
             var environmentMirrorDeploymentPlans = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(opts.SourceEnvironment, opts.TargetEnvironment, componentFilter);
             var environmentDeploymentPlan = environmentMirrorDeploymentPlans.EnvironmentDeploymentPlan;
 
@@ -70,11 +122,7 @@ namespace OctopusPuppet.Cmd
             var environmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
 
             PrintEnvironmentDeploy(environmentDeployment);
-
-            if (!string.IsNullOrEmpty(opts.EnvironmentDeploymentPath))
-            {
-                SaveEnvironmentDeploy(opts.EnvironmentDeploymentPath, environmentDeployment);
-            }
+            SaveEnvironmentDeploy(opts.EnvironmentDeploymentPath, environmentDeployment);
 
             if (opts.Deploy)
             {
@@ -89,7 +137,7 @@ namespace OctopusPuppet.Cmd
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
             var componentFilter = GetComponentFilter(opts.ComponentFilterPath);
 
-            Console.WriteLine("Retrieve mirror environment plans for TargetEnvironment={0}", opts.TargetEnvironment);
+            Console.WriteLine("Retrieve mirror environment plans for TargetEnvironment=\"{0}\"", opts.TargetEnvironment);
             var redeployDeploymentPlans = deploymentPlanner.GetRedeployDeploymentPlans(opts.TargetEnvironment, componentFilter);
             var environmentDeploymentPlan = redeployDeploymentPlans.EnvironmentDeploymentPlan;
 
@@ -98,11 +146,7 @@ namespace OctopusPuppet.Cmd
             var environmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
 
             PrintEnvironmentDeploy(environmentDeployment);
-
-            if (!string.IsNullOrEmpty(opts.EnvironmentDeploymentPath))
-            {
-                SaveEnvironmentDeploy(opts.EnvironmentDeploymentPath, environmentDeployment);
-            }
+            SaveEnvironmentDeploy(opts.EnvironmentDeploymentPath, environmentDeployment);
 
             if (opts.Deploy)
             {
@@ -118,9 +162,30 @@ namespace OctopusPuppet.Cmd
             return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment);
         }
 
+        private static int CommandLineParsingError(IEnumerable<Error> errors)
+        {
+            var firstError = errors.FirstOrDefault();
+            if (firstError is VersionRequestedError)
+            {
+                Console.WriteLine(FileVersion);
+                return 0;
+            }
+
+            var helpText = GetHelpText(ParsedResult);
+
+            Console.WriteLine(helpText);
+
+            if (firstError is HelpRequestedError)
+            {
+                return 0;
+            }
+
+            return -1;
+        }
+
         private static void PrintEnvironmentDeploy(EnvironmentDeployment environmentDeployment)
         {
-            var environmentDeploymentJson = JsonConvert.SerializeObject(environmentDeployment, new JsonSerializerSettings() { Formatting = Formatting.Indented });
+            var environmentDeploymentJson = JsonConvert.SerializeObject(environmentDeployment, new JsonSerializerSettings { Formatting = Formatting.Indented });
             Console.WriteLine(environmentDeploymentJson);
         }
 
@@ -134,7 +199,9 @@ namespace OctopusPuppet.Cmd
 
         private static void SaveEnvironmentDeploy(string path, EnvironmentDeployment environmentDeployment)
         {
-            var environmentDeploymentJson = JsonConvert.SerializeObject(environmentDeployment, new JsonSerializerSettings() { Formatting = Formatting.Indented });
+            if (string.IsNullOrEmpty(path)) return;
+
+            var environmentDeploymentJson = JsonConvert.SerializeObject(environmentDeployment, new JsonSerializerSettings {Formatting = Formatting.Indented});
             File.WriteAllText(path, environmentDeploymentJson);
         }
 
@@ -154,13 +221,63 @@ namespace OctopusPuppet.Cmd
             return 0;
         }
 
-        private static int CommandLineParsingError(IEnumerable<Error> errors)
+        private static HelpText GetHelpText(ParserResult<object> parserResult)
         {
-            return -1;
+            var headingInfo = new HeadingInfo("OctopusPuppet.cmd", FileVersion);
+            var copyRightInfo = new CopyrightInfo(true, CompanyName, GetCopyrightStartYear, GetCopyrightEndYear);
+
+            var helpText = new HelpText(headingInfo, copyRightInfo)
+            {
+                AddEnumValuesToHelpText = true
+            }
+                .AddOptions(parserResult)
+                .AddVerbs(typeof(BranchDeploymentOptions), typeof(MirrorEnvironmentOptions), typeof(RedploymentOptions), typeof(DeployOptions))
+                .AddPostOptionsLine("EXAMPLE USAGE: ")
+                .AddPostOptionsLine("  OctopusPuppet.Cmd BranchDeployment")
+                .AddPostOptionsLine("    --OctopusUrl \"http://octopus.test.com/\"")
+                .AddPostOptionsLine("    --OctopusApiKey \"API-HAAAS4MM6YBBSAIQVVHCQQUEA0\"")
+                .AddPostOptionsLine("    --ComponentFilterPath \"componentFilter.json\"")
+                .AddPostOptionsLine("    --TargetEnvironment \"Development\"")
+                .AddPostOptionsLine("    --Branch \"Master\"")
+                .AddPostOptionsLine("    [--Deploy]")
+                .AddPostOptionsLine("    [--EnvironmentDeploymentPath \"environmentDeployment.json\"]")
+                .AddPostOptionsLine("")
+                .AddPostOptionsLine("  OctopusPuppet.Cmd MirrorEnvironment")
+                .AddPostOptionsLine("    --OctopusUrl \"http://octopus.test.com/\"")
+                .AddPostOptionsLine("    --OctopusApiKey \"API-HAAAS4MM6YBBSAIQVVHCQQUEA0\"")
+                .AddPostOptionsLine("    --ComponentFilterPath \"componentFilter.json\"")
+                .AddPostOptionsLine("    --SourceEnvironment \"Development\"")
+                .AddPostOptionsLine("    --TargetEnvironment \"Test\"")
+                .AddPostOptionsLine("    [--Deploy]")
+                .AddPostOptionsLine("    [--EnvironmentDeploymentPath \"environmentDeployment.json\"]")
+                .AddPostOptionsLine("")
+                .AddPostOptionsLine("  OctopusPuppet.Cmd Redeployment")
+                .AddPostOptionsLine("    --OctopusUrl \"http://octopus.test.com/\"")
+                .AddPostOptionsLine("    --OctopusApiKey \"API-HAAAS4MM6YBBSAIQVVHCQQUEA0\"")
+                .AddPostOptionsLine("    --ComponentFilterPath \"componentFilter.json\"")
+                .AddPostOptionsLine("    --TargetEnvironment \"Development\"")
+                .AddPostOptionsLine("    [--Deploy]")
+                .AddPostOptionsLine("    [--EnvironmentDeploymentPath \"environmentDeployment.json\"]")
+                .AddPostOptionsLine("")
+                .AddPostOptionsLine("  OctopusPuppet.Cmd Deploy")
+                .AddPostOptionsLine("    --OctopusUrl \"http://octopus.test.com/\"")
+                .AddPostOptionsLine("    --OctopusApiKey \"API-HAAAS4MM6YBBSAIQVVHCQQUEA0\"")
+                .AddPostOptionsLine("    --EnvironmentDeploymentPath \"environmentDeployment.json\"")
+                .AddPostOptionsLine("    --TargetEnvironment \"Development\"")
+                .AddPostOptionsLine("");
+
+            HelpText.DefaultParsingErrorsHandler(parserResult, helpText);
+
+            return helpText;
         }
 
         private static ComponentFilter GetComponentFilter(string componentFilterPath)
         {
+            if (string.IsNullOrEmpty(componentFilterPath))
+            {
+                return null;
+            }
+
             var json = File.ReadAllText(componentFilterPath);
             var componentFilter = JsonConvert.DeserializeObject<ComponentFilter>(json);
             return componentFilter;
