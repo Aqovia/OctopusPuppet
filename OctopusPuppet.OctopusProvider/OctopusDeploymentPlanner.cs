@@ -220,7 +220,8 @@ namespace OctopusPuppet.OctopusProvider
                     Id = x.Id,
                     Name = x.Name
                 })
-                .DistinctBy(x=> x.Id)
+                .DistinctBy(x => x.Id)
+                .OrderBy(b => b.Name)
                 .ToList();
 
             return environments;
@@ -238,7 +239,8 @@ namespace OctopusPuppet.OctopusProvider
             }
 
             branches = branches
-                .DistinctBy(x=>x.Id)
+                .DistinctBy(x => x.Id)
+                .OrderBy(b => b.Name)
                 .ToList();
 
             return branches;
