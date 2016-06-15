@@ -60,17 +60,47 @@ namespace Aga.Controls.Tree
             }
         }
 
+        public object Model
+        {
+            get { return (object)GetValue(ModelProperty); }
+            set { SetValue(ModelProperty, value); }
+        }
+
+        /// <summary> 
+        /// View DependencyProperty
+        /// </summary> 
+        public static readonly DependencyProperty IsExpandedProperty =
+            DependencyProperty.Register(
+                "IsExpanded",
+                typeof(bool),
+                typeof(TreeList),
+                new PropertyMetadata(
+                    new PropertyChangedCallback(OnIsExpandedChanged))
+                );
+
+        private static void OnIsExpandedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            //var treeList = (TreeList)d;
+
+            //object oldView = (object)e.OldValue;
+            //object newView = (object)e.NewValue;
+            //if (oldView != newView)
+            //{
+            //    treeList.FlatternHiearchy();
+            //}
+        }
+
+        public bool IsExpanded
+        {
+            get { return (bool)GetValue(IsExpandedProperty); }
+            set { SetValue(IsExpandedProperty, value); }
+        }
+
         internal void FlatternHiearchy()
         {
             Root.Children.Clear();
             Rows.Clear();
             CreateChildrenNodes(Root);
-        }
-
-        public object Model
-        {
-            get { return (object)GetValue(ModelProperty); }
-            set { SetValue(ModelProperty, value); }
         }
 
         private TreeNode _root;
@@ -189,7 +219,18 @@ namespace Aga.Controls.Tree
                 child.HasChildren = hasGrandChildren;
                 node.Children.Add(child);
             }
-            Rows.InsertRange(rowIndex + 1, node.Children.ToArray());
+
+            var childrenNodes = node.Children.ToArray();
+
+            Rows.InsertRange(rowIndex + 1, childrenNodes);
+
+            if (IsExpanded)
+            {
+                foreach (var childrenNode in childrenNodes)
+                {
+                    childrenNode.IsExpanded = IsExpanded;
+                }
+            }
         }
 
         private void CreateChildrenRows(TreeNode node)
@@ -237,6 +278,7 @@ namespace Aga.Controls.Tree
         internal void InsertNewNode(TreeNode parent, object tag, int rowIndex, int index)
         {
             TreeNode node = new TreeNode(this, tag);
+
             if (index >= 0 && index < parent.Children.Count)
                 parent.Children.Insert(index, node);
             else

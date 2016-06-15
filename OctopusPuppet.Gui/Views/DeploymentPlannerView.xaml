@@ -159,12 +159,12 @@
                                 <Button x:Name="ExecuteEnvironmentDeployment" Content="Deploy" VerticalAlignment="Center" Margin="10" Padding="10 3" />
                             </StackPanel>
                             
-                            <tree:TreeList Name="EnvironmentDeploymentTreeList" Model="{Binding EnvironmentDeployment}" HorizontalAlignment="Stretch" tree:GridViewColumnResize.Enabled="True">
+                            <tree:TreeList Name="EnvironmentDeploymentTreeList" Model="{Binding EnvironmentDeployment}" HorizontalAlignment="Stretch" tree:GridViewColumnResize.Enabled="True" IsExpanded="True">
                                 <tree:TreeList.ItemTemplate>
                                     <DataTemplate>
                                         <ContentControl Content="{Binding}">
                                             <ContentControl.Resources>
-                                                <HierarchicalDataTemplate DataType="{x:Type scheduler:ProductDeployment}" ItemsSource="{Binding DeploymentSteps}">
+                                                <HierarchicalDataTemplate DataType="{x:Type scheduler:ProductDeployment}" ItemsSource="{Binding DeploymentSteps}" >
                                                 </HierarchicalDataTemplate>
                                                 <HierarchicalDataTemplate DataType="{x:Type scheduler:ProductDeploymentStep}" ItemsSource="{Binding ComponentDeployments}">
                                                     <StackPanel Orientation="Horizontal">
