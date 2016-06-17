@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BranchDeploymentOptions.cs" />
+    <Compile Include="ConsoleDeployProgress.cs" />
     <Compile Include="MirrorEnvironmentOptions.cs" />
     <Compile Include="DeployOptions.cs" />
     <Compile Include="Program.cs" />
