@@ -102,7 +102,7 @@ namespace OctopusPuppet.Cmd
 
             if (opts.Deploy)
             {
-                Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment);
+                Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.ShowDeploymentProgress, opts.MaximumParalleDeployments);
             }
 
             return 0;
@@ -126,7 +126,7 @@ namespace OctopusPuppet.Cmd
 
             if (opts.Deploy)
             {
-                Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment);
+                Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.ShowDeploymentProgress, opts.MaximumParalleDeployments);
             }
 
             return 0;
@@ -150,7 +150,7 @@ namespace OctopusPuppet.Cmd
 
             if (opts.Deploy)
             {
-                Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment);
+                Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.ShowDeploymentProgress, opts.MaximumParalleDeployments);
             }
 
             return 0;
@@ -159,7 +159,7 @@ namespace OctopusPuppet.Cmd
         private static int Deploy(DeployOptions opts)
         {
             var environmentDeployment = LoadEnvironmentDeploy(opts.EnvironmentDeploymentPath);
-            return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment);
+            return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.ShowDeploymentProgress, opts.MaximumParalleDeployments);
         }
 
         private static int CommandLineParsingError(IEnumerable<Error> errors)
@@ -205,7 +205,7 @@ namespace OctopusPuppet.Cmd
             File.WriteAllText(path, environmentDeploymentJson);
         }
 
-        private static int Deploy(string url, string apiKey, string targetEnvironment, EnvironmentDeployment environmentDeployment)
+        private static int Deploy(string url, string apiKey, string targetEnvironment, EnvironmentDeployment environmentDeployment, bool showDeploymentProgress, int maximumParalleDeployments)
         {
             var environment = new Environment
             {
@@ -213,9 +213,10 @@ namespace OctopusPuppet.Cmd
                 Name = targetEnvironment
             };
 
+            var progress = showDeploymentProgress ? new ConsoleDeployProgress() : null;
             var componentVertexDeployer = new OctopusComponentVertexDeployer(url, apiKey, environment);
             var cancellationTokenSource = new CancellationTokenSource();
-            var deploymentExecutor = new DeploymentExecutor(componentVertexDeployer, environmentDeployment, cancellationTokenSource.Token, null);
+            var deploymentExecutor = new DeploymentExecutor(componentVertexDeployer, environmentDeployment, cancellationTokenSource.Token, progress, maximumParalleDeployments);
             deploymentExecutor.Execute().ConfigureAwait(false).GetAwaiter().GetResult();
 
             return 0;

@@ -34,6 +34,18 @@ namespace OctopusPuppet.Cmd
             HelpText = "Deploy")]
         public bool Deploy { get; set; }
 
+        [Option('s', "ShowDeploymentProgress",
+            SetName = "Redeployment",
+            Default = true,
+            HelpText = "Show deployment progress")]
+        public bool ShowDeploymentProgress { get; set; }
+
+        [Option('p', "MaximumParalleDeployments",
+            SetName = "Redeployment",
+            Default = 4,
+            HelpText = "Maximum parallel deployments")]
+        public int MaximumParalleDeployments { get; set; }
+
         [Option("EnvironmentDeploymentPath",
             Required = false,
             Default = "",

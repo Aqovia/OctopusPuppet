@@ -29,5 +29,17 @@ namespace OctopusPuppet.Cmd
             SetName = "Deploy",
             HelpText = "The environment to deploy to.")]
         public string TargetEnvironment { get; set; }
+
+        [Option('s', "ShowDeploymentProgress",
+            SetName = "Deploy",
+            Default = true,
+            HelpText = "Show deployment progress")]
+        public bool ShowDeploymentProgress { get; set; }
+
+        [Option('p', "MaximumParalleDeployments",
+            SetName = "Deploy",
+            Default = 4,
+            HelpText = "Maximum parallel deployments")]
+        public int MaximumParalleDeployments { get; set; }
     }
 }
