@@ -64,6 +64,7 @@ namespace OctopusPuppet.Gui.ViewModels
                 if (value == _isLoadingData) return;
                 _isLoadingData = value;
                 NotifyOfPropertyChange(() => IsLoadingData);
+                NotifyOfPropertyChange(() => CanDeploy);
             }
         }
 
@@ -128,7 +129,13 @@ namespace OctopusPuppet.Gui.ViewModels
                 if (value == _environmentDeployment) return;
                 _environmentDeployment = value;
                 NotifyOfPropertyChange(() => EnvironmentDeployment);
+                NotifyOfPropertyChange(() => CanDeploy);
             }
+        }
+
+        public bool CanDeploy
+        {
+            get { return EnvironmentDeployment != null && !IsLoadingData; }
         }
 
         private void GetBranchesAndEnvironments()
@@ -618,6 +625,10 @@ namespace OctopusPuppet.Gui.ViewModels
             var environmentDeployment = JsonConvert.DeserializeObject<EnvironmentDeployment>(json);
             EnvironmentDeployment = environmentDeployment;
         }
+
+        
+
+
 
         private int _maximumParallelDeployment = 4;
         public int MaximumParallelDeployment
