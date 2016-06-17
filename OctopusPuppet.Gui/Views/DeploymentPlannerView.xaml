@@ -87,7 +87,7 @@
                                 <Label Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Content="To"/>
                                 <ComboBox Grid.Column="3" x:Name="BranchDeploymentEnvironments" SelectedItem="{Binding SelectedBranchDeploymentEnvironment}" DisplayMemberPath="Name" SelectedValuePath="Id" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"/>
 
-                                <Button Grid.Column="4" x:Name="BranchDeployment" Content="Settings" HorizontalAlignment="left" VerticalAlignment="Center" Margin="10" Padding="10 3" />
+                                <Button Grid.Column="4" x:Name="BranchDeployment" Content="Get" HorizontalAlignment="left" VerticalAlignment="Center" Margin="10" Padding="10 3" />
                             </Grid>
                         </GroupBox>
                         <GroupBox Header="Redeployment" Margin="10">
@@ -103,7 +103,7 @@
                                 <Label Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Content="Environment"/>
                                 <ComboBox Grid.Column="1" x:Name="RedeploymentEnvironments" SelectedItem="{Binding SelectedRedeploymentEnvironment}" DisplayMemberPath="Name" SelectedValuePath="Id" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150" Padding="10 3" />
 
-                                <Button Grid.Column="4" x:Name="Redeployment" Content="Settings" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10" Padding="10 3"/>
+                                <Button Grid.Column="4" x:Name="Redeployment" Content="Get" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10" Padding="10 3"/>
                             </Grid>
                         </GroupBox>
                         <GroupBox Header="Copy Environment" Margin="10">
@@ -122,7 +122,7 @@
                                 <Label Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Content="To"/>
                                 <ComboBox Grid.Column="3" x:Name="EnvironmentMirrorToEnvironments" SelectedItem="{Binding SelectedEnvironmentMirrorToEnvironment}" DisplayMemberPath="Name" SelectedValuePath="Id" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"/>
 
-                                <Button Grid.Column="4" x:Name="EnvironmentMirror" Content="Settings" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10" Padding="10 3"/>
+                                <Button Grid.Column="4" x:Name="EnvironmentMirror" Content="Get" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10" Padding="10 3"/>
                             </Grid>
                         </GroupBox>
                         <Separator />
@@ -156,6 +156,7 @@
                             <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" >
                                 <Button x:Name="SaveEnvironmentDeploymentJson" Content="Save" VerticalAlignment="Center" Margin="10" Padding="10 3" />
                                 <Button x:Name="LoadEnvironmentDeploymentJson" Content="Load" VerticalAlignment="Center" Margin="10" Padding="10 3" />
+                                <xctk:IntegerUpDown Value="{Binding MaximumParallelDeployment}" Maximum="16" Minimum="1" VerticalAlignment="Center" Margin="10" Increment="1" />
                                 <Button x:Name="ExecuteEnvironmentDeployment" Content="Deploy" VerticalAlignment="Center" Margin="10" Padding="10 3" />
                             </StackPanel>
                             

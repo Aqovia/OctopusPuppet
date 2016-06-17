@@ -619,6 +619,18 @@ namespace OctopusPuppet.Gui.ViewModels
             EnvironmentDeployment = environmentDeployment;
         }
 
+        private int _maximumParallelDeployment = 4;
+        public int MaximumParallelDeployment
+        {
+            get { return _maximumParallelDeployment; }
+            set
+            {
+                if (value == _maximumParallelDeployment) return;
+                _maximumParallelDeployment = value;
+                NotifyOfPropertyChange(() => MaximumParallelDeployment);
+            }
+        }
+
         private Environment _environmentToDeployTo;
         public Environment EnvironmentToDeployTo
         {
@@ -640,8 +652,8 @@ namespace OctopusPuppet.Gui.ViewModels
                 {
                     var componentVertexDeployer = new OctopusComponentVertexDeployer(_octopusUrl, _octopusApiKey, EnvironmentToDeployTo);
                     var cancellationTokenSource = new CancellationTokenSource();
-                    var deploymentExecutor = new DeploymentExecutor(componentVertexDeployer, EnvironmentDeployment, cancellationTokenSource.Token, null);
-                    deploymentExecutor.Execute().ConfigureAwait(false).GetAwaiter().GetResult();
+                    var deploymentExecutor = new DeploymentExecutor(componentVertexDeployer, EnvironmentDeployment, cancellationTokenSource.Token, null, MaximumParallelDeployment);
+                    var allDeploymentsSucceded = deploymentExecutor.Execute().ConfigureAwait(false).GetAwaiter().GetResult();
                 }
                 catch
                 {
