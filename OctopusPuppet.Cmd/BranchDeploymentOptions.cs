@@ -40,11 +40,11 @@ namespace OctopusPuppet.Cmd
             HelpText = "Deploy")]
         public bool Deploy { get; set; }
 
-        [Option('s', "ShowDeploymentProgress",
+        [Option('s', "HideDeploymentProgress",
             SetName = "BranchDeployment",
             Default = true,
-            HelpText = "Show deployment progress")]
-        public bool ShowDeploymentProgress { get; set; }
+            HelpText = "Hide deployment progress")]
+        public bool HideDeploymentProgress { get; set; }
 
         [Option('p', "MaximumParalleDeployments",
             SetName = "BranchDeployment",

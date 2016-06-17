@@ -102,7 +102,7 @@ namespace OctopusPuppet.Cmd
 
             if (opts.Deploy)
             {
-                Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.ShowDeploymentProgress, opts.MaximumParalleDeployments);
+                Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParalleDeployments);
             }
 
             return 0;
@@ -126,7 +126,7 @@ namespace OctopusPuppet.Cmd
 
             if (opts.Deploy)
             {
-                Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.ShowDeploymentProgress, opts.MaximumParalleDeployments);
+                Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParalleDeployments);
             }
 
             return 0;
@@ -150,7 +150,7 @@ namespace OctopusPuppet.Cmd
 
             if (opts.Deploy)
             {
-                Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.ShowDeploymentProgress, opts.MaximumParalleDeployments);
+                Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParalleDeployments);
             }
 
             return 0;
@@ -159,7 +159,7 @@ namespace OctopusPuppet.Cmd
         private static int Deploy(DeployOptions opts)
         {
             var environmentDeployment = LoadEnvironmentDeploy(opts.EnvironmentDeploymentPath);
-            return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.ShowDeploymentProgress, opts.MaximumParalleDeployments);
+            return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParalleDeployments);
         }
 
         private static int CommandLineParsingError(IEnumerable<Error> errors)
@@ -205,7 +205,7 @@ namespace OctopusPuppet.Cmd
             File.WriteAllText(path, environmentDeploymentJson);
         }
 
-        private static int Deploy(string url, string apiKey, string targetEnvironment, EnvironmentDeployment environmentDeployment, bool showDeploymentProgress, int maximumParalleDeployments)
+        private static int Deploy(string url, string apiKey, string targetEnvironment, EnvironmentDeployment environmentDeployment, bool hideDeploymentProgress, int maximumParalleDeployments)
         {
             var environment = new Environment
             {
@@ -213,7 +213,7 @@ namespace OctopusPuppet.Cmd
                 Name = targetEnvironment
             };
 
-            var progress = showDeploymentProgress ? new ConsoleDeployProgress() : null;
+            var progress = hideDeploymentProgress ? null : new ConsoleDeployProgress();
             var componentVertexDeployer = new OctopusComponentVertexDeployer(url, apiKey, environment);
             var cancellationTokenSource = new CancellationTokenSource();
             var deploymentExecutor = new DeploymentExecutor(componentVertexDeployer, environmentDeployment, cancellationTokenSource.Token, progress, maximumParalleDeployments);
@@ -242,6 +242,8 @@ namespace OctopusPuppet.Cmd
                 .AddPostOptionsLine("    --Branch \"Master\"")
                 .AddPostOptionsLine("    [--Deploy]")
                 .AddPostOptionsLine("    [--EnvironmentDeploymentPath \"environmentDeployment.json\"]")
+                .AddPostOptionsLine("    [--MaximumParalleDeployments 4]")
+                .AddPostOptionsLine("    [--HideDeploymentProgress]")
                 .AddPostOptionsLine("")
                 .AddPostOptionsLine("  OctopusPuppet.Cmd MirrorEnvironment")
                 .AddPostOptionsLine("    --OctopusUrl \"http://octopus.test.com/\"")
@@ -251,6 +253,8 @@ namespace OctopusPuppet.Cmd
                 .AddPostOptionsLine("    --TargetEnvironment \"Test\"")
                 .AddPostOptionsLine("    [--Deploy]")
                 .AddPostOptionsLine("    [--EnvironmentDeploymentPath \"environmentDeployment.json\"]")
+                .AddPostOptionsLine("    [--MaximumParalleDeployments 4]")
+                .AddPostOptionsLine("    [--HideDeploymentProgress]")
                 .AddPostOptionsLine("")
                 .AddPostOptionsLine("  OctopusPuppet.Cmd Redeployment")
                 .AddPostOptionsLine("    --OctopusUrl \"http://octopus.test.com/\"")
@@ -259,12 +263,16 @@ namespace OctopusPuppet.Cmd
                 .AddPostOptionsLine("    --TargetEnvironment \"Development\"")
                 .AddPostOptionsLine("    [--Deploy]")
                 .AddPostOptionsLine("    [--EnvironmentDeploymentPath \"environmentDeployment.json\"]")
+                .AddPostOptionsLine("    [--MaximumParalleDeployments 4]")
+                .AddPostOptionsLine("    [--HideDeploymentProgress]")
                 .AddPostOptionsLine("")
                 .AddPostOptionsLine("  OctopusPuppet.Cmd Deploy")
                 .AddPostOptionsLine("    --OctopusUrl \"http://octopus.test.com/\"")
                 .AddPostOptionsLine("    --OctopusApiKey \"API-HAAAS4MM6YBBSAIQVVHCQQUEA0\"")
                 .AddPostOptionsLine("    --EnvironmentDeploymentPath \"environmentDeployment.json\"")
                 .AddPostOptionsLine("    --TargetEnvironment \"Development\"")
+                .AddPostOptionsLine("    [--MaximumParalleDeployments 4]")
+                .AddPostOptionsLine("    [--HideDeploymentProgress]")
                 .AddPostOptionsLine("");
 
             HelpText.DefaultParsingErrorsHandler(parserResult, helpText);
