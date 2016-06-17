@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
-using NUnit.Framework;
 using OctopusPuppet.DeploymentPlanner;
+using Xunit;
 
 namespace OctopusPuppet.Tests
 {
     public class ComponentFilterTests
     {
-        [Test]
+        [Fact]
         public void IncludeMatch()
         {
             var componentFilter = new ComponentFilter()
@@ -20,7 +20,7 @@ namespace OctopusPuppet.Tests
             Assert.True(match);
         }
 
-        [Test]
+        [Fact]
         public void IncludeDoesNotMatch()
         {
             var componentFilter = new ComponentFilter()
@@ -34,7 +34,7 @@ namespace OctopusPuppet.Tests
             Assert.False(match);
         }
 
-        [Test]
+        [Fact]
         public void IncludeDoesNotMatchWhenEmpty()
         {
             var componentFilter = new ComponentFilter()
@@ -48,7 +48,7 @@ namespace OctopusPuppet.Tests
             Assert.False(match);
         }
 
-        [Test]
+        [Fact]
         public void ExcludeMatch()
         {
             var componentFilter = new ComponentFilter()
@@ -62,7 +62,7 @@ namespace OctopusPuppet.Tests
             Assert.False(match);
         }
 
-        [Test]
+        [Fact]
         public void ExcludeDoesNotMatch()
         {
             var componentFilter = new ComponentFilter()
@@ -76,7 +76,7 @@ namespace OctopusPuppet.Tests
             Assert.True(match);
         }
 
-        [Test]
+        [Fact]
         public void ExcludeDoesNotMatchhWhenEmpty()
         {
             var componentFilter = new ComponentFilter()
