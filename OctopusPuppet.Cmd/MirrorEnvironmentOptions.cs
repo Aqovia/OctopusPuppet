@@ -40,6 +40,18 @@ namespace OctopusPuppet.Cmd
             HelpText = "Deploy")]
         public bool Deploy { get; set; }
 
+        [Option('s', "HideDeploymentProgress",
+            SetName = "MirrorEnvironment",
+            Default = true,
+            HelpText = "Hide deployment progress")]
+        public bool HideDeploymentProgress { get; set; }
+
+        [Option('p', "MaximumParalleDeployments",
+            SetName = "MirrorEnvironment",
+            Default = 4,
+            HelpText = "Maximum parallel deployments")]
+        public int MaximumParalleDeployments { get; set; }
+
         [Option("EnvironmentDeploymentPath",
             Required = false,
             Default = "",
