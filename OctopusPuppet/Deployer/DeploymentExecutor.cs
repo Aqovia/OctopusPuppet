@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using OctopusPuppet.Scheduler;
@@ -119,7 +121,28 @@ namespace OctopusPuppet.Deployer
                 });
             }
 
-            var status = _componentVertexDeployer.Deploy(componentDeploymentVertex, cancellationToken, _progress);
+            Exception exception = null;
+            ComponentVertexDeploymentStatus status;
+
+            try
+            {
+                status = _componentVertexDeployer.Deploy(componentDeploymentVertex, cancellationToken, _progress);
+            }
+            catch (Exception ex)
+            {
+                status = ComponentVertexDeploymentStatus.Failure;
+                exception = ex;
+            }
+
+            var text = string.Empty;
+
+            if (exception != null)
+            {
+                var stringBuilder = new StringBuilder();
+                WriteExceptionDetails(exception, stringBuilder, 1);
+
+                text += Environment.NewLine + stringBuilder;
+            }
 
             //Finish progress    
             if (_progress != null)
@@ -137,7 +160,7 @@ namespace OctopusPuppet.Deployer
                         componentDeploymentVertex.DeploymentDuration.HasValue
                             ? componentDeploymentVertex.DeploymentDuration.Value.Ticks
                             : 0,
-                    Text = status.ToString()
+                    Text = text
                 });
             }
 
@@ -154,6 +177,44 @@ namespace OctopusPuppet.Deployer
             }
 
             return null;
+        }
+
+        public static void WriteExceptionDetails(Exception exception, StringBuilder builderToFill, int level)
+        {
+            var indent = new string(' ', level);
+
+            if (level > 0)
+            {
+                builderToFill.AppendLine(indent + "=== INNER EXCEPTION ===");
+            }
+
+            Action<string> append = (prop) =>
+            {
+                var propInfo = exception.GetType().GetProperty(prop);
+                var val = propInfo.GetValue(exception);
+
+                if (val != null)
+                {
+                    builderToFill.AppendFormat("{0}{1}: {2}{3}", indent, prop, val.ToString(), Environment.NewLine);
+                }
+            };
+
+            append("Message");
+            append("HResult");
+            append("HelpLink");
+            append("Source");
+            append("StackTrace");
+            append("TargetSite");
+
+            foreach (DictionaryEntry de in exception.Data)
+            {
+                builderToFill.AppendFormat("{0} {1} = {2}{3}", indent, de.Key, de.Value, Environment.NewLine);
+            }
+
+            if (exception.InnerException != null)
+            {
+                WriteExceptionDetails(exception.InnerException, builderToFill, ++level);
+            }
         }
     }
 }
