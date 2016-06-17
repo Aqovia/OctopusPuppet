@@ -27,11 +27,11 @@ namespace OctopusPuppet.Deployer
             _maximumParallelDeployments = maximumParallelDeployments;
         }
 
-        public async Task Execute()
+        public async Task<bool> Execute()
         {
             _throttler = new SemaphoreSlim(initialCount: _maximumParallelDeployments);
 
-            await DeployEnvironment(_environmentDeployment, _cancellationToken);
+            return await DeployEnvironment(_environmentDeployment, _cancellationToken);
         }
 
         /// <summary>

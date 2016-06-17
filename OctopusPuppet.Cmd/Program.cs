@@ -217,9 +217,9 @@ namespace OctopusPuppet.Cmd
             var componentVertexDeployer = new OctopusComponentVertexDeployer(url, apiKey, environment);
             var cancellationTokenSource = new CancellationTokenSource();
             var deploymentExecutor = new DeploymentExecutor(componentVertexDeployer, environmentDeployment, cancellationTokenSource.Token, progress, maximumParalleDeployments);
-            deploymentExecutor.Execute().ConfigureAwait(false).GetAwaiter().GetResult();
+            var allDeploymentsSucceded = deploymentExecutor.Execute().ConfigureAwait(false).GetAwaiter().GetResult();
 
-            return 0;
+            return allDeploymentsSucceded ? 0 : 1;
         }
 
         private static HelpText GetHelpText(ParserResult<object> parserResult)
