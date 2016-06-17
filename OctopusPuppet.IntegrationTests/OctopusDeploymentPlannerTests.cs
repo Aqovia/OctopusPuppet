@@ -1,16 +1,17 @@
 ﻿using System.Configuration;
 using System.Linq;
+using FluentAssertions;
 using Newtonsoft.Json;
-using NUnit.Framework;
 using OctopusPuppet.DeploymentPlanner;
 using OctopusPuppet.OctopusProvider;
 using OctopusPuppet.Scheduler;
+using Xunit;
 
 namespace OctopusPuppet.IntegrationTests
 {
     public class OctopusDeploymentPlannerTests
     {
-        [Test]
+        [Fact]
         public void GetEnvironments()
         {
             var octopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
@@ -19,10 +20,10 @@ namespace OctopusPuppet.IntegrationTests
 
             var environments = deploymentPlanner.GetEnvironments();
 
-            Assert.Greater(0, environments.Count);
+            environments.Count.Should().BeGreaterThan(0);
         }
 
-        [Test]
+        [Fact]
         public void GetBranches()
         {
             var octopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
@@ -31,10 +32,10 @@ namespace OctopusPuppet.IntegrationTests
 
             var branches = deploymentPlanner.GetBranches();
 
-            Assert.Greater(0, branches.Count);        
+            branches.Count.Should().BeGreaterThan(0);       
         }
 
-        [Test]
+        [Fact]
         public void GetEnvironmentMirrorDeploymentPlans()
         {
             var octopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
@@ -51,10 +52,10 @@ namespace OctopusPuppet.IntegrationTests
 
             var difference = JsonConvert.SerializeObject(dashboard.EnvironmentDeploymentPlan.DeploymentPlans.Where(x => x.Action != PlanAction.Skip));
 
-            Assert.AreEqual(2, dashboard.EnvironmentDeploymentPlan.DeploymentPlans.Count);
+            dashboard.EnvironmentDeploymentPlan.DeploymentPlans.Count.Should().BeGreaterThan(0);
         }
 
-        [Test]
+        [Fact]
         public void GetBranchDeploymentPlans()
         {
             var octopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
@@ -68,10 +69,10 @@ namespace OctopusPuppet.IntegrationTests
 
             var difference = JsonConvert.SerializeObject(dashboard.EnvironmentDeploymentPlan.DeploymentPlans.Where(x => x.Action != PlanAction.Skip));
 
-            Assert.AreEqual(2, dashboard.EnvironmentDeploymentPlan.DeploymentPlans.Count);
+            dashboard.EnvironmentDeploymentPlan.DeploymentPlans.Count.Should().BeGreaterThan(0);
         }
 
-        [Test]
+        [Fact]
         public void GetRedeployDeploymentPlans()
         {
             var octopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
@@ -84,7 +85,7 @@ namespace OctopusPuppet.IntegrationTests
 
             var difference = JsonConvert.SerializeObject(dashboard.EnvironmentDeploymentPlan.DeploymentPlans.Where(x => x.Action != PlanAction.Skip));
 
-            Assert.AreEqual(2, dashboard.EnvironmentDeploymentPlan.DeploymentPlans.Count);
+            dashboard.EnvironmentDeploymentPlan.DeploymentPlans.Count.Should().BeGreaterThan(0);
         }
     }
 }

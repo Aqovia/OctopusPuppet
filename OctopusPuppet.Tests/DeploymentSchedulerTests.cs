@@ -1,15 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FluentAssertions;
 using Newtonsoft.Json;
-using NUnit.Framework;
 using OctopusPuppet.DeploymentPlanner;
 using OctopusPuppet.Scheduler;
+using Xunit;
 
 namespace OctopusPuppet.Tests
 {
     public class DeploymentSchedulerTests
     {
+        private const int ExpectedNumberOfDeploymentStepsForProductDeployment0 = 4;
+        private const int ExpectedNumberOfComponentDeploymentsForProductDeployment0 = 8;
+
+        private const int ExpectedNumberOfDeploymentStepsForProductDeployment1 = 3;
+        private const int ExpectedNumberOfComponentDeploymentsForProductDeployment1 = 3;
+
         private EnvironmentDeploymentPlan GetEnvironmentDeploymentPlan()
         {
             var componentDeploymentPlans = new List<ComponentDeploymentPlan>()
@@ -32,7 +39,7 @@ namespace OctopusPuppet.Tests
             return environmentDeploymentPlan;
         }
 
-        [Test]
+        [Fact]
         public void GetDeploymentPlanForComponentJson()
         {
             var environmentDeploymentPlan = GetEnvironmentDeploymentPlan();
@@ -47,11 +54,14 @@ namespace OctopusPuppet.Tests
             var products0 = environmentDeployment.ProductDeployments[0];
             var products1 = environmentDeployment.ProductDeployments[1];
 
-            Assert.AreEqual(7, products0.DeploymentSteps.Count());
-            Assert.AreEqual(3, products1.DeploymentSteps.Count());
+            products0.DeploymentSteps.Count().Should().Be(ExpectedNumberOfDeploymentStepsForProductDeployment0);
+            products0.DeploymentSteps.SelectMany(productDeploymentStep => productDeploymentStep.ComponentDeployments).Count().Should().Be(ExpectedNumberOfComponentDeploymentsForProductDeployment0);
+
+            products1.DeploymentSteps.Count().Should().Be(ExpectedNumberOfDeploymentStepsForProductDeployment1);
+            products1.DeploymentSteps.SelectMany(productDeploymentStep => productDeploymentStep.ComponentDeployments).Count().Should().Be(ExpectedNumberOfComponentDeploymentsForProductDeployment1);
         }
 
-        [Test]
+        [Fact]
         public void GetDeploymentPlanForComponentDeploymentList()
         {
             var componentDependancies = GetEnvironmentDeploymentPlan();
@@ -63,11 +73,14 @@ namespace OctopusPuppet.Tests
             var products0 = environmentDeployment.ProductDeployments[0];
             var products1 = environmentDeployment.ProductDeployments[1];
 
-            Assert.AreEqual(7, products0.DeploymentSteps.Count());
-            Assert.AreEqual(3, products1.DeploymentSteps.Count());
+            products0.DeploymentSteps.Count().Should().Be(ExpectedNumberOfDeploymentStepsForProductDeployment0);
+            products0.DeploymentSteps.SelectMany(productDeploymentStep => productDeploymentStep.ComponentDeployments).Count().Should().Be(ExpectedNumberOfComponentDeploymentsForProductDeployment0);
+
+            products1.DeploymentSteps.Count().Should().Be(ExpectedNumberOfDeploymentStepsForProductDeployment1);
+            products1.DeploymentSteps.SelectMany(productDeploymentStep => productDeploymentStep.ComponentDeployments).Count().Should().Be(ExpectedNumberOfComponentDeploymentsForProductDeployment1);
         }
 
-        [Test]
+        [Fact]
         public void GetDeploymentPlanForComponentAdjacencyGraph()
         {
             var componentDeploymentGraph = new ComponentDeploymentGraph();
@@ -118,8 +131,11 @@ namespace OctopusPuppet.Tests
             var products0 = environmentDeployment.ProductDeployments[0];
             var products1 = environmentDeployment.ProductDeployments[1];
 
-            Assert.AreEqual(7, products0.DeploymentSteps.Count());
-            Assert.AreEqual(3, products1.DeploymentSteps.Count());
+            products0.DeploymentSteps.Count().Should().Be(ExpectedNumberOfDeploymentStepsForProductDeployment0);
+            products0.DeploymentSteps.SelectMany(productDeploymentStep => productDeploymentStep.ComponentDeployments).Count().Should().Be(ExpectedNumberOfComponentDeploymentsForProductDeployment0);
+
+            products1.DeploymentSteps.Count().Should().Be(ExpectedNumberOfDeploymentStepsForProductDeployment1);
+            products1.DeploymentSteps.SelectMany(productDeploymentStep => productDeploymentStep.ComponentDeployments).Count().Should().Be(ExpectedNumberOfComponentDeploymentsForProductDeployment1);
         }   
     }
 }

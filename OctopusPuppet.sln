@@ -22,6 +22,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{5B706E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aga.Controls", "Aga.Controls\Aga.Controls.csproj", "{D17CD489-1B14-47EB-8C22-C189D078AEC9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctopusPuppet.Cmd", "OctopusPuppet.Cmd\OctopusPuppet.Cmd.csproj", "{5D6DF5A3-DC22-4AA9-B9DF-F5918F0F4BBF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,10 @@ Global
 		{D17CD489-1B14-47EB-8C22-C189D078AEC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D17CD489-1B14-47EB-8C22-C189D078AEC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D17CD489-1B14-47EB-8C22-C189D078AEC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D6DF5A3-DC22-4AA9-B9DF-F5918F0F4BBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D6DF5A3-DC22-4AA9-B9DF-F5918F0F4BBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D6DF5A3-DC22-4AA9-B9DF-F5918F0F4BBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D6DF5A3-DC22-4AA9-B9DF-F5918F0F4BBF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
