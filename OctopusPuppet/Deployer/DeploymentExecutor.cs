@@ -104,79 +104,86 @@ namespace OctopusPuppet.Deployer
         /// <param name="cancellationToken"></param>
         private ComponentVertexDeploymentStatus DeployComponent(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken)
         {
-            _throttler.Wait(cancellationToken);
             try
             {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    return ComponentVertexDeploymentStatus.Cancelled;
-                }
-
-                //Start progress
-                if (_progress != null)
-                {
-                    _progress.Report(new ComponentVertexDeploymentProgress
-                    {
-                        Vertex = componentDeploymentVertex,
-                        Status = ComponentVertexDeploymentStatus.Started,
-                        MinimumValue = 0,
-                        MaximumValue =
-                            componentDeploymentVertex.DeploymentDuration.HasValue
-                                ? componentDeploymentVertex.DeploymentDuration.Value.Ticks
-                                : 0,
-                        Value = 0,
-                        Text = "Started"
-                    });
-                }
-
-                Exception exception = null;
-                ComponentVertexDeploymentStatus status;
-
+                _throttler.Wait(cancellationToken);
                 try
                 {
-                    status = _componentVertexDeployer.Deploy(componentDeploymentVertex, cancellationToken, _progress);
-                }
-                catch (Exception ex)
-                {
-                    status = ComponentVertexDeploymentStatus.Failure;
-                    exception = ex;
-                }
-
-                var text = string.Empty;
-
-                if (exception != null)
-                {
-                    var stringBuilder = new StringBuilder();
-                    WriteExceptionDetails(exception, stringBuilder, 1);
-
-                    text += Environment.NewLine + stringBuilder;
-                }
-
-                //Finish progress    
-                if (_progress != null)
-                {
-                    _progress.Report(new ComponentVertexDeploymentProgress
+                    if (cancellationToken.IsCancellationRequested)
                     {
-                        Vertex = componentDeploymentVertex,
-                        Status = status,
-                        MinimumValue = 0,
-                        MaximumValue =
-                            componentDeploymentVertex.DeploymentDuration.HasValue
-                                ? componentDeploymentVertex.DeploymentDuration.Value.Ticks
-                                : 0,
-                        Value =
-                            componentDeploymentVertex.DeploymentDuration.HasValue
-                                ? componentDeploymentVertex.DeploymentDuration.Value.Ticks
-                                : 0,
-                        Text = text
-                    });
-                }
+                        return ComponentVertexDeploymentStatus.Cancelled;
+                    }
 
-                return status;
+                    //Start progress
+                    if (_progress != null)
+                    {
+                        _progress.Report(new ComponentVertexDeploymentProgress
+                        {
+                            Vertex = componentDeploymentVertex,
+                            Status = ComponentVertexDeploymentStatus.Started,
+                            MinimumValue = 0,
+                            MaximumValue =
+                                componentDeploymentVertex.DeploymentDuration.HasValue
+                                    ? componentDeploymentVertex.DeploymentDuration.Value.Ticks
+                                    : 0,
+                            Value = 0,
+                            Text = "Started"
+                        });
+                    }
+
+                    Exception exception = null;
+                    ComponentVertexDeploymentStatus status;
+
+                    try
+                    {
+                        status = _componentVertexDeployer.Deploy(componentDeploymentVertex, cancellationToken, _progress);
+                    }
+                    catch (Exception ex)
+                    {
+                        status = ComponentVertexDeploymentStatus.Failure;
+                        exception = ex;
+                    }
+
+                    var text = string.Empty;
+
+                    if (exception != null)
+                    {
+                        var stringBuilder = new StringBuilder();
+                        WriteExceptionDetails(exception, stringBuilder, 1);
+
+                        text += Environment.NewLine + stringBuilder;
+                    }
+
+                    //Finish progress    
+                    if (_progress != null)
+                    {
+                        _progress.Report(new ComponentVertexDeploymentProgress
+                        {
+                            Vertex = componentDeploymentVertex,
+                            Status = status,
+                            MinimumValue = 0,
+                            MaximumValue =
+                                componentDeploymentVertex.DeploymentDuration.HasValue
+                                    ? componentDeploymentVertex.DeploymentDuration.Value.Ticks
+                                    : 0,
+                            Value =
+                                componentDeploymentVertex.DeploymentDuration.HasValue
+                                    ? componentDeploymentVertex.DeploymentDuration.Value.Ticks
+                                    : 0,
+                            Text = text
+                        });
+                    }
+
+                    return status;
+                }
+                finally
+                {
+                    _throttler.Release();
+                }
             }
-            finally
+            catch (OperationCanceledException)
             {
-                _throttler.Release();
+                return ComponentVertexDeploymentStatus.Cancelled;
             }
         }
 
