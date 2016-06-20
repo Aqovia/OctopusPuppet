@@ -11,6 +11,9 @@ namespace OctopusPuppet.Cmd
             {
                 switch (value.Status)
                 {
+                    case ComponentVertexDeploymentStatus.NotStarted:
+                        ComponentDeploymentNotStarted(value);
+                        break;
                     case ComponentVertexDeploymentStatus.Started:
                         ComponentDeploymentStarted(value);
                         break;
@@ -30,6 +33,10 @@ namespace OctopusPuppet.Cmd
                         throw new ArgumentOutOfRangeException();
                 }
             }
+        }
+
+        private void ComponentDeploymentNotStarted(ComponentVertexDeploymentProgress value)
+        {
         }
 
         private void ComponentDeploymentStarted(ComponentVertexDeploymentProgress value)

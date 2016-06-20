@@ -13,6 +13,7 @@
              
             xmlns:sd="http://icsharpcode.net/sharpdevelop/treeview"
             xmlns:tree="clr-namespace:Aga.Controls.Tree;assembly=Aga.Controls"
+            xmlns:model="clr-namespace:OctopusPuppet.Gui.Model"
 
             mc:Ignorable="d" 
              d:DesignHeight="768" d:DesignWidth="768"
@@ -54,6 +55,18 @@
                                 </DockPanel>
                             </GroupBox>
                             <Separator />
+                            <GroupBox Header="Refresh Branches And Environments" Margin="10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                        <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                        <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                        <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0" x:Name="GetBranchesAndEnvironments" Content="Refresh Branches And Environments" HorizontalAlignment="left" VerticalAlignment="Center" Margin="10" Padding="10 3" />
+                                </Grid>
+                            </GroupBox>
                             <GroupBox Header="Branch Deployment" Margin="10">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -148,8 +161,7 @@
                                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" >
                                         <Button x:Name="SaveEnvironmentDeploymentJson" Content="Save" VerticalAlignment="Center" Margin="10" Padding="10 3" />
                                         <Button x:Name="LoadEnvironmentDeploymentJson" Content="Load" VerticalAlignment="Center" Margin="10" Padding="10 3" />
-                                      </StackPanel>
-
+                                    </StackPanel>
                                     <tree:TreeList Name="EnvironmentDeploymentTreeList" Model="{Binding EnvironmentDeployment}" HorizontalAlignment="Stretch" tree:GridViewColumnResize.Enabled="True" IsExpanded="True">
                                         <tree:TreeList.ItemTemplate>
                                             <DataTemplate>
@@ -295,20 +307,196 @@
                 VerticalAlignment="Stretch" 
                 Height="Auto" 
                 Margin="10">
-                    <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="False" Margin="5" DockPanel.Dock="Top">
-                        <GroupBox Header="Deployment Options" Margin="10">
+                    <GroupBox Header="Deployment Options" Padding="5" Margin="10">
+                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
                             <DockPanel>
                                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" >
                                     <Label VerticalAlignment="Center" Content="Maximum Task In Parallel"/>
                                     <xctk:IntegerUpDown Value="{Binding MaximumParallelDeployment}" Maximum="16" Minimum="1" VerticalAlignment="Center" Margin="10" Increment="1" IsEnabled="{Binding CanDeploy}" />
                                     <Button x:Name="ExecuteEnvironmentDeployment" Content="Deploy" VerticalAlignment="Center" Margin="10" Padding="10 3" IsEnabled="{Binding CanDeploy}" />
+                                    <Button x:Name="CancelEnvironmentDeployment" Content="Abort" VerticalAlignment="Center" Margin="10" Padding="10 3" IsEnabled="{Binding CanDeploy}" />
                                 </StackPanel>
-                            </DockPanel>
-                        </GroupBox>
-                        <Separator />
-                        <GroupBox Header="Deployment Progress" Margin="10">
-                        </GroupBox>
-                    </StackPanel>
+                                <tree:TreeList Name="EnvironmentDeploymentResultTreeList" Model="{Binding EnvironmentDeploymentResult}" HorizontalAlignment="Stretch" tree:GridViewColumnResize.Enabled="True" IsExpanded="True">
+                                    <tree:TreeList.ItemTemplate>
+                                        <DataTemplate>
+                                            <ContentControl Content="{Binding}">
+                                                <ContentControl.Resources>
+                                                    <HierarchicalDataTemplate DataType="{x:Type model:ProductDeploymentResult}" ItemsSource="{Binding DeploymentSteps}" >
+                                                    </HierarchicalDataTemplate>
+                                                    <HierarchicalDataTemplate DataType="{x:Type model:ProductDeploymentStepResult}" ItemsSource="{Binding ComponentDeployments}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <tree:RowExpander/>
+                                                            <TextBlock Text="Step - " />
+                                                            <TextBlock Text="{Binding ExecutionOrder}" />
+                                                        </StackPanel>
+                                                    </HierarchicalDataTemplate>
+                                                    <DataTemplate DataType="{x:Type model:ComponentDeploymentResult}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <tree:RowExpander/>
+                                                            <TextBlock Text="{Binding Vertex.Name}" />
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ContentControl.Resources>
+                                            </ContentControl>
+                                        </DataTemplate>
+                                    </tree:TreeList.ItemTemplate>
+                                    <tree:TreeList.View>
+                                        <GridView>
+                                            <GridViewColumn Header="Name" Width="250">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <ContentControl Content="{Binding}">
+                                                            <ContentControl.Resources>
+                                                                <HierarchicalDataTemplate DataType="{x:Type model:ProductDeploymentResult}" ItemsSource="{Binding DeploymentSteps}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <tree:RowExpander/>
+                                                                        <TextBlock Text="Product" HorizontalAlignment="Stretch" />
+                                                                    </StackPanel>
+                                                                </HierarchicalDataTemplate>
+                                                                <HierarchicalDataTemplate DataType="{x:Type model:ProductDeploymentStepResult}" ItemsSource="{Binding ComponentDeployments}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <tree:RowExpander/>
+                                                                        <TextBlock Text="Step - " />
+                                                                        <TextBlock Text="{Binding ExecutionOrder}" />
+                                                                    </StackPanel>
+                                                                </HierarchicalDataTemplate>
+                                                                <DataTemplate DataType="{x:Type model:ComponentDeploymentResult}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <tree:RowExpander/>
+                                                                        <TextBlock Text="{Binding Vertex.Name}" />
+                                                                    </StackPanel>
+                                                                </DataTemplate>
+                                                            </ContentControl.Resources>
+                                                        </ContentControl>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Header="Version" Width="125">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <ContentControl Content="{Binding}">
+                                                            <ContentControl.Resources>
+                                                                <HierarchicalDataTemplate DataType="{x:Type model:ProductDeploymentResult}" ItemsSource="{Binding DeploymentSteps}">
+                                                                    <StackPanel Orientation="Horizontal">
+
+                                                                    </StackPanel>
+                                                                </HierarchicalDataTemplate>
+                                                                <HierarchicalDataTemplate DataType="{x:Type model:ProductDeploymentStepResult}" ItemsSource="{Binding ComponentDeployments}">
+                                                                    <StackPanel Orientation="Horizontal">
+
+                                                                    </StackPanel>
+                                                                </HierarchicalDataTemplate>
+                                                                <DataTemplate DataType="{x:Type model:ComponentDeploymentResult}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <TextBlock Text="{Binding Vertex.Version}" />
+                                                                    </StackPanel>
+                                                                </DataTemplate>
+                                                            </ContentControl.Resources>
+                                                        </ContentControl>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Header="Action" Width="125">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <ContentControl Content="{Binding}">
+                                                            <ContentControl.Resources>
+                                                                <HierarchicalDataTemplate DataType="{x:Type model:ProductDeploymentResult}" ItemsSource="{Binding DeploymentSteps}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                    </StackPanel>
+                                                                </HierarchicalDataTemplate>
+                                                                <HierarchicalDataTemplate DataType="{x:Type model:ProductDeploymentStepResult}" ItemsSource="{Binding ComponentDeployments}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                    </StackPanel>
+                                                                </HierarchicalDataTemplate>
+                                                                <DataTemplate DataType="{x:Type model:ComponentDeploymentResult}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <TextBlock Text="{Binding Vertex.Action}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                                    </StackPanel>
+                                                                </DataTemplate>
+                                                            </ContentControl.Resources>
+                                                        </ContentControl>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Header="Status" Width="125">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <ContentControl Content="{Binding}">
+                                                            <ContentControl.Resources>
+                                                                <HierarchicalDataTemplate DataType="{x:Type model:ProductDeploymentResult}" ItemsSource="{Binding DeploymentSteps}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                    </StackPanel>
+                                                                </HierarchicalDataTemplate>
+                                                                <HierarchicalDataTemplate DataType="{x:Type model:ProductDeploymentStepResult}" ItemsSource="{Binding ComponentDeployments}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                    </StackPanel>
+                                                                </HierarchicalDataTemplate>
+                                                                <DataTemplate DataType="{x:Type model:ComponentDeploymentResult}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <TextBlock Text="{Binding Status}" />
+                                                                    </StackPanel>
+                                                                </DataTemplate>
+                                                            </ContentControl.Resources>
+                                                        </ContentControl>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Header="Result" Width="125">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <ContentControl Content="{Binding}">
+                                                            <ContentControl.Resources>
+                                                                <HierarchicalDataTemplate DataType="{x:Type model:ProductDeploymentResult}" ItemsSource="{Binding DeploymentSteps}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                    </StackPanel>
+                                                                </HierarchicalDataTemplate>
+                                                                <HierarchicalDataTemplate DataType="{x:Type model:ProductDeploymentStepResult}" ItemsSource="{Binding ComponentDeployments}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                    </StackPanel>
+                                                                </HierarchicalDataTemplate>
+                                                                <DataTemplate DataType="{x:Type model:ComponentDeploymentResult}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <ProgressBar Maximum="{Binding MaximumValue}" Minimum="{Binding MinimumValue}" Value="{Binding Value}" Height="23" Width="100" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding IsProgressBarVisible}"  />
+                                                                    </StackPanel>
+                                                                </DataTemplate>
+                                                            </ContentControl.Resources>
+                                                        </ContentControl>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Header="Text" tree:GridViewColumnResize.Width="*">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <ContentControl Content="{Binding}">
+                                                            <ContentControl.Resources>
+                                                                <HierarchicalDataTemplate DataType="{x:Type model:ProductDeploymentResult}" ItemsSource="{Binding DeploymentSteps}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                    </StackPanel>
+                                                                </HierarchicalDataTemplate>
+                                                                <HierarchicalDataTemplate DataType="{x:Type model:ProductDeploymentStepResult}" ItemsSource="{Binding ComponentDeployments}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                    </StackPanel>
+                                                                </HierarchicalDataTemplate>
+                                                                <DataTemplate DataType="{x:Type model:ComponentDeploymentResult}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Stretch" Text="{Binding Text}" TextAlignment="Left"/>
+                                                                    </StackPanel>
+                                                                </DataTemplate>
+                                                            </ContentControl.Resources>
+                                                        </ContentControl>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                        </GridView>
+                                    </tree:TreeList.View>
+                                </tree:TreeList>
+                            </DockPanel>                           
+                        </Grid>
+                    </GroupBox>
                 </DockPanel>
             </Grid>
         </TabItem>        
