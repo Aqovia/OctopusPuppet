@@ -284,7 +284,14 @@ namespace OctopusPuppet.Cmd
         {
             if (string.IsNullOrEmpty(componentFilterPath))
             {
-                return null;
+                if (File.Exists("filter.json"))
+                {
+                    componentFilterPath = "filter.json";
+                }
+                else
+                {
+                    return null;    
+                }
             }
 
             var json = File.ReadAllText(componentFilterPath);

@@ -55,6 +55,8 @@ namespace OctopusPuppet.Gui.ViewModels
 
             OctopusApiKey = ConfigurationManager.AppSettings["OctopusApiKey"];
             OctopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
+
+            LoadDefaultComponentFilterJson();
         }
 
         private bool _isLoadingData;
@@ -194,6 +196,7 @@ namespace OctopusPuppet.Gui.ViewModels
                 NotifyOfPropertyChange(() => CanBranchDeployment);
                 NotifyOfPropertyChange(() => CanRedeployment);
                 NotifyOfPropertyChange(() => CanEnvironmentMirror);
+                NotifyOfPropertyChange(() => CanGetBranchesAndEnvironments);
             }
         }
 
@@ -213,7 +216,13 @@ namespace OctopusPuppet.Gui.ViewModels
                 NotifyOfPropertyChange(() => CanBranchDeployment);
                 NotifyOfPropertyChange(() => CanRedeployment);
                 NotifyOfPropertyChange(() => CanEnvironmentMirror);
+                NotifyOfPropertyChange(() => CanGetBranchesAndEnvironments);
             }
+        }
+
+        public bool CanGetBranchesAndEnvironments
+        {
+            get { return !string.IsNullOrEmpty(OctopusUrl) && !string.IsNullOrEmpty(OctopusApiKey); }
         }
 
         private List<Branch> _branchDeploymentBranches;
@@ -402,6 +411,14 @@ namespace OctopusPuppet.Gui.ViewModels
             File.WriteAllText(saveFileDialog.FileName, json);
         }
 
+        private void LoadDefaultComponentFilterJson()
+        {
+            if (File.Exists("filter.json"))
+            {
+                LoadComponentFilterJsonFromFile("filter.json");
+            }
+        }
+
         public void LoadComponentFilterJson()
         {
             var openFileDialog = new OpenFileDialog
@@ -411,10 +428,15 @@ namespace OctopusPuppet.Gui.ViewModels
             };
             if (openFileDialog.ShowDialog() != true) return;
 
-            var json = File.ReadAllText(openFileDialog.FileName);
+            LoadComponentFilterJsonFromFile(openFileDialog.FileName);
+        }
+
+        public void LoadComponentFilterJsonFromFile(string jsonFilePath)
+        {
+            var json = File.ReadAllText(jsonFilePath);
             var componentFilter = JsonConvert.DeserializeObject<ComponentFilter>(json);
             var expressions = componentFilter.Expressions
-                .Select(x => new StringWrapper {Text = x})
+                .Select(x => new StringWrapper { Text = x })
                 .ToList();
             ComponentFilterExpressions = new ObservableCollection<StringWrapper>(expressions);
             ComponentFilterInclude = componentFilter.Include;
