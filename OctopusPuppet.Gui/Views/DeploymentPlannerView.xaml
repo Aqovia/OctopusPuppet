@@ -317,7 +317,7 @@
                                     <Label VerticalAlignment="Center" Content="Maximum Task In Parallel"/>
                                     <xctk:IntegerUpDown Value="{Binding MaximumParallelDeployment}" Maximum="16" Minimum="1" VerticalAlignment="Center" Margin="10" Increment="1" IsEnabled="{Binding CanDeploy}" />
                                     <Button x:Name="ExecuteEnvironmentDeployment" Content="Deploy" VerticalAlignment="Center" Margin="10" Padding="10 3" IsEnabled="{Binding CanDeploy}" />
-                                    <Button x:Name="CancelEnvironmentDeployment" Content="Abort" VerticalAlignment="Center" Margin="10" Padding="10 3" IsEnabled="{Binding CanDeploy}" />
+                                    <Button x:Name="CancelEnvironmentDeployment" Content="Abort" VerticalAlignment="Center" Margin="10" Padding="10 3" IsEnabled="{Binding CanCancelDeploy}" />
                                 </StackPanel>
                                 <tree:TreeList Name="EnvironmentDeploymentResultTreeList" Model="{Binding EnvironmentDeploymentResult}" HorizontalAlignment="Stretch" tree:GridViewColumnResize.Enabled="True" IsExpanded="True">
                                     <tree:TreeList.ItemTemplate>

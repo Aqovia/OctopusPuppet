@@ -133,12 +133,18 @@ namespace OctopusPuppet.Gui.ViewModels
                 EnvironmentDeploymentResult = _environmentDeployment;
                 NotifyOfPropertyChange(() => EnvironmentDeployment);
                 NotifyOfPropertyChange(() => CanDeploy);
+                NotifyOfPropertyChange(() => CanCancelDeploy);
             }
         }
 
         public bool CanDeploy
         {
             get { return EnvironmentDeployment != null && !IsLoadingData; }
+        }
+
+        public bool CanCancelDeploy
+        {
+            get { return EnvironmentDeployment != null && CancellationTokenSource != null; }
         }
 
         public void GetBranchesAndEnvironments()
@@ -685,6 +691,28 @@ namespace OctopusPuppet.Gui.ViewModels
             componentDeploymentResult.Status = value.Status;
         }
 
+        private CancellationTokenSource _cancellationTokenSource;
+        public CancellationTokenSource CancellationTokenSource
+        {
+            get { return _cancellationTokenSource; }
+            set
+            {
+                if (value == _cancellationTokenSource) return;
+                _cancellationTokenSource = value;
+                NotifyOfPropertyChange(() => CancellationTokenSource);
+                NotifyOfPropertyChange(() => CanCancelDeploy);
+            }
+        }
+
+        public void CancelEnvironmentDeployment()
+        {
+            var cancellationTokenSource = CancellationTokenSource;
+            if (cancellationTokenSource != null)
+            {
+                cancellationTokenSource.Cancel();
+            }
+        }
+
         public void ExecuteEnvironmentDeployment()
         {
             IsLoadingData = true;
@@ -693,16 +721,16 @@ namespace OctopusPuppet.Gui.ViewModels
                 try
                 {
                     var componentVertexDeployer = new OctopusComponentVertexDeployer(_octopusUrl, _octopusApiKey, EnvironmentToDeployTo);
-                    var cancellationTokenSource = new CancellationTokenSource();
-                    var deploymentExecutor = new DeploymentExecutor(componentVertexDeployer, EnvironmentDeployment, cancellationTokenSource.Token, this, MaximumParallelDeployment);
+                    CancellationTokenSource = new CancellationTokenSource();
+                    var deploymentExecutor = new DeploymentExecutor(componentVertexDeployer, EnvironmentDeployment, CancellationTokenSource.Token, this, MaximumParallelDeployment);
                     var allDeploymentsSucceded = deploymentExecutor.Execute().ConfigureAwait(false).GetAwaiter().GetResult();
                 }
                 catch
                 {
-
                 }
             }).ContinueWith(task =>
             {
+                CancellationTokenSource = null;
                 IsLoadingData = false;
             });
         }
