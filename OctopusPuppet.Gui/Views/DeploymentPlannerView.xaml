@@ -52,7 +52,7 @@
                                                     <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
                                                     <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Button Grid.Column="0" x:Name="GetBranchesAndEnvironments" Content="Refresh Branches And Environments" HorizontalAlignment="left" VerticalAlignment="Center" Margin="10" Padding="10 3" />
+                                                <Button Grid.Column="0" x:Name="GetBranchesAndEnvironments" Content="Refresh Branches And Environments" HorizontalAlignment="left" VerticalAlignment="Center" Margin="10" Padding="10 3" IsEnabled="{Binding CanGetBranchesAndEnvironments}" />
                                             </Grid>
                                         </GroupBox>
                                         <GroupBox Header="Branch Deployment" Margin="10">

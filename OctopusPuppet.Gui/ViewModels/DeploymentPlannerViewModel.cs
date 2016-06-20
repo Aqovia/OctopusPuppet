@@ -196,6 +196,7 @@ namespace OctopusPuppet.Gui.ViewModels
                 NotifyOfPropertyChange(() => CanBranchDeployment);
                 NotifyOfPropertyChange(() => CanRedeployment);
                 NotifyOfPropertyChange(() => CanEnvironmentMirror);
+                NotifyOfPropertyChange(() => CanGetBranchesAndEnvironments);
             }
         }
 
@@ -215,7 +216,13 @@ namespace OctopusPuppet.Gui.ViewModels
                 NotifyOfPropertyChange(() => CanBranchDeployment);
                 NotifyOfPropertyChange(() => CanRedeployment);
                 NotifyOfPropertyChange(() => CanEnvironmentMirror);
+                NotifyOfPropertyChange(() => CanGetBranchesAndEnvironments);
             }
+        }
+
+        public bool CanGetBranchesAndEnvironments
+        {
+            get { return !string.IsNullOrEmpty(OctopusUrl) && !string.IsNullOrEmpty(OctopusApiKey); }
         }
 
         private List<Branch> _branchDeploymentBranches;
