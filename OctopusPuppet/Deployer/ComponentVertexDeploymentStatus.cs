@@ -2,6 +2,7 @@
 {
     public enum ComponentVertexDeploymentStatus
     {
+        NotStarted,
         Started,
         InProgress,
         Failure,

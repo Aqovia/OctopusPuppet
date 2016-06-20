@@ -141,6 +141,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Model\ComponentDeploymentResult.cs" />
+    <Compile Include="Model\EnvironmentDeploymentResult.cs" />
+    <Compile Include="Model\ProductDeploymentResult.cs" />
+    <Compile Include="Model\ProductDeploymentStepResult.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="AppBootstrapper.cs" />
     <Compile Include="ViewModels\ComponentToDeployViewModel.cs" />
@@ -150,6 +154,7 @@
     <Compile Include="Views\DeploymentPlannerView.xaml.cs">
       <DependentUpon>DeploymentPlannerView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\EnvironmentDeploymentResultHiearchyFlattener.cs" />
     <Compile Include="Views\EnvironmentDeploymentHiearchyFlattener.cs" />
     <Page Include="Views\ComponentGraphDataTemplates.xaml">
       <SubType>Designer</SubType>

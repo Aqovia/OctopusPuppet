@@ -172,13 +172,24 @@ namespace Aga.Controls.Tree
 
             public void SetWidth(double allowedSpace, double totalPercentage)
             {
-                if (IsStatic)
+                if (IsStatic || allowedSpace < 0)
                 {
-                    _element.Width = StaticWidth;
+                    var width = StaticWidth;
+                    if (width < 0)
+                    {
+                        width = 0;
+                    }
+                    _element.Width = width;
                 }
                 else
                 {
-                    double width = allowedSpace * (Percentage / totalPercentage);
+                    var width = allowedSpace * (Percentage / totalPercentage);
+
+                    if (width < 0)
+                    {
+                        width = 0;
+                    }
+
                     _element.Width = width;
                 }
             }
