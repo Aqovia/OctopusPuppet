@@ -160,7 +160,7 @@
                                         <Label HorizontalAlignment="Right" VerticalAlignment="Center" Content="Layout"/>
                                         <ComboBox x:Name="LayoutAlgorithmTypes" SelectedItem="{Binding SelectedLayoutAlgorithmType}" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"/>
                                     </DockPanel>
-                                    <controls:ZoomControl>
+                                    <controls:ZoomControl ModifierMode="ZoomIn" >
                                         <views:ComponentGraphLayout x:Name="layout"
                                           LayoutAlgorithmType="{Binding SelectedLayoutAlgorithmType, Mode=OneWay}"
                                           OverlapRemovalAlgorithmType="FSA"
