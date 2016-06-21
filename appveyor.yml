@@ -15,6 +15,19 @@ assembly_info:
 before_build:
   - nuget restore  
 
+after_build:
+  - 7z a OctopusPuppet.Cmd.zip %APPVEYOR_BUILD_FOLDER%\src\OctopusPuppet.Cmd\bin\Release\*.*
+  - 7z a OctopusPuppet.Gui.zip %APPVEYOR_BUILD_FOLDER%\src\OctopusPuppet.Gui\bin\Release\*.*
+
+artifacts:
+  - path: OctopusPuppet.Cmd.zip
+    name: OctopusPuppet.Cmd
+    type: zip
+
+  - path: OctopusPuppet.Gui.zip
+    name: OctopusPuppet.Gui
+    type: zip
+
 configuration: Release
 
 build:
