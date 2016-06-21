@@ -3,6 +3,10 @@ Octopus Puppet
 
 [![Build status](https://ci.appveyor.com/api/projects/status/a18hd51vae9nho0p/branch/master?svg=true)](https://ci.appveyor.com/project/aqovia/octopuspuppet/branch/master)
 
+[Download latest OctopusPuppet.Cmd](https://ci.appveyor.com/api/project/aqovia/octopuspuppet/artifacts/OctopusPuppet.Cmd.zip?branch=master "Latest OctopusPuppet.Cmd")
+
+[Download latest OctopusPuppet.Gui](https://ci.appveyor.com/api/project/aqovia/octopuspuppet/artifacts/OctopusPuppet.Gui.zip?branch=master "Latest OctopusPuppet.Gui")
+
 **Generate deployment plan**
 ![Generate deployment plan screen](/docs/img/Generate_deployment_plan.png?raw=true "Generate deployment plan screen")
 
