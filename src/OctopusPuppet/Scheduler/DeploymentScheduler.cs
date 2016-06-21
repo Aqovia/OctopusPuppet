@@ -70,7 +70,32 @@ namespace OctopusPuppet.Scheduler
                 .ToList();
 
             var environmentDeployment = new EnvironmentDeployment(productDeploymentPlans);
+            var reversedEnvironmentDeployment = ReverseEnvironmentDeployment(environmentDeployment);
+
+            return reversedEnvironmentDeployment;
+        }
+
+        private EnvironmentDeployment ReverseEnvironmentDeployment(EnvironmentDeployment environmentDeployment)
+        {
+            foreach (var productDeployment in environmentDeployment.ProductDeployments)
+            {
+                productDeployment.DeploymentSteps = ReverseProductDeployment(productDeployment.DeploymentSteps);
+            }
+
             return environmentDeployment;
+        }
+
+        private List<ProductDeploymentStep> ReverseProductDeployment(List<ProductDeploymentStep> productDeploymentSteps)
+        {
+            productDeploymentSteps = productDeploymentSteps.OrderByDescending(x => x.ExecutionOrder).ToList();
+
+            for (int i = 0; i < productDeploymentSteps.Count; i++)
+            {
+                productDeploymentSteps[i].ExecutionOrder = i;
+            }
+            
+
+            return productDeploymentSteps.OrderBy(x=>x.ExecutionOrder).ToList();
         }
 
         private ProductDeployment GetComponentGroups(ComponentDeploymentGraph componentDeploymentDependancies, int productGroup)
