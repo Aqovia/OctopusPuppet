@@ -52,11 +52,12 @@ Deployment Taxes:
 
 There is no way to show component deployment dependencies in Octopus. To fake this, add a variable called "ComponentDependencies" to a component. This variable is a json string array of all components that this component is dependent on. 
 
+![Octopus variable for component dependency screen](/docs/img/Octopus_variable_for_component_dependency.png?raw=true "Octopus variable for component dependency screen")
+
+**Example component dependencies**
 ```
 ['Payment Service', 'Fraud Service']
 ```
-
-![Octopus variable for component dependency screen](/docs/img/Octopus_variable_for_component_dependency.png?raw=true "Octopus variable for component dependency screen")
 
 This is susceptible to people refactoring component names or deleting dependent components, but OctopusPuppet will detect when it is dependent on a component that does not exist. It will skip these dependencies and will show in red in the deployment planner.
 
@@ -78,7 +79,7 @@ This allows you do something like this:
 ## Order to deploy components in
 ```
 A -> B -> C
-       -> D -> E
+      \-> D -> E
 ```
 
 * Step 1
