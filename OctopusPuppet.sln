@@ -3,26 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctopusPuppet", "OctopusPuppet\OctopusPuppet.csproj", "{138A170B-2FBA-434B-83BB-704667D9A289}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctopusPuppet", "src\OctopusPuppet\OctopusPuppet.csproj", "{138A170B-2FBA-434B-83BB-704667D9A289}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctopusPuppet.Tests", "OctopusPuppet.Tests\OctopusPuppet.Tests.csproj", "{02C3A481-41F2-40F4-AA59-192680A4020A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctopusPuppet.Tests", "src\OctopusPuppet.Tests\OctopusPuppet.Tests.csproj", "{02C3A481-41F2-40F4-AA59-192680A4020A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctopusPuppet.IntegrationTests", "OctopusPuppet.IntegrationTests\OctopusPuppet.IntegrationTests.csproj", "{4E86A56A-61A9-4906-A66C-130DFB2CB75D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctopusPuppet.IntegrationTests", "src\OctopusPuppet.IntegrationTests\OctopusPuppet.IntegrationTests.csproj", "{4E86A56A-61A9-4906-A66C-130DFB2CB75D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctopusPuppet.OctopusProvider", "OctopusPuppet.OctopusProvider\OctopusPuppet.OctopusProvider.csproj", "{17D4DBD0-94B3-49B0-81F9-C0A93B91EEE8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctopusPuppet.OctopusProvider", "src\OctopusPuppet.OctopusProvider\OctopusPuppet.OctopusProvider.csproj", "{17D4DBD0-94B3-49B0-81F9-C0A93B91EEE8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctopusPuppet.Gui", "OctopusPuppet.Gui\OctopusPuppet.Gui.csproj", "{C51D87E0-BBD7-4B3A-A047-32F4C906E959}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctopusPuppet.Gui", "src\OctopusPuppet.Gui\OctopusPuppet.Gui.csproj", "{C51D87E0-BBD7-4B3A-A047-32F4C906E959}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{5B706E91-3BEF-4C37-893C-0095AB7F7469}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aga.Controls", "src\Aga.Controls\Aga.Controls.csproj", "{D17CD489-1B14-47EB-8C22-C189D078AEC9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aga.Controls", "Aga.Controls\Aga.Controls.csproj", "{D17CD489-1B14-47EB-8C22-C189D078AEC9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctopusPuppet.Cmd", "OctopusPuppet.Cmd\OctopusPuppet.Cmd.csproj", "{5D6DF5A3-DC22-4AA9-B9DF-F5918F0F4BBF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OctopusPuppet.Cmd", "src\OctopusPuppet.Cmd\OctopusPuppet.Cmd.csproj", "{5D6DF5A3-DC22-4AA9-B9DF-F5918F0F4BBF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
