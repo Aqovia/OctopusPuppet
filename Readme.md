@@ -2,13 +2,13 @@ Octopus Puppet
 ==============
 
 **Generate deployment plan**
-[[https://github.com/Aqovia/OctopusPuppet/blob/master/docs/img/Generate_deployment_plan.png|alt=generate deployment plan screen]]
+![Generate deployment plan screen](/docs/img/Generate_deployment_plan.png?raw=true "Generate deployment plan screen")
 
 **Visualize and configure deployment plan**
-[[https://github.com/Aqovia/OctopusPuppet/blob/master/docs/img/Deployment_Plan.png|alt=deployment plan screen]]
+![Deployment plan screen](/docs/img/Deployment_Plan.png?raw=true "Deployment plan screen")
 
 **Deploy**
-[[https://github.com/Aqovia/OctopusPuppet/blob/master/docs/img/Deploy.png|alt=deploy screen]]
+![Deploy screen](/docs/img/Deploy.png?raw=true "Deploy screen")
 
 # What
 
