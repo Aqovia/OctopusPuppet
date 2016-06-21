@@ -19,12 +19,3 @@ configuration: Release
 
 build:
   verbosity: minimal
-    
-on_finish:
-  # https://www.appveyor.com/docs/how-to/rdp-to-build-worker
-  - ps: |
-      If ($env:APPVEYOR_REPO_BRANCH -eq 'ci-debug') 
-      { 
-        $blockRdp = $true
-        iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-      }
