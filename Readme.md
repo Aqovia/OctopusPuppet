@@ -10,11 +10,14 @@ Octopus Puppet
 **Deploy**
 ![Deploy screen](/docs/img/Deploy.png?raw=true "Deploy screen")
 
+**Run it from command line or during CI**
+![Command line screen](/docs/img/Run_from_command_prompt.png?raw=true "Command line screen")
+
 # What
 
 Provides a way to visualize, orchestrate differential deployments in Octopus. 
 
-## Differential Branch Deployment
+## Branch Deployment
 
 Will deploy all components that have SemVer pre-release that matches given branch. The latest component will be selected. If the target environment already has the exact component it will be skipped.
 
@@ -53,6 +56,8 @@ There is no way to show component deployment dependencies in Octopus. To fake th
 ['Payment Service', 'Fraud Service']
 ```
 
+![Octopus variable for component dependency screen](/docs/img/Octopus_variable_for_component_dependency.png?raw=true "Octopus variable for component dependency screen")
+
 This is susceptible to people refactoring component names or deleting dependent components, but OctopusPuppet will detect when it is dependent on a component that does not exist. It will skip these dependencies and will show in red in the deployment planner.
 
 ## Scope of dependencies to deploy
@@ -63,12 +68,12 @@ If you exclude a component that another component is dependent on it will filter
 
 This allows you do something like this:
 * Create a filter for environment deployments
-** Step 1 - Deploy database schema
-** Step 2 - Deploy website
+ * Step 1 - Deploy database schema
+ * Step 2 - Deploy website
 * Create a filter for environment refreshes
-** Step 1 - Restore database
-** Step 2 - Deploy database schema
-** Step 3 - Deploy website
+ * Step 1 - Restore database
+ * Step 2 - Deploy database schema
+ * Step 3 - Deploy website
 
 ## Order to deploy components in
 ```
@@ -77,14 +82,14 @@ A -> B -> C
 ```
 
 * Step 1
-** Deploy A
+ * Deploy A
 * Step 2
-** Deploy B
+ * Deploy B
 * Step 3
-** Deploy C
-** Deploy D
+ * Deploy C
+ * Deploy D
 * Step 4
-** Deploy E
+ * Deploy E
 
 The deployment scheduler will calculate the optimum deployment schedule, by parallezing deployments when it can. It can also deal with cyclical component dependencies.
 
@@ -96,17 +101,17 @@ Theory:
 
 ```
 A -> B -> C -> A
-       -> D -> E
+      \-> D -> E
 ```
 
 * Step 1
-** Deploy A
-** Deploy B
-** Deploy C
+ * Deploy A
+ * Deploy B
+ * Deploy C
 * Step 2
-** Deploy D
+ * Deploy D
 * Step 3
-** Deploy E
+ * Deploy E
 
 When the deployment scheduler detect cyclical component dependencies it will plan to deploy each of these components in parallel as there is no clear order to deploy them in. So it will deploy these components in parallel.
 
@@ -114,19 +119,19 @@ When the deployment scheduler detect cyclical component dependencies it will pla
 
 ```
 A -> B -> C
-       -> D -> E
+      \-> D -> E
 Z->Y
 ```
 
 * Product 1
-** A
-** B
-** C
-** D
-** E
+ * A
+ * B
+ * C
+ * D
+ * E
 * Product 2
-** Z
-** Y
+ * Z
+ * Y
 
 The deployment scheduler will detect product by grouping components that are strongly connected. A product is something that can be deployed without effecting another product, so its useful to calculate what a product it.
 
@@ -139,9 +144,9 @@ The are two approaches to database deployments. Change sets vs declarative schem
 
 # Glossary of terms
 
-Component = Octopus Project
-Latest component = The component with the highest version number 
-Exact component = The component with a specific version number
-Product = Group of related components
-
-
+Term | Definition
+---- | ----------
+Component|Octopus Project
+Latest component|The component with the highest version number
+Exact component|The component with a specific version number
+Product|Group of related components
