@@ -40,7 +40,7 @@ namespace OctopusPuppet.Cmd
             HelpText = "Hide deployment progress")]
         public bool HideDeploymentProgress { get; set; }
 
-        [Option('p', "MaximumParalleDeployments",
+        [Option('p', "MaximumParallelDeployments",
             SetName = "Redeployment",
             Default = 4,
             HelpText = "Maximum parallel deployments")]
