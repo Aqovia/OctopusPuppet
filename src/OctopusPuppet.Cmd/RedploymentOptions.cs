@@ -22,6 +22,11 @@ namespace OctopusPuppet.Cmd
             HelpText = "Component filter path.")]
         public string ComponentFilterPath { get; set; }
 
+        [Option("ComponentFilter",
+            SetName = "Redeployment",
+            HelpText = "Component filter json base64 encoded.")]
+        public string ComponentFilter { get; set; }
+
         [Option("TargetEnvironment",
             Required = true,
             SetName = "Redeployment",
@@ -40,7 +45,7 @@ namespace OctopusPuppet.Cmd
             HelpText = "Hide deployment progress")]
         public bool HideDeploymentProgress { get; set; }
 
-        [Option('p', "MaximumParalleDeployments",
+        [Option('p', "MaximumParallelDeployments",
             SetName = "Redeployment",
             Default = 4,
             HelpText = "Maximum parallel deployments")]
