@@ -22,6 +22,11 @@ namespace OctopusPuppet.Cmd
             HelpText = "Component filter path.")]
         public string ComponentFilterPath { get; set; }
 
+        [Option("ComponentFilter",
+            SetName = "BranchDeployment",
+            HelpText = "Component filter json base64 encoded.")]
+        public string ComponentFilter { get; set; }
+
         [Option("Branch",
             Required = true,
             SetName = "BranchDeployment",

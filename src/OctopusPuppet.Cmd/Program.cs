@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using CommandLine;
 using CommandLine.Text;
@@ -87,7 +89,7 @@ namespace OctopusPuppet.Cmd
         private static int BranchDeployment(BranchDeploymentOptions opts)
         {
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
-            var componentFilter = GetComponentFilter(opts.ComponentFilterPath);
+            var componentFilter = GetComponentFilter(opts.ComponentFilterPath, opts.ComponentFilter);
 
             Console.WriteLine("Retrieve branch deployment plans for TargetEnvironment=\"{0}\" Branch=\"{1}\"", opts.TargetEnvironment, opts.Branch);
             var redeployDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(opts.TargetEnvironment, opts.Branch, componentFilter);
@@ -111,7 +113,7 @@ namespace OctopusPuppet.Cmd
         private static int MirrorEnvironment(MirrorEnvironmentOptions opts)
         {
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
-            var componentFilter = GetComponentFilter(opts.ComponentFilterPath);
+            var componentFilter = GetComponentFilter(opts.ComponentFilterPath, opts.ComponentFilter);
 
             Console.WriteLine("Retrieve mirror environment plans for SourceEnvironment=\"{0}\" TargetEnvironment=\"{1}\"", opts.SourceEnvironment, opts.TargetEnvironment);
             var environmentMirrorDeploymentPlans = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(opts.SourceEnvironment, opts.TargetEnvironment, componentFilter);
@@ -135,7 +137,7 @@ namespace OctopusPuppet.Cmd
         private static int Redeployment(RedploymentOptions opts)
         {
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
-            var componentFilter = GetComponentFilter(opts.ComponentFilterPath);
+            var componentFilter = GetComponentFilter(opts.ComponentFilterPath, opts.ComponentFilter);
 
             Console.WriteLine("Retrieve mirror environment plans for TargetEnvironment=\"{0}\"", opts.TargetEnvironment);
             var redeployDeploymentPlans = deploymentPlanner.GetRedeployDeploymentPlans(opts.TargetEnvironment, componentFilter);
@@ -159,7 +161,7 @@ namespace OctopusPuppet.Cmd
         private static int Deploy(DeployOptions opts)
         {
             var environmentDeployment = LoadEnvironmentDeploy(opts.EnvironmentDeploymentPath);
-            return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParalleDeployments);
+            return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParallelDeployments);
         }
 
         private static int CommandLineParsingError(IEnumerable<Error> errors)
@@ -237,33 +239,36 @@ namespace OctopusPuppet.Cmd
                 .AddPostOptionsLine("  OctopusPuppet.Cmd BranchDeployment")
                 .AddPostOptionsLine("    --OctopusUrl \"http://octopus.test.com/\"")
                 .AddPostOptionsLine("    --OctopusApiKey \"API-HAAAS4MM6YBBSAIQVVHCQQUEA0\"")
-                .AddPostOptionsLine("    --ComponentFilterPath \"componentFilter.json\"")
                 .AddPostOptionsLine("    --TargetEnvironment \"Development\"")
                 .AddPostOptionsLine("    --Branch \"Master\"")
+                .AddPostOptionsLine("    [--ComponentFilterPath \"componentFilter.json\"]")
+                .AddPostOptionsLine("    [--ComponentFilter \"Component filter json base64 encoded\"]")
                 .AddPostOptionsLine("    [--Deploy]")
                 .AddPostOptionsLine("    [--EnvironmentDeploymentPath \"environmentDeployment.json\"]")
-                .AddPostOptionsLine("    [--MaximumParalleDeployments 4]")
+                .AddPostOptionsLine("    [--MaximumParallelDeployments 4]")
                 .AddPostOptionsLine("    [--HideDeploymentProgress]")
                 .AddPostOptionsLine("")
                 .AddPostOptionsLine("  OctopusPuppet.Cmd MirrorEnvironment")
                 .AddPostOptionsLine("    --OctopusUrl \"http://octopus.test.com/\"")
                 .AddPostOptionsLine("    --OctopusApiKey \"API-HAAAS4MM6YBBSAIQVVHCQQUEA0\"")
-                .AddPostOptionsLine("    --ComponentFilterPath \"componentFilter.json\"")
                 .AddPostOptionsLine("    --SourceEnvironment \"Development\"")
                 .AddPostOptionsLine("    --TargetEnvironment \"Test\"")
+                .AddPostOptionsLine("    [--ComponentFilterPath \"componentFilter.json\"]")
+                .AddPostOptionsLine("    [--ComponentFilter \"Component filter json base64 encoded\"]")
                 .AddPostOptionsLine("    [--Deploy]")
                 .AddPostOptionsLine("    [--EnvironmentDeploymentPath \"environmentDeployment.json\"]")
-                .AddPostOptionsLine("    [--MaximumParalleDeployments 4]")
+                .AddPostOptionsLine("    [--MaximumParallelDeployments 4]")
                 .AddPostOptionsLine("    [--HideDeploymentProgress]")
                 .AddPostOptionsLine("")
                 .AddPostOptionsLine("  OctopusPuppet.Cmd Redeployment")
                 .AddPostOptionsLine("    --OctopusUrl \"http://octopus.test.com/\"")
                 .AddPostOptionsLine("    --OctopusApiKey \"API-HAAAS4MM6YBBSAIQVVHCQQUEA0\"")
-                .AddPostOptionsLine("    --ComponentFilterPath \"componentFilter.json\"")
                 .AddPostOptionsLine("    --TargetEnvironment \"Development\"")
+                .AddPostOptionsLine("    [--ComponentFilterPath \"componentFilter.json\"]")
+                .AddPostOptionsLine("    [--ComponentFilter \"Component filter json base64 encoded\"]")
                 .AddPostOptionsLine("    [--Deploy]")
                 .AddPostOptionsLine("    [--EnvironmentDeploymentPath \"environmentDeployment.json\"]")
-                .AddPostOptionsLine("    [--MaximumParalleDeployments 4]")
+                .AddPostOptionsLine("    [--MaximumParallelDeployments 4]")
                 .AddPostOptionsLine("    [--HideDeploymentProgress]")
                 .AddPostOptionsLine("")
                 .AddPostOptionsLine("  OctopusPuppet.Cmd Deploy")
@@ -271,7 +276,7 @@ namespace OctopusPuppet.Cmd
                 .AddPostOptionsLine("    --OctopusApiKey \"API-HAAAS4MM6YBBSAIQVVHCQQUEA0\"")
                 .AddPostOptionsLine("    --EnvironmentDeploymentPath \"environmentDeployment.json\"")
                 .AddPostOptionsLine("    --TargetEnvironment \"Development\"")
-                .AddPostOptionsLine("    [--MaximumParalleDeployments 4]")
+                .AddPostOptionsLine("    [--MaximumParallelDeployments 4]")
                 .AddPostOptionsLine("    [--HideDeploymentProgress]")
                 .AddPostOptionsLine("");
 
@@ -280,18 +285,22 @@ namespace OctopusPuppet.Cmd
             return helpText;
         }
 
-        private static ComponentFilter GetComponentFilter(string componentFilterPath)
+        private static ComponentFilter GetComponentFilter(string componentFilterPath, string defaultComponentFilterJsonBase64Encoded)
         {
             if (string.IsNullOrEmpty(componentFilterPath))
             {
-                if (File.Exists("filter.json"))
+                if (!string.IsNullOrEmpty(defaultComponentFilterJsonBase64Encoded))
                 {
-                    componentFilterPath = "filter.json";
+                    var componentFilterJson = Encoding.UTF8.GetString(Convert.FromBase64String(defaultComponentFilterJsonBase64Encoded));
+                    return JsonConvert.DeserializeObject<ComponentFilter>(componentFilterJson);
                 }
-                else
+
+                if (!File.Exists("filter.json"))
                 {
-                    return null;    
+                    return null;
                 }
+
+                componentFilterPath = "filter.json";
             }
 
             var json = File.ReadAllText(componentFilterPath);
