@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -291,7 +290,7 @@ namespace OctopusPuppet.Cmd
             {
                 if (!string.IsNullOrEmpty(defaultComponentFilterJsonBase64Encoded))
                 {
-                    var componentFilterJson = Encoding.UTF8.GetString(Convert.FromBase64String(defaultComponentFilterJsonBase64Encoded));
+                    var componentFilterJson = Encoding.Unicode.GetString(Convert.FromBase64String(defaultComponentFilterJsonBase64Encoded));
                     return JsonConvert.DeserializeObject<ComponentFilter>(componentFilterJson);
                 }
 
