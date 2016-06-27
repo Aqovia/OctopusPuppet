@@ -28,7 +28,6 @@ namespace OctopusPuppet.Cmd
         public string ComponentFilter { get; set; }
 
         [Option("Branch",
-            Required = true,
             SetName = "BranchDeployment",
             HelpText = "The branch to deploy from.")]
         public string Branch { get; set; }
