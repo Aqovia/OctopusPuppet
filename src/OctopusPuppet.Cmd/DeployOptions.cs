@@ -31,14 +31,14 @@ namespace OctopusPuppet.Cmd
         public string TargetEnvironment { get; set; }
 
         [Option('s', "HideDeploymentProgress",
+            Default = false,
             SetName = "Deploy",
-            Default = true,
             HelpText = "Hide deployment progress")]
         public bool HideDeploymentProgress { get; set; }
 
         [Option('p', "MaximumParallelDeployments",
-            SetName = "Deploy",
             Default = 4,
+            SetName = "Deploy",
             HelpText = "Maximum parallel deployments")]
         public int MaximumParallelDeployments { get; set; }
     }

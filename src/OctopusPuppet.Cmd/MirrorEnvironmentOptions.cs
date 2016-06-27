@@ -18,11 +18,13 @@ namespace OctopusPuppet.Cmd
         public string OctopusApiKey { get; set; }
 
         [Option("ComponentFilterPath",
+            Default = "",
             SetName = "MirrorEnvironment",
             HelpText = "Component filter path.")]
         public string ComponentFilterPath { get; set; }
 
         [Option("ComponentFilter",
+            Default = "",
             SetName = "MirrorEnvironment",
             HelpText = "Component filter json base64 encoded.")]
         public string ComponentFilter { get; set; }
@@ -40,25 +42,24 @@ namespace OctopusPuppet.Cmd
         public string SourceEnvironment { get; set; }
 
         [Option('d', "Deploy",
-            SetName = "MirrorEnvironment",
             Default = false,
+            SetName = "MirrorEnvironment",
             HelpText = "Deploy")]
         public bool Deploy { get; set; }
 
         [Option('s', "HideDeploymentProgress",
+            Default = false,
             SetName = "MirrorEnvironment",
-            Default = true,
             HelpText = "Hide deployment progress")]
         public bool HideDeploymentProgress { get; set; }
 
         [Option('p', "MaximumParallelDeployments",
-            SetName = "MirrorEnvironment",
             Default = 4,
+            SetName = "MirrorEnvironment",
             HelpText = "Maximum parallel deployments")]
         public int MaximumParalleDeployments { get; set; }
 
         [Option("EnvironmentDeploymentPath",
-            Required = false,
             Default = "",
             SetName = "MirrorEnvironment",
             HelpText = "Environment Deployment path to save to.")]

@@ -18,16 +18,19 @@ namespace OctopusPuppet.Cmd
         public string OctopusApiKey { get; set; }
 
         [Option("ComponentFilterPath",
+            Default = "",
             SetName = "BranchDeployment",
             HelpText = "Component filter path.")]
         public string ComponentFilterPath { get; set; }
 
         [Option("ComponentFilter",
+            Default = "",
             SetName = "BranchDeployment",
             HelpText = "Component filter json base64 encoded.")]
         public string ComponentFilter { get; set; }
 
         [Option("Branch",
+            Default = "",
             SetName = "BranchDeployment",
             HelpText = "The branch to deploy from.")]
         public string Branch { get; set; }
@@ -39,25 +42,24 @@ namespace OctopusPuppet.Cmd
         public string TargetEnvironment { get; set; }
 
         [Option('d', "Deploy",
-            SetName = "BranchDeployment",
             Default = false,
+            SetName = "BranchDeployment",
             HelpText = "Deploy")]
         public bool Deploy { get; set; }
 
         [Option('s', "HideDeploymentProgress",
+            Default = false,
             SetName = "BranchDeployment",
-            Default = true,
             HelpText = "Hide deployment progress")]
         public bool HideDeploymentProgress { get; set; }
 
         [Option('p', "MaximumParallelDeployments",
-            SetName = "BranchDeployment",
             Default = 4,
+            SetName = "BranchDeployment",
             HelpText = "Maximum parallel deployments")]
         public int MaximumParalleDeployments { get; set; }
 
         [Option("EnvironmentDeploymentPath",
-            Required = false,
             Default = "",
             SetName = "BranchDeployment",
             HelpText = "Environment Deployment path to save to.")]
