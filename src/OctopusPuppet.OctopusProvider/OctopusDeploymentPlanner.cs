@@ -107,7 +107,7 @@ namespace OctopusPuppet.OctopusProvider
             //Get release for branch
             var releaseResource = releaseResources.FirstOrDefault(x => (new SemanticVersion(x.Version)).SpecialVersion == branch);
             if (releaseResource == null) return null;
-
+            
             // No other way to calculate duration otherwise :<
             var dashboardItemResource = GetClosestMatchingDashboardItemResource(dashboard, environmentId, projectId, branch);
 
@@ -235,6 +235,10 @@ namespace OctopusPuppet.OctopusProvider
 
             foreach (var projectId in projectIds)
             {
+                if (_repository.Projects.Get(projectId).IsDisabled)
+                {
+                    continue;
+                }
                 branches.AddRange(GetBranchesForProject(projectId));
             }
 
@@ -280,6 +284,11 @@ namespace OctopusPuppet.OctopusProvider
 
             foreach (var dashboardProjectResource in dashboard.Projects)
             {
+                if (_repository.Projects.Get(dashboardProjectResource.Id).IsDisabled)
+                {
+                    continue;
+                }
+
                 var projectName = dashboardProjectResource.Name;
 
                 if (componentFilter != null && !componentFilter.Match(projectName))
@@ -330,6 +339,11 @@ namespace OctopusPuppet.OctopusProvider
 
             foreach (var dashboardProjectResource in dashboard.Projects)
             {
+                if (_repository.Projects.Get(dashboardProjectResource.Id).IsDisabled)
+                {
+                    continue;
+                }
+
                 var projectName = dashboardProjectResource.Name;
 
                 if (componentFilter != null && !componentFilter.Match(projectName))
@@ -375,6 +389,11 @@ namespace OctopusPuppet.OctopusProvider
 
             foreach (var dashboardProjectResource in dashboard.Projects)
             {
+                if (_repository.Projects.Get(dashboardProjectResource.Id).IsDisabled)
+                {
+                    continue;
+                }
+
                 var projectName = dashboardProjectResource.Name;
 
                 if (componentFilter != null && !componentFilter.Match(projectName))
