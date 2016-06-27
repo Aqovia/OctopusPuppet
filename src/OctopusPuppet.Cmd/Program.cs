@@ -103,7 +103,7 @@ namespace OctopusPuppet.Cmd
 
             if (opts.Deploy)
             {
-                Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParalleDeployments);
+                return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParalleDeployments);
             }
 
             return 0;
@@ -127,7 +127,7 @@ namespace OctopusPuppet.Cmd
 
             if (opts.Deploy)
             {
-                Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParalleDeployments);
+                return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParalleDeployments);
             }
 
             return 0;
@@ -151,7 +151,7 @@ namespace OctopusPuppet.Cmd
 
             if (opts.Deploy)
             {
-                Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParalleDeployments);
+                return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParalleDeployments);
             }
 
             return 0;
