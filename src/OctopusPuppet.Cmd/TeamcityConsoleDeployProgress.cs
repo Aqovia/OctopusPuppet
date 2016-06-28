@@ -103,7 +103,7 @@ namespace OctopusPuppet.Cmd
         {
             var now = DateTime.UtcNow;
 
-            var result = now.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fff") + now.ToString("zzz").Replace(':', '');
+            var result = now.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fff") + now.ToString("zzz").Replace(":", "");
 
             return result;
         }
