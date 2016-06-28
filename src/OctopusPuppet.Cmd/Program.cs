@@ -103,7 +103,7 @@ namespace OctopusPuppet.Cmd
 
             if (opts.Deploy)
             {
-                return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParalleDeployments);
+                return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParalleDeployments, opts.Teamcity);
             }
 
             return 0;
@@ -127,7 +127,7 @@ namespace OctopusPuppet.Cmd
 
             if (opts.Deploy)
             {
-                return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParalleDeployments);
+                return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParalleDeployments, opts.Teamcity);
             }
 
             return 0;
@@ -151,7 +151,7 @@ namespace OctopusPuppet.Cmd
 
             if (opts.Deploy)
             {
-                return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParalleDeployments);
+                return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParalleDeployments, opts.Teamcity);
             }
 
             return 0;
@@ -160,7 +160,7 @@ namespace OctopusPuppet.Cmd
         private static int Deploy(DeployOptions opts)
         {
             var environmentDeployment = LoadEnvironmentDeploy(opts.EnvironmentDeploymentPath);
-            return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParallelDeployments);
+            return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParallelDeployments, opts.Teamcity);
         }
 
         private static int CommandLineParsingError(IEnumerable<Error> errors)
@@ -206,7 +206,7 @@ namespace OctopusPuppet.Cmd
             File.WriteAllText(path, environmentDeploymentJson);
         }
 
-        private static int Deploy(string url, string apiKey, string targetEnvironment, EnvironmentDeployment environmentDeployment, bool hideDeploymentProgress, int maximumParalleDeployments)
+        private static int Deploy(string url, string apiKey, string targetEnvironment, EnvironmentDeployment environmentDeployment, bool hideDeploymentProgress, int maximumParalleDeployments, bool useTeamcityOutput)
         {
             var environment = new Environment
             {
@@ -214,10 +214,10 @@ namespace OctopusPuppet.Cmd
                 Name = targetEnvironment
             };
 
-            var progress = hideDeploymentProgress ? null : new ConsoleDeployProgress();
+            var progressReporter = GetProgressReporter(hideDeploymentProgress, useTeamcityOutput);
             var componentVertexDeployer = new OctopusComponentVertexDeployer(url, apiKey, environment);
             var cancellationTokenSource = new CancellationTokenSource();
-            var deploymentExecutor = new DeploymentExecutor(componentVertexDeployer, environmentDeployment, cancellationTokenSource.Token, progress, maximumParalleDeployments);
+            var deploymentExecutor = new DeploymentExecutor(componentVertexDeployer, environmentDeployment, cancellationTokenSource.Token, progressReporter, maximumParalleDeployments);
             var allDeploymentsSucceded = deploymentExecutor.Execute().ConfigureAwait(false).GetAwaiter().GetResult();
 
             return allDeploymentsSucceded ? 0 : 1;
@@ -305,6 +305,19 @@ namespace OctopusPuppet.Cmd
             var json = File.ReadAllText(componentFilterPath);
             var componentFilter = JsonConvert.DeserializeObject<ComponentFilter>(json);
             return componentFilter;
+        }
+
+        private static IProgress<ComponentVertexDeploymentProgress> GetProgressReporter(bool hideDeploymentProgress, bool useTeamcity)
+        {
+            if (hideDeploymentProgress)
+            {
+                return null;
+            }
+            if (useTeamcity || !string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("TEAMCITY_VERSION")))
+            {
+                return new TeamcityConsoleDeployProgress();
+            }
+            return new ConsoleDeployProgress();
         }
     }
 }
