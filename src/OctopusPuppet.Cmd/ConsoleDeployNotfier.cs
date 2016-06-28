@@ -1,9 +1,12 @@
 ﻿using System;
+using CommandLine.Text;
+using Newtonsoft.Json;
 using OctopusPuppet.Deployer;
+using OctopusPuppet.Scheduler;
 
 namespace OctopusPuppet.Cmd
 {
-    public class ConsoleDeployProgress : IProgress<ComponentVertexDeploymentProgress>
+    public class ConsoleDeployNotfier : INotifier
     {
         public void Report(ComponentVertexDeploymentProgress value)
         {
@@ -33,6 +36,27 @@ namespace OctopusPuppet.Cmd
                         throw new ArgumentOutOfRangeException();
                 }
             }
+        }
+
+        public void PrintHelp(HelpText helpText)
+        {
+            Console.WriteLine(helpText);
+        }
+
+        public void PrintVersion(string version)
+        {
+            Console.WriteLine(version);
+        }
+
+        public void PrintActionMessage(string message)
+        {
+            Console.WriteLine(message);
+        }
+
+        public void PrintEnvironmentDeploy(EnvironmentDeployment environmentDeployment)
+        {
+            var environmentDeploymentJson = JsonConvert.SerializeObject(environmentDeployment, new JsonSerializerSettings { Formatting = Formatting.Indented });
+            Console.WriteLine(environmentDeploymentJson);
         }
 
         private void ComponentDeploymentNotStarted(ComponentVertexDeploymentProgress value)

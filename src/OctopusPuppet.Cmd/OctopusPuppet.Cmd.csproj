@@ -38,6 +38,10 @@
       <HintPath>..\..\packages\CommandLineParser.2.0.275-beta\lib\net45\CommandLine.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="JetBrains.TeamCity.ServiceMessages, Version=3.0.5.1, Culture=neutral, PublicKeyToken=620ded7f0cf61090, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\TeamCity.ServiceMessages.3.0.5.1\lib\net35\JetBrains.TeamCity.ServiceMessages.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -63,8 +67,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BranchDeploymentOptions.cs" />
-    <Compile Include="TeamcityConsoleDeployProgress.cs" />
-    <Compile Include="ConsoleDeployProgress.cs" />
+    <Compile Include="INotifier.cs" />
+    <Compile Include="TeamcityConsoleDeployNotifier.cs" />
+    <Compile Include="ConsoleDeployNotfier.cs" />
     <Compile Include="MirrorEnvironmentOptions.cs" />
     <Compile Include="DeployOptions.cs" />
     <Compile Include="Program.cs" />
