@@ -53,7 +53,7 @@ namespace OctopusPuppet.Cmd
                 timeStamp = timeStamp
             });
 
-            Console.WriteLine(message);
+            Console.Out.WriteLine(message);
         }
 
         public void PrintVersion(string version)
@@ -67,7 +67,7 @@ namespace OctopusPuppet.Cmd
                 timeStamp = timeStamp
             });
 
-            Console.WriteLine(message);
+            Console.Out.WriteLine(message);
         }
 
         public void PrintActionMessage(string messageToSend)
@@ -81,7 +81,7 @@ namespace OctopusPuppet.Cmd
                 timeStamp = timeStamp
             });
 
-            Console.WriteLine(message);
+            Console.Out.WriteLine(message);
         }
 
         public void PrintEnvironmentDeploy(EnvironmentDeployment environmentDeployment)
@@ -109,7 +109,7 @@ namespace OctopusPuppet.Cmd
 
             var message = openBlockMessage + Environment.NewLine + environmentDeploymentJson + Environment.NewLine + closeBlockMessage;
 
-            Console.WriteLine(message);
+            Console.Out.WriteLine(message);
         }
 
         private void ComponentDeploymentNotStarted(ComponentVertexDeploymentProgress value)
@@ -146,9 +146,9 @@ namespace OctopusPuppet.Cmd
                 timeStamp = timeStamp
             });
 
-            Console.WriteLine(progressStartMessage);
-            Console.WriteLine(message);
-            Console.WriteLine(testStartedMessage);
+            //Console.Out.WriteLine(progressStartMessage);
+            //Console.Out.WriteLine(message);
+            Console.Out.WriteLine(testStartedMessage);
         }
 
         private void ComponentDeploymentInProgress(ComponentVertexDeploymentProgress value)
@@ -165,7 +165,7 @@ namespace OctopusPuppet.Cmd
                 timeStamp = timeStamp
             });
 
-            Console.WriteLine(progressMessage);
+            //Console.Out.WriteLine(progressMessage);
         }
 
         private void ComponentDeploymentFailure(ComponentVertexDeploymentProgress value)
@@ -202,9 +202,9 @@ namespace OctopusPuppet.Cmd
                 timeStamp = timeStamp
             });
 
-            Console.WriteLine(testFailedMessage);
-            Console.WriteLine(message);
-            Console.WriteLine(progressFinishMessage);
+            Console.Out.WriteLine(testFailedMessage);
+            //Console.Out.WriteLine(message);
+            //Console.Out.WriteLine(progressFinishMessage);
         }
 
         private void ComponentDeploymentCancelled(ComponentVertexDeploymentProgress value)
@@ -241,9 +241,9 @@ namespace OctopusPuppet.Cmd
                 timeStamp = timeStamp
             });
 
-            Console.WriteLine(testFailedMessage);
-            Console.WriteLine(message);
-            Console.WriteLine(progressFinishMessage);
+            Console.Out.WriteLine(testFailedMessage);
+            //Console.Out.WriteLine(message);
+            //Console.Out.WriteLine(progressFinishMessage);
         }
 
         private void ComponentDeploymentSuccess(ComponentVertexDeploymentProgress value)
@@ -280,9 +280,9 @@ namespace OctopusPuppet.Cmd
                 timeStamp = timeStamp
             });
 
-            Console.WriteLine(testFinishMessage);
-            Console.WriteLine(message);
-            Console.WriteLine(progressFinishMessage);
+            Console.Out.WriteLine(testFinishMessage);
+            //Console.Out.WriteLine(message);
+            //Console.Out.WriteLine(progressFinishMessage);
         }
 
         private string GetJavaTimeStamp()
