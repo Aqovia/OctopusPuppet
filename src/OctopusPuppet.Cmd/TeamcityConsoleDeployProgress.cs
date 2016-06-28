@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using OctopusPuppet.Deployer;
 
 namespace OctopusPuppet.Cmd
@@ -40,7 +41,7 @@ namespace OctopusPuppet.Cmd
             var name = GetName(value);
             var flowId = GetFlowId(value);
             var timeStamp = GetJavaTimeStamp();
-            Console.WriteLine("##teamcity[progressMessage '{0}' flowId='{1}' timestamp='{2}'] ", name, flowId, timeStamp);
+            Console.WriteLine("##teamcity[progressMessage name='{0}' flowId='{1}' timestamp='{2}'] ", name, flowId, timeStamp);
         }
 
         private void ComponentDeploymentStarted(ComponentVertexDeploymentProgress value)
@@ -49,7 +50,7 @@ namespace OctopusPuppet.Cmd
             var flowId = GetFlowId(value);
             var timeStamp = GetJavaTimeStamp();
             Console.WriteLine("##teamcity[deploymentStarted name='{0}' flowId='{1}' timestamp='{2}'] ", name, flowId, timeStamp);
-            Console.WriteLine("##teamcity[progressStart '{0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
+            Console.WriteLine("##teamcity[progressStart name='{0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
             Console.WriteLine("##teamcity[message text='Starting deployment for {0} - expected deployment duration {1}' flowId='{2}' timestamp='{3}']", name, value.Vertex.DeploymentDuration, flowId, timeStamp);
         }
 
@@ -58,7 +59,7 @@ namespace OctopusPuppet.Cmd
             var name = GetName(value);
             var flowId = GetFlowId(value);
             var timeStamp = GetJavaTimeStamp();
-            Console.WriteLine("##teamcity[progressFinish '{0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
+            Console.WriteLine("##teamcity[progressFinish name='{0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
         }
 
         private void ComponentDeploymentFailure(ComponentVertexDeploymentProgress value)
@@ -66,17 +67,18 @@ namespace OctopusPuppet.Cmd
             var name = GetName(value);
             var flowId = GetFlowId(value);
             var timeStamp = GetJavaTimeStamp();
-            Console.WriteLine("##teamcity[progressFinish '{0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
+            Console.WriteLine("##teamcity[progressFinish name='{0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
             Console.WriteLine("##teamcity[deploymentFailed name='{0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
 
             var message = @"
 ##teamcity[message text='Failed deploy for {0}' flowId='{1}' timestamp='{2}']
-##teamcity[blockOpened name='{0}' flowId='{1}' timestamp='{2}']
+##teamcity[blockOpened name='{0}' description='Error message' flowId='{1}' timestamp='{2}']
 {3}
 ##teamcity[blockClosed name='{0}' flowId='{1}' timestamp='{2}']
 ";
 
             Console.WriteLine(message, name, flowId, timeStamp, value.Text);
+            Console.WriteLine("##teamcity[buildProblem description='Failed deploy for {0}' identity='{1}' name='' timestamp='{2}']", name, flowId, timeStamp);
         }
 
         private void ComponentDeploymentCancelled(ComponentVertexDeploymentProgress value)
@@ -84,7 +86,7 @@ namespace OctopusPuppet.Cmd
             var name = GetName(value);
             var flowId = GetFlowId(value);
             var timeStamp = GetJavaTimeStamp();
-            Console.WriteLine("##teamcity[progressFinish '{0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
+            Console.WriteLine("##teamcity[progressFinish name='{0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
             Console.WriteLine("##teamcity[deploymentCancelled name='{0}' flowId='{1}' timestamp='{2}'] ", name, flowId, timeStamp);
             Console.WriteLine("##teamcity[message text='Cancelled deploy for {0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
         }
@@ -94,7 +96,7 @@ namespace OctopusPuppet.Cmd
             var name = GetName(value);
             var flowId = GetFlowId(value);
             var timeStamp = GetJavaTimeStamp();
-            Console.WriteLine("##teamcity[progressFinish '{0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
+            Console.WriteLine("##teamcity[progressFinish name='{0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
             Console.WriteLine("##teamcity[deploymentSucceeded name='{0}' flowId='{1}' timestamp='{2}'] ", name, flowId, timeStamp);
             Console.WriteLine("##teamcity[message text='Successfully deploy for {0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
         }
@@ -108,14 +110,29 @@ namespace OctopusPuppet.Cmd
             return result;
         }
 
+        private string TeamcityEscape(string value)
+        {
+            var stringReplace = value
+                .Replace("|", "||'")
+                .Replace("'", "|'")
+                .Replace("\n", "|n'")
+                .Replace("\r", "|r")
+                .Replace("[", "|['")
+                .Replace("]", "|]'");
+
+            //Ignore the unicode escape problem for now
+
+            return stringReplace;
+        }
+
         private string GetFlowId(ComponentVertexDeploymentProgress value)
         {
-            return string.IsNullOrEmpty(value.Vertex.Id) ? value.Vertex.Name : value.Vertex.Id;
+            return TeamcityEscape(string.IsNullOrEmpty(value.Vertex.Id) ? value.Vertex.Name : value.Vertex.Id);
         }
 
         private string GetName(ComponentVertexDeploymentProgress value)
         {
-            return string.IsNullOrEmpty(value.Vertex.Name) ? value.Vertex.Id : value.Vertex.Name;
+            return TeamcityEscape(string.IsNullOrEmpty(value.Vertex.Name) ? value.Vertex.Id : value.Vertex.Name);
         }
     }
 }
