@@ -96,14 +96,14 @@ namespace OctopusPuppet.Cmd
             {
                 name = name,
                 description = description,
-                flowId = NoParent,
+                flowId = name,
                 timeStamp = timeStamp
             });
 
             var closeBlockMessage = _serviceMessageFormatter.FormatMessage("blockClosed", new
             {
                 name = name,
-                flowId = NoParent,
+                flowId = name,
                 timeStamp = timeStamp
             });
 
@@ -122,22 +122,6 @@ namespace OctopusPuppet.Cmd
             var flowId = GetFlowId(value);
             var timeStamp = GetJavaTimeStamp();
 
-            var progressStartMessage = _serviceMessageFormatter.FormatMessage("progressStart", new
-            {
-                name = name,
-                parent = NoParent,
-                flowId = flowId,
-                timeStamp = timeStamp
-            });
-
-            var message = _serviceMessageFormatter.FormatMessage("message", new
-            {
-                text = string.Format("Starting deployment for {0} - expected deployment duration {1}", name, value.Vertex.DeploymentDuration),
-                parent = NoParent,
-                flowId = flowId,
-                timeStamp = timeStamp
-            });
-
             var testStartedMessage = _serviceMessageFormatter.FormatMessage("testStarted", new
             {
                 name = name,
@@ -146,26 +130,11 @@ namespace OctopusPuppet.Cmd
                 timeStamp = timeStamp
             });
 
-            //Console.Out.WriteLine(progressStartMessage);
-            //Console.Out.WriteLine(message);
             Console.Out.WriteLine(testStartedMessage);
         }
 
         private void ComponentDeploymentInProgress(ComponentVertexDeploymentProgress value)
         {
-            var name = GetName(value);
-            var flowId = GetFlowId(value);
-            var timeStamp = GetJavaTimeStamp();
-
-            var progressMessage = _serviceMessageFormatter.FormatMessage("progressMessage", new
-            {
-                name = name,
-                parent = NoParent,
-                flowId = flowId,
-                timeStamp = timeStamp
-            });
-
-            //Console.Out.WriteLine(progressMessage);
         }
 
         private void ComponentDeploymentFailure(ComponentVertexDeploymentProgress value)
@@ -184,7 +153,7 @@ namespace OctopusPuppet.Cmd
                 timeStamp = timeStamp
             });
 
-            var progressFinishMessage = _serviceMessageFormatter.FormatMessage("progressFinish", new
+            var testFinishMessage = _serviceMessageFormatter.FormatMessage("testFinished", new
             {
                 name = name,
                 parent = NoParent,
@@ -192,19 +161,8 @@ namespace OctopusPuppet.Cmd
                 timeStamp = timeStamp
             });
 
-            var message = _serviceMessageFormatter.FormatMessage("message", new
-            {
-                text = value.Text,
-                errorDetails = value.Text,
-                status = "ERROR",
-                parent = NoParent,
-                flowId = flowId,
-                timeStamp = timeStamp
-            });
-
             Console.Out.WriteLine(testFailedMessage);
-            //Console.Out.WriteLine(message);
-            //Console.Out.WriteLine(progressFinishMessage);
+            Console.Out.WriteLine(testFinishMessage);
         }
 
         private void ComponentDeploymentCancelled(ComponentVertexDeploymentProgress value)
@@ -223,66 +181,43 @@ namespace OctopusPuppet.Cmd
                 timeStamp = timeStamp
             });
 
-            var progressFinishMessage = _serviceMessageFormatter.FormatMessage("progressFinish", new
+            var testFinishMessage = _serviceMessageFormatter.FormatMessage("testFinished", new
             {
                 name = name,
-                parent = NoParent,
-                flowId = flowId,
-                timeStamp = timeStamp
-            });
-
-            var message = _serviceMessageFormatter.FormatMessage("message", new
-            {
-                text = string.Format("Cancelled deploy for {0}", name),
-                errorDetails = string.Format("Cancelled deploy for {0}", name),
-                status = "ERROR",
                 parent = NoParent,
                 flowId = flowId,
                 timeStamp = timeStamp
             });
 
             Console.Out.WriteLine(testFailedMessage);
-            //Console.Out.WriteLine(message);
-            //Console.Out.WriteLine(progressFinishMessage);
+            Console.Out.WriteLine(testFinishMessage);
         }
 
         private void ComponentDeploymentSuccess(ComponentVertexDeploymentProgress value)
         {
             var name = GetName(value);
-            var duration = value.Vertex.DeploymentDuration.HasValue
-                ? value.Vertex.DeploymentDuration.Value.Milliseconds
-                : 0;
             var flowId = GetFlowId(value);
             var timeStamp = GetJavaTimeStamp();
+
+            var testFailedMessage = _serviceMessageFormatter.FormatMessage("testFailed", new
+            {
+                name = name,
+                message = "Deployment cancelled",
+                details = string.Format("Cancelled deployment for {0}", name),
+                parent = NoParent,
+                flowId = flowId,
+                timeStamp = timeStamp
+            });
 
             var testFinishMessage = _serviceMessageFormatter.FormatMessage("testFinished", new
             {
                 name = name,
-                duration = duration,
                 parent = NoParent,
-                flowId = flowId,
-                timeStamp = timeStamp
-            });
-
-            var progressFinishMessage = _serviceMessageFormatter.FormatMessage("progressFinish", new
-            {
-                name = name,
-                parent = NoParent,
-                flowId = flowId,
-                timeStamp = timeStamp
-            });
-
-            var message = _serviceMessageFormatter.FormatMessage("message", new
-            {
-                text = string.Format("Successfully deploy for {0}", name),
-                parent = "",
                 flowId = flowId,
                 timeStamp = timeStamp
             });
 
             Console.Out.WriteLine(testFinishMessage);
-            //Console.Out.WriteLine(message);
-            //Console.Out.WriteLine(progressFinishMessage);
         }
 
         private string GetJavaTimeStamp()
