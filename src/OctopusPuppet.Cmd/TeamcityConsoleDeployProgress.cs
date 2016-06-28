@@ -39,7 +39,7 @@ namespace OctopusPuppet.Cmd
         {
             var name = GetName(value);
             var flowId = GetFlowId(value);
-            var timeStamp = GetTimeStamp();
+            var timeStamp = GetJavaTimeStamp();
             Console.WriteLine("##teamcity[progressMessage '{0}' flowId='{1}' timestamp='{2}'] ", name, flowId, timeStamp);
         }
 
@@ -47,7 +47,7 @@ namespace OctopusPuppet.Cmd
         {
             var name = GetName(value);
             var flowId = GetFlowId(value);
-            var timeStamp = GetTimeStamp();
+            var timeStamp = GetJavaTimeStamp();
             Console.WriteLine("##teamcity[deploymentStarted name='{0}' flowId='{1}' timestamp='{2}'] ", name, flowId, timeStamp);
             Console.WriteLine("##teamcity[progressStart '{0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
             Console.WriteLine("##teamcity[message text='Starting deployment for {0} - expected deployment duration {1}' flowId='{2}' timestamp='{3}']", name, value.Vertex.DeploymentDuration, flowId, timeStamp);
@@ -57,7 +57,7 @@ namespace OctopusPuppet.Cmd
         {
             var name = GetName(value);
             var flowId = GetFlowId(value);
-            var timeStamp = GetTimeStamp();
+            var timeStamp = GetJavaTimeStamp();
             Console.WriteLine("##teamcity[progressFinish '{0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
         }
 
@@ -65,7 +65,7 @@ namespace OctopusPuppet.Cmd
         {
             var name = GetName(value);
             var flowId = GetFlowId(value);
-            var timeStamp = GetTimeStamp();
+            var timeStamp = GetJavaTimeStamp();
             Console.WriteLine("##teamcity[progressFinish '{0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
             Console.WriteLine("##teamcity[deploymentFailed name='{0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
 
@@ -83,7 +83,7 @@ namespace OctopusPuppet.Cmd
         {
             var name = GetName(value);
             var flowId = GetFlowId(value);
-            var timeStamp = GetTimeStamp();
+            var timeStamp = GetJavaTimeStamp();
             Console.WriteLine("##teamcity[progressFinish '{0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
             Console.WriteLine("##teamcity[deploymentCancelled name='{0}' flowId='{1}' timestamp='{2}'] ", name, flowId, timeStamp);
             Console.WriteLine("##teamcity[message text='Cancelled deploy for {0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
@@ -93,15 +93,19 @@ namespace OctopusPuppet.Cmd
         {
             var name = GetName(value);
             var flowId = GetFlowId(value);
-            var timeStamp = GetTimeStamp();
+            var timeStamp = GetJavaTimeStamp();
             Console.WriteLine("##teamcity[progressFinish '{0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
             Console.WriteLine("##teamcity[deploymentSucceeded name='{0}' flowId='{1}' timestamp='{2}'] ", name, flowId, timeStamp);
             Console.WriteLine("##teamcity[message text='Successfully deploy for {0}' flowId='{1}' timestamp='{2}']", name, flowId, timeStamp);
         }
 
-        private string GetTimeStamp()
+        private string GetJavaTimeStamp()
         {
-            return DateTime.UtcNow.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffzzz");
+            var now = DateTime.UtcNow;
+
+            var result = now.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fff") + now.ToString("zzz").Replace(':', '');
+
+            return result;
         }
 
         private string GetFlowId(ComponentVertexDeploymentProgress value)
