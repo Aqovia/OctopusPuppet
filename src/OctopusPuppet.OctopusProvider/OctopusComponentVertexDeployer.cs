@@ -98,11 +98,15 @@ namespace OctopusPuppet.OctopusProvider
             return null;
         }
 
-        public ComponentVertexDeploymentStatus Deploy(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken, IProgress<ComponentVertexDeploymentProgress> progress)
+        public IComponentVertextDeploymentResult Deploy(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken, IProgress<ComponentVertexDeploymentProgress> progress)
         {
             if (!componentDeploymentVertex.Exists || componentDeploymentVertex.Action == PlanAction.Skip)
             {
-                return ComponentVertexDeploymentStatus.Success;
+                return new ComponentVertextDeploymentResult
+                {
+                    Status = ComponentVertexDeploymentStatus.Success,
+                    Description = "Skipped"
+                };
             }
 
             if (componentDeploymentVertex.Version == null)
@@ -179,30 +183,34 @@ namespace OctopusPuppet.OctopusProvider
 
             deploymentTask = _repository.Tasks.Get(queuedDeployment.TaskId);
 
-            ComponentVertexDeploymentStatus status;
+            var result = new ComponentVertextDeploymentResult();
 
             switch (deploymentTask.State)
             {
                 case TaskState.Success:
-                    status = ComponentVertexDeploymentStatus.Success;
+                    result.Status = ComponentVertexDeploymentStatus.Success;
+                    result.Description = "Deployed";
                     break;
 
                 case TaskState.Canceled:
                 case TaskState.Cancelling:
-                    status = ComponentVertexDeploymentStatus.Cancelled;
+                    result.Status = ComponentVertexDeploymentStatus.Cancelled;
+                    result.Description = "Cancelled";
                     break;
 
                 case TaskState.Failed:
                 case TaskState.TimedOut:
-                    status = ComponentVertexDeploymentStatus.Failure;
+                    result.Status = ComponentVertexDeploymentStatus.Failure;
+                    result.Description = deploymentTask.ErrorMessage;
                     break;
 
                 default:
-                    status = ComponentVertexDeploymentStatus.Failure;
+                    result.Status = ComponentVertexDeploymentStatus.Failure;
+                    result.Description = deploymentTask.ErrorMessage;
                     break;
             }
 
-            return status;
+            return result;
         }
     }
 }

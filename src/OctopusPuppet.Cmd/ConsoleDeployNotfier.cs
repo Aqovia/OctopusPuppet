@@ -1,9 +1,12 @@
 ﻿using System;
+using CommandLine.Text;
+using Newtonsoft.Json;
 using OctopusPuppet.Deployer;
+using OctopusPuppet.Scheduler;
 
 namespace OctopusPuppet.Cmd
 {
-    public class ConsoleDeployProgress : IProgress<ComponentVertexDeploymentProgress>
+    public class ConsoleDeployNotfier : INotifier
     {
         public void Report(ComponentVertexDeploymentProgress value)
         {
@@ -35,13 +38,34 @@ namespace OctopusPuppet.Cmd
             }
         }
 
+        public void PrintHelp(HelpText helpText)
+        {
+            Console.Out.WriteLine(helpText);
+        }
+
+        public void PrintVersion(string version)
+        {
+            Console.Out.WriteLine(version);
+        }
+
+        public void PrintActionMessage(string message)
+        {
+            Console.Out.WriteLine(message);
+        }
+
+        public void PrintEnvironmentDeploy(EnvironmentDeployment environmentDeployment)
+        {
+            var environmentDeploymentJson = JsonConvert.SerializeObject(environmentDeployment, new JsonSerializerSettings { Formatting = Formatting.Indented });
+            Console.Out.WriteLine(environmentDeploymentJson);
+        }
+
         private void ComponentDeploymentNotStarted(ComponentVertexDeploymentProgress value)
         {
         }
 
         private void ComponentDeploymentStarted(ComponentVertexDeploymentProgress value)
         {
-            Console.WriteLine("Starting deployment for {0} - expected deployment duration {1}", value.Vertex.Name, value.Vertex.DeploymentDuration);
+            Console.Out.WriteLine("Starting deployment for {0} - expected deployment duration {1}", value.Vertex.Name, value.Vertex.DeploymentDuration);
         }
 
         private void ComponentDeploymentInProgress(ComponentVertexDeploymentProgress value)
@@ -50,17 +74,17 @@ namespace OctopusPuppet.Cmd
 
         private void ComponentDeploymentFailure(ComponentVertexDeploymentProgress value)
         {
-            Console.WriteLine("Failed deploy for {0}\r\n{1}", value.Vertex.Name, value.Text);
+            Console.Out.WriteLine("Failed deploy for {0}\r\n{1}", value.Vertex.Name, value.Text);
         }
 
         private void ComponentDeploymentCancelled(ComponentVertexDeploymentProgress value)
         {
-            Console.WriteLine("Cancelled deploy for {0}", value.Vertex.Name);
+            Console.Out.WriteLine("Cancelled deploy for {0}", value.Vertex.Name);
         }
 
         private void ComponentDeploymentSuccess(ComponentVertexDeploymentProgress value)
         {
-            Console.WriteLine("Successfully deploy for {0}", value.Vertex.Name);
+            Console.Out.WriteLine("Successfully deploy for {0}", value.Vertex.Name);
         }
     }
 }

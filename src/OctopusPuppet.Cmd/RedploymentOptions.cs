@@ -58,5 +58,11 @@ namespace OctopusPuppet.Cmd
             SetName = "Redeployment",
             HelpText = "Environment Deployment path to save to.")]
         public string EnvironmentDeploymentPath { get; set; }
+
+        [Option("Teamcity",
+            Default = false,
+            SetName = "Redeployment",
+            HelpText = "Use Teamcity output")]
+        public bool Teamcity { get; set; }
     }
 }

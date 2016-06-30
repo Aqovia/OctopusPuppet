@@ -41,5 +41,11 @@ namespace OctopusPuppet.Cmd
             SetName = "Deploy",
             HelpText = "Maximum parallel deployments")]
         public int MaximumParallelDeployments { get; set; }
+
+        [Option("Teamcity",
+            Default = false,
+            SetName = "Deploy",
+            HelpText = "Use Teamcity output")]
+        public bool Teamcity { get; set; }
     }
 }
