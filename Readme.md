@@ -7,6 +7,10 @@ Octopus Puppet
 
 [Download latest master OctopusPuppet.Gui](https://ci.appveyor.com/api/projects/aqovia/octopuspuppet/artifacts/OctopusPuppet.Gui.zip?branch=master "Download latest master OctopusPuppet.Gui")
 
+See [https://github.com/Aqovia/OctopusPuppet](https://github.com/Aqovia/OctopusPuppet) for information about Octopus Puppet.
+
+See [https://github.com/Aqovia/OctopusPuppet-TeamCity](https://github.com/Aqovia/OctopusPuppet-TeamCity) for TeamCity plugin.
+
 **Generate deployment plan**
 ![Generate deployment plan screen](/docs/img/Generate_deployment_plan.png?raw=true "Generate deployment plan screen")
 
