@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using Octopus.Client;
 using Octopus.Client.Model;

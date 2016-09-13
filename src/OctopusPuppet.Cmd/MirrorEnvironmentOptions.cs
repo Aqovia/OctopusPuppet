@@ -47,6 +47,12 @@ namespace OctopusPuppet.Cmd
             HelpText = "Deploy")]
         public bool Deploy { get; set; }
 
+        [Option('u', "UpdateVariables",
+             Default = false,
+             SetName = "MirrorEnvironment",
+             HelpText = "Update variables")]
+        public bool UpdateVariables { get; set; }
+
         [Option('s', "HideDeploymentProgress",
             Default = false,
             SetName = "MirrorEnvironment",

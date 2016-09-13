@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading;
 using Octopus.Client;
-using Octopus.Client.Exceptions;
-using Octopus.Client.Model;
 using OctopusPuppet.Deployer;
 using OctopusPuppet.DeploymentPlanner;
 using OctopusPuppet.Scheduler;

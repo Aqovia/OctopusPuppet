@@ -47,6 +47,12 @@ namespace OctopusPuppet.Cmd
             HelpText = "Deploy")]
         public bool Deploy { get; set; }
 
+        [Option('u', "UpdateVariables",
+             Default = false,
+             SetName = "BranchDeployment",
+             HelpText = "Update variables")]
+        public bool UpdateVariables { get; set; }
+
         [Option('s', "HideDeploymentProgress",
             Default = false,
             SetName = "BranchDeployment",
@@ -57,7 +63,7 @@ namespace OctopusPuppet.Cmd
             Default = 4,
             SetName = "BranchDeployment",
             HelpText = "Maximum parallel deployments")]
-        public int MaximumParalleDeployments { get; set; }
+        public int MaximumParallelDeployments { get; set; }
 
         [Option("EnvironmentDeploymentPath",
             Default = "",
