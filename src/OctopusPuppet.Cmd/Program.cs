@@ -219,7 +219,7 @@ namespace OctopusPuppet.Cmd
 
             var componentVertexDeployer = new OctopusComponentVertexDeployer(url, apiKey, environment);
             var cancellationTokenSource = new CancellationTokenSource();
-            var deploymentExecutor = new DeploymentExecutor(componentVertexDeployer, environmentDeployment, cancellationTokenSource.Token, notificaiton, maximumParalleDeployments);
+            var deploymentExecutor = new DeploymentExecutor(new [] { componentVertexDeployer }, environmentDeployment, cancellationTokenSource.Token, notificaiton, maximumParalleDeployments);
             var allDeploymentsSucceded = deploymentExecutor.Execute().ConfigureAwait(false).GetAwaiter().GetResult();
 
             return allDeploymentsSucceded ? 0 : 1;

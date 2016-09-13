@@ -24,6 +24,11 @@
                 <x:Type TypeName="deploymentPlanner:PlanAction" />
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
+        <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type deploymentPlanner:VariableAction}" x:Key="VariableActionTypeValues">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="deploymentPlanner:VariableAction" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
     </UserControl.Resources>
     <TabControl>
         <TabItem Header="Generate Deployment Plan">
@@ -113,26 +118,26 @@
                                 </DockPanel>
                                 <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch" />
                                 <DockPanel Grid.Row="2">
-                                        <GroupBox Header="Component Filter" Margin="10">
-                                            <DockPanel>
-                                                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" >
-                                                    <Button x:Name="SaveComponentFilterJson" Content="Save" VerticalAlignment="Center" Margin="10" Padding="10 3" />
-                                                    <Button x:Name="LoadComponentFilterJson" Content="Load" VerticalAlignment="Center" Margin="10" Padding="10 3" />
-                                                    <Label HorizontalAlignment="Right" VerticalAlignment="Center" Content="Include"/>
-                                                    <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center" IsChecked="{Binding ComponentFilterInclude, Mode=TwoWay}" ></CheckBox>
-                                                </StackPanel>
+                                    <GroupBox Header="Component Filter" Margin="10">
+                                        <DockPanel>
+                                            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" >
+                                                <Button x:Name="SaveComponentFilterJson" Content="Save" VerticalAlignment="Center" Margin="10" Padding="10 3" />
+                                                <Button x:Name="LoadComponentFilterJson" Content="Load" VerticalAlignment="Center" Margin="10" Padding="10 3" />
+                                                <Label HorizontalAlignment="Right" VerticalAlignment="Center" Content="Include"/>
+                                                <CheckBox HorizontalAlignment="Right" VerticalAlignment="Center" IsChecked="{Binding ComponentFilterInclude, Mode=TwoWay}" ></CheckBox>
+                                            </StackPanel>
 
-                                                <DataGrid ItemsSource="{Binding ComponentFilterExpressions}" AutoGenerateColumns="False" 
+                                            <DataGrid ItemsSource="{Binding ComponentFilterExpressions}" AutoGenerateColumns="False" 
                                               CanUserAddRows="True" 
                                               CanUserDeleteRows="True" 
                                               IsReadOnly="False"  >
-                                                    <DataGrid.Columns>
-                                                        <DataGridTextColumn Header="Expression" Binding="{Binding Text}"></DataGridTextColumn>
-                                                    </DataGrid.Columns>
-                                                </DataGrid>
-                                            </DockPanel>
-               
-                                        </GroupBox>
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="Expression" Binding="{Binding Text}"></DataGridTextColumn>
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </DockPanel>
+
+                                    </GroupBox>
                                 </DockPanel>
                             </Grid>
                         </GroupBox>
@@ -281,7 +286,7 @@
                                                         </DataTemplate>
                                                     </GridViewColumn.CellTemplate>
                                                 </GridViewColumn>
-                                                <GridViewColumn Header="Action" Width="125">
+                                                <GridViewColumn Header="Variables" Width="80">
                                                     <GridViewColumn.CellTemplate>
                                                         <DataTemplate>
                                                             <ContentControl Content="{Binding}">
@@ -296,7 +301,30 @@
                                                                     </HierarchicalDataTemplate>
                                                                     <DataTemplate DataType="{x:Type scheduler:ComponentDeployment}">
                                                                         <StackPanel Orientation="Horizontal">
-                                                                            <ComboBox SelectedItem="{Binding Vertex.Action, Mode=TwoWay}" ItemsSource="{Binding Source={StaticResource PlanActionTypeValues}}"/>
+                                                                            <ComboBox SelectedItem="{Binding Vertex.VariableAction, Mode=TwoWay}" ItemsSource="{Binding Source={StaticResource VariableActionTypeValues}}"/>
+                                                                        </StackPanel>
+                                                                    </DataTemplate>
+                                                                </ContentControl.Resources>
+                                                            </ContentControl>
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
+                                                <GridViewColumn Header="Deployment" Width="100">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <ContentControl Content="{Binding}">
+                                                                <ContentControl.Resources>
+                                                                    <HierarchicalDataTemplate DataType="{x:Type scheduler:ProductDeployment}" ItemsSource="{Binding DeploymentSteps}">
+                                                                        <StackPanel Orientation="Horizontal">
+                                                                        </StackPanel>
+                                                                    </HierarchicalDataTemplate>
+                                                                    <HierarchicalDataTemplate DataType="{x:Type scheduler:ProductDeploymentStep}" ItemsSource="{Binding ComponentDeployments}">
+                                                                        <StackPanel Orientation="Horizontal">
+                                                                        </StackPanel>
+                                                                    </HierarchicalDataTemplate>
+                                                                    <DataTemplate DataType="{x:Type scheduler:ComponentDeployment}">
+                                                                        <StackPanel Orientation="Horizontal">
+                                                                            <ComboBox SelectedItem="{Binding Vertex.DeploymentAction, Mode=TwoWay}" ItemsSource="{Binding Source={StaticResource PlanActionTypeValues}}"/>
                                                                         </StackPanel>
                                                                     </DataTemplate>
                                                                 </ContentControl.Resources>
@@ -311,7 +339,7 @@
                             </Grid>
                         </GroupBox>
                     </DockPanel>
-                </Grid>                        
+                </Grid>
             </xctk:BusyIndicator>
         </TabItem>
         <TabItem Header="Deploy">
@@ -428,7 +456,7 @@
                                                                 </HierarchicalDataTemplate>
                                                                 <DataTemplate DataType="{x:Type model:ComponentDeploymentResult}">
                                                                     <StackPanel Orientation="Horizontal">
-                                                                        <TextBlock Text="{Binding Vertex.Action}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                                        <TextBlock Text="{Binding Vertex.DeploymentAction}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                                                     </StackPanel>
                                                                 </DataTemplate>
                                                             </ContentControl.Resources>
@@ -508,12 +536,12 @@
                                         </GridView>
                                     </tree:TreeList.View>
                                 </tree:TreeList>
-                            </DockPanel>                           
+                            </DockPanel>
                         </Grid>
                     </GroupBox>
                 </DockPanel>
             </Grid>
-        </TabItem>        
+        </TabItem>
         <TabItem Header="Octopus">
             <xctk:BusyIndicator IsBusy="{Binding IsLoadingData}">
                 <Grid>
@@ -537,7 +565,7 @@
                     </StackPanel>
                 </Grid>
             </xctk:BusyIndicator>
-        </TabItem>        
+        </TabItem>
     </TabControl>
 </UserControl>
 

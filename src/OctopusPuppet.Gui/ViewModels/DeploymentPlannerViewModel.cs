@@ -742,9 +742,14 @@ namespace OctopusPuppet.Gui.ViewModels
             {
                 try
                 {
-                    var componentVertexDeployer = new OctopusComponentVertexDeployer(_octopusUrl, _octopusApiKey, EnvironmentToDeployTo);
+                    var deployers = new IComponentVertexDeployer[]
+                    {
+                        new OctopusComponentVertexVariableUpdater(_octopusUrl, _octopusApiKey),
+                        new OctopusComponentVertexDeployer(_octopusUrl, _octopusApiKey, EnvironmentToDeployTo),
+                    };
+
                     CancellationTokenSource = new CancellationTokenSource();
-                    var deploymentExecutor = new DeploymentExecutor(componentVertexDeployer, EnvironmentDeployment, CancellationTokenSource.Token, this, MaximumParallelDeployment);
+                    var deploymentExecutor = new DeploymentExecutor(deployers, EnvironmentDeployment, CancellationTokenSource.Token, this, MaximumParallelDeployment);
                     var allDeploymentsSucceded = deploymentExecutor.Execute().ConfigureAwait(false).GetAwaiter().GetResult();
                 }
                 catch

@@ -239,7 +239,7 @@ namespace OctopusPuppet.Cmd
             var testIgnoredMessage = _serviceMessageFormatter.FormatMessage("testIgnored", new
             {
                 name = name,
-                message = string.Format("Plan action was {0} for {1}", value.Vertex.Action, name),
+                message = string.Format("Plan action was {0} for {1}", value.Vertex.DeploymentAction, name),
                 flowId = flowId,
                 timeStamp = timeStamp
             });
@@ -251,7 +251,7 @@ namespace OctopusPuppet.Cmd
                 timeStamp = timeStamp
             });
 
-            if (value.Vertex.Action != PlanAction.Change)
+            if (value.Vertex.DeploymentAction != PlanAction.Change)
             {
                 Console.Out.WriteLine(testIgnoredMessage);
             }
