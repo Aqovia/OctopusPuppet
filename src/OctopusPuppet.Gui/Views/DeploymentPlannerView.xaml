@@ -441,7 +441,30 @@
                                                     </DataTemplate>
                                                 </GridViewColumn.CellTemplate>
                                             </GridViewColumn>
-                                            <GridViewColumn Header="Action" Width="125">
+                                            <GridViewColumn Header="Variables" Width="80">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <ContentControl Content="{Binding}">
+                                                            <ContentControl.Resources>
+                                                                <HierarchicalDataTemplate DataType="{x:Type model:ProductDeploymentResult}" ItemsSource="{Binding DeploymentSteps}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                    </StackPanel>
+                                                                </HierarchicalDataTemplate>
+                                                                <HierarchicalDataTemplate DataType="{x:Type model:ProductDeploymentStepResult}" ItemsSource="{Binding ComponentDeployments}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                    </StackPanel>
+                                                                </HierarchicalDataTemplate>
+                                                                <DataTemplate DataType="{x:Type model:ComponentDeploymentResult}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <TextBlock Text="{Binding Vertex.VariableAction}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                                    </StackPanel>
+                                                                </DataTemplate>
+                                                            </ContentControl.Resources>
+                                                        </ContentControl>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Header="Deployment" Width="80">
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <ContentControl Content="{Binding}">
@@ -487,7 +510,7 @@
                                                     </DataTemplate>
                                                 </GridViewColumn.CellTemplate>
                                             </GridViewColumn>
-                                            <GridViewColumn Header="Result" Width="125">
+                                            <GridViewColumn Header="Progress" Width="125">
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <ContentControl Content="{Binding}">
@@ -510,7 +533,7 @@
                                                     </DataTemplate>
                                                 </GridViewColumn.CellTemplate>
                                             </GridViewColumn>
-                                            <GridViewColumn Header="Text" tree:GridViewColumnResize.Width="*">
+                                            <GridViewColumn Header="Result" tree:GridViewColumnResize.Width="*">
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <ContentControl Content="{Binding}">
