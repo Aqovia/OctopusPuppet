@@ -6,4 +6,10 @@
         Change,
         Remove
     }
+
+    public enum VariableAction
+    {
+        Leave,
+        Update
+    }
 }

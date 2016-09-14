@@ -6,6 +6,6 @@ namespace OctopusPuppet.Deployer
 {
     public interface IComponentVertexDeployer
     {
-        IComponentVertextDeploymentResult Deploy(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken, IProgress<ComponentVertexDeploymentProgress> progress);
+        ComponentVertexDeploymentResult Deploy(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken, IProgress<ComponentVertexDeploymentProgress> progress);
     }
 }

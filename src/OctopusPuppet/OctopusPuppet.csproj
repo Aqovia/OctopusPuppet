@@ -70,10 +70,9 @@
     <Compile Include="Deployer\CancellationTokenExtensions.cs" />
     <Compile Include="Deployer\ComponentVertexDeploymentProgress.cs" />
     <Compile Include="Deployer\ComponentVertexDeploymentStatus.cs" />
-    <Compile Include="Deployer\ComponentVertextDeploymentResult.cs" />
+    <Compile Include="Deployer\ComponentVertexDeploymentResult.cs" />
     <Compile Include="Deployer\DeploymentExecutor.cs" />
     <Compile Include="Deployer\IComponentVertexDeployer.cs" />
-    <Compile Include="Deployer\IComponentVertextDeploymentResult.cs" />
     <Compile Include="Deployer\TaskConstants.cs" />
     <Compile Include="DeploymentPlanner\Branch.cs" />
     <Compile Include="DeploymentPlanner\Component.cs" />
@@ -98,7 +97,6 @@
     <Compile Include="Scheduler\ProductDeploymentStep.cs" />
     <Compile Include="Scheduler\ComponentDeploymentVertex.cs" />
     <Compile Include="Scheduler\DeploymentScheduler.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scheduler\IDeploymentScheduler.cs" />
     <Compile Include="Scheduler\ProductDeployment.cs" />

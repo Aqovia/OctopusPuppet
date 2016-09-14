@@ -100,15 +100,14 @@ namespace OctopusPuppet.Cmd
             var componentGraph = deploymentScheduler.GetComponentDeploymentGraph(environmentDeploymentPlan);
             var environmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
 
+            SetUpdateVariablesOnDeploymentPlan(environmentDeployment);
+
             notifier.PrintEnvironmentDeploy(environmentDeployment);
             SaveEnvironmentDeploy(opts.EnvironmentDeploymentPath, environmentDeployment);
 
-            if (opts.Deploy)
-            {
-                return Deploy(notifier, opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.MaximumParalleDeployments);
-            }
+            var deployers = GetDeployers(opts.TargetEnvironment, opts.UpdateVariables, opts.Deploy, opts.OctopusUrl, opts.OctopusApiKey);
 
-            return 0;
+            return Deploy(notifier, environmentDeployment, opts.MaximumParallelDeployments, deployers);
         }
 
         private static int MirrorEnvironment(MirrorEnvironmentOptions opts)
@@ -125,16 +124,14 @@ namespace OctopusPuppet.Cmd
             var deploymentScheduler = new DeploymentScheduler();
             var componentGraph = deploymentScheduler.GetComponentDeploymentGraph(environmentDeploymentPlan);
             var environmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
+            SetUpdateVariablesOnDeploymentPlan(environmentDeployment);
 
             notifier.PrintEnvironmentDeploy(environmentDeployment);
             SaveEnvironmentDeploy(opts.EnvironmentDeploymentPath, environmentDeployment);
 
-            if (opts.Deploy)
-            {
-                return Deploy(notifier, opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.MaximumParalleDeployments);
-            }
+            var deployers = GetDeployers(opts.TargetEnvironment, opts.UpdateVariables, opts.Deploy, opts.OctopusUrl, opts.OctopusApiKey);
 
-            return 0;
+            return Deploy(notifier, environmentDeployment, opts.MaximumParalleDeployments, deployers);
         }
 
         private static int Redeployment(RedploymentOptions opts)
@@ -151,16 +148,44 @@ namespace OctopusPuppet.Cmd
             var deploymentScheduler = new DeploymentScheduler();
             var componentGraph = deploymentScheduler.GetComponentDeploymentGraph(environmentDeploymentPlan);
             var environmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
+            SetUpdateVariablesOnDeploymentPlan(environmentDeployment);
 
             notifier.PrintEnvironmentDeploy(environmentDeployment);
             SaveEnvironmentDeploy(opts.EnvironmentDeploymentPath, environmentDeployment);
 
-            if (opts.Deploy)
+            var deployers = GetDeployers(opts.TargetEnvironment, opts.UpdateVariables, opts.Deploy, opts.OctopusUrl, opts.OctopusApiKey);
+
+            return Deploy(notifier, environmentDeployment, opts.MaximumParalleDeployments, deployers);
+        }
+
+        private static void SetUpdateVariablesOnDeploymentPlan(EnvironmentDeployment environmentDeployment)
+        {
+            foreach (var vertex in from p in environmentDeployment.ProductDeployments
+                from s in p.DeploymentSteps
+                from c in s.ComponentDeployments
+                select c.Vertex)
             {
-                return Deploy(notifier, opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.MaximumParalleDeployments);
+                vertex.VariableAction = VariableAction.Update;
+            }
+        }
+
+        private static IEnumerable<IComponentVertexDeployer> GetDeployers(string targetEnvironment, bool updateVariables, bool deploy, string octopusUrl, string apiKey)
+        {
+            var environment = new Environment
+            {
+                Id = targetEnvironment,
+                Name = targetEnvironment
+            };
+
+            if (updateVariables)
+            {
+                yield return new OctopusComponentVertexVariableUpdater(octopusUrl, apiKey);
             }
 
-            return 0;
+            if (deploy)
+            {
+                yield return new OctopusComponentVertexDeployer(octopusUrl, apiKey, environment);
+            }
         }
 
         private static int Deploy(DeployOptions opts)
@@ -168,7 +193,8 @@ namespace OctopusPuppet.Cmd
             var notifier = GetNotifier(opts.HideDeploymentProgress, opts.Teamcity);
 
             var environmentDeployment = LoadEnvironmentDeploy(opts.EnvironmentDeploymentPath);
-            return Deploy(notifier, opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.MaximumParallelDeployments);
+            var deployers = GetDeployers(opts.TargetEnvironment, true, true, opts.OctopusUrl, opts.OctopusApiKey);
+            return Deploy(notifier, environmentDeployment, opts.MaximumParallelDeployments, deployers);
         }
 
         private static int CommandLineParsingError(IEnumerable<Error> errors)
@@ -209,17 +235,10 @@ namespace OctopusPuppet.Cmd
             File.WriteAllText(path, environmentDeploymentJson);
         }
 
-        private static int Deploy(INotifier notificaiton, string url, string apiKey, string targetEnvironment, EnvironmentDeployment environmentDeployment, int maximumParalleDeployments)
+        private static int Deploy(INotifier notificaiton, EnvironmentDeployment environmentDeployment, int maximumParalleDeployments, IEnumerable<IComponentVertexDeployer> deployers)
         {
-            var environment = new Environment
-            {
-                Id = targetEnvironment,
-                Name = targetEnvironment
-            };
-
-            var componentVertexDeployer = new OctopusComponentVertexDeployer(url, apiKey, environment);
             var cancellationTokenSource = new CancellationTokenSource();
-            var deploymentExecutor = new DeploymentExecutor(componentVertexDeployer, environmentDeployment, cancellationTokenSource.Token, notificaiton, maximumParalleDeployments);
+            var deploymentExecutor = new DeploymentExecutor(deployers, environmentDeployment, cancellationTokenSource.Token, notificaiton, maximumParalleDeployments);
             var allDeploymentsSucceded = deploymentExecutor.Execute().ConfigureAwait(false).GetAwaiter().GetResult();
 
             return allDeploymentsSucceded ? 0 : 1;
@@ -245,6 +264,7 @@ namespace OctopusPuppet.Cmd
                 .AddPostOptionsLine("    [--ComponentFilterPath \"componentFilter.json\"]")
                 .AddPostOptionsLine("    [--ComponentFilter \"Component filter json base64 encoded\"]")
                 .AddPostOptionsLine("    [--Deploy]")
+                .AddPostOptionsLine("    [--UpdateVariables]")
                 .AddPostOptionsLine("    [--EnvironmentDeploymentPath \"environmentDeployment.json\"]")
                 .AddPostOptionsLine("    [--MaximumParallelDeployments 4]")
                 .AddPostOptionsLine("    [--HideDeploymentProgress]")
@@ -257,6 +277,7 @@ namespace OctopusPuppet.Cmd
                 .AddPostOptionsLine("    [--ComponentFilterPath \"componentFilter.json\"]")
                 .AddPostOptionsLine("    [--ComponentFilter \"Component filter json base64 encoded\"]")
                 .AddPostOptionsLine("    [--Deploy]")
+                .AddPostOptionsLine("    [--UpdateVariables]")
                 .AddPostOptionsLine("    [--EnvironmentDeploymentPath \"environmentDeployment.json\"]")
                 .AddPostOptionsLine("    [--MaximumParallelDeployments 4]")
                 .AddPostOptionsLine("    [--HideDeploymentProgress]")
@@ -268,6 +289,7 @@ namespace OctopusPuppet.Cmd
                 .AddPostOptionsLine("    [--ComponentFilterPath \"componentFilter.json\"]")
                 .AddPostOptionsLine("    [--ComponentFilter \"Component filter json base64 encoded\"]")
                 .AddPostOptionsLine("    [--Deploy]")
+                .AddPostOptionsLine("    [--UpdateVariables]")
                 .AddPostOptionsLine("    [--EnvironmentDeploymentPath \"environmentDeployment.json\"]")
                 .AddPostOptionsLine("    [--MaximumParallelDeployments 4]")
                 .AddPostOptionsLine("    [--HideDeploymentProgress]")

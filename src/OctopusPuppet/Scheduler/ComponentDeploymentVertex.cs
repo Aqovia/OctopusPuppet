@@ -14,8 +14,9 @@ namespace OctopusPuppet.Scheduler
         /// The version of the component that should be deployed
         /// </summary>
         public SemVer Version { get; private set; }
-        
-        public PlanAction Action { get; set; }
+
+        public PlanAction DeploymentAction { get; set; }
+        public VariableAction VariableAction { get; set; }
         public TimeSpan? DeploymentDuration { get; set; }
         public bool Exists { get; set; }
 
@@ -28,7 +29,8 @@ namespace OctopusPuppet.Scheduler
             Id = id;
             Name = name;
             Version = version;
-            Action = action;
+            DeploymentAction = action;
+
             DeploymentDuration = deploymentDuration;
             Exists = exists;
 

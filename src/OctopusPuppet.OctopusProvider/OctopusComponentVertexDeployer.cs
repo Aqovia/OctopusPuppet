@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using Octopus.Client;
 using Octopus.Client.Model;
@@ -36,73 +35,13 @@ namespace OctopusPuppet.OctopusProvider
             _repository = new OctopusRepository(octopusServerEndpoint);
         }
 
-        /// <summary>
-        /// Find first environment by name
-        /// </summary>
-        /// <param name="environment">The environment name</param>
-        /// <returns>Environment object or null</returns>
-        private DeploymentPlanner.Environment GetEnvironment(string environment)
+        
+
+        public ComponentVertexDeploymentResult Deploy(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken, IProgress<ComponentVertexDeploymentProgress> progress)
         {
-            var environments = _repository.Environments
-                .GetAll()
-                .Select(x => new DeploymentPlanner.Environment()
-                {
-                    Id = x.Id,
-                    Name = x.Name
-                })
-                .FirstOrDefault(x => x.Name == environment);
-
-            return environments;
-        }
-
-        /// <summary>
-        /// Find first project by name
-        /// </summary>
-        /// <param name="project"></param>
-        /// <returns>Reference object or null</returns>
-        private ReferenceDataItem GetProject(string project)
-        {
-            var release = _repository.Projects
-                .GetAll()
-                .FirstOrDefault(x => x.Name == project);
-
-            return release;
-        }
-
-        /// <summary>
-        /// Find first release for project that matches version
-        /// </summary>
-        /// <param name="projectId">The project id to match on</param>
-        /// <param name="version">Version for the project to match on</param>
-        /// <returns>Matched release or null if there is no match</returns>
-        private ReleaseResource GetReleaseResources(string projectId, SemVer version)
-        {
-            var project = _repository.Projects.Get(projectId);
-            var skip = 0;
-            var shouldPage = false;
-            do
+            if (!componentDeploymentVertex.Exists || componentDeploymentVertex.DeploymentAction == PlanAction.Skip)
             {
-                var releasePages = _repository.Projects.GetReleases(project, skip);
-
-                var release = releasePages.Items.FirstOrDefault(x => new SemVer(x.Version) == version);
-
-                if (release != null)
-                {
-                    return release;
-                }
-
-                skip += releasePages.ItemsPerPage;
-                shouldPage = releasePages.TotalResults > skip;
-            } while (shouldPage);
-
-            return null;
-        }
-
-        public IComponentVertextDeploymentResult Deploy(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken, IProgress<ComponentVertexDeploymentProgress> progress)
-        {
-            if (!componentDeploymentVertex.Exists || componentDeploymentVertex.Action == PlanAction.Skip)
-            {
-                return new ComponentVertextDeploymentResult
+                return new ComponentVertexDeploymentResult
                 {
                     Status = ComponentVertexDeploymentStatus.Success,
                     Description = "Skipped"
@@ -114,24 +53,10 @@ namespace OctopusPuppet.OctopusProvider
                 throw new Exception("Version for release is null");
             }
 
-            var environment = GetEnvironment(_environmentToDeployTo.Name);
-            if (environment == null)
-            {
-                throw new Exception(string.Format("Can't find environment name of {0}", _environmentToDeployTo.Name));
-            }
-
-            var project = GetProject(componentDeploymentVertex.Name);
-            if (project == null)
-            {
-                throw new Exception(string.Format("Can't find project with name of {0}", componentDeploymentVertex.Name));
-            }
-
-            var release = GetReleaseResources(project.Id, componentDeploymentVertex.Version);
-            if (release == null)
-            {
-                throw new Exception(string.Format("Can't find release with project id {0} and version of {1}", componentDeploymentVertex.Name, componentDeploymentVertex.Version));
-            }
-
+            var environment = _repository.Environments.GetEnvironment(_environmentToDeployTo.Name);
+            var project = _repository.Projects.GetProjectByName(componentDeploymentVertex.Name);
+            var release = _repository.Projects.GetRelease(project.Id, componentDeploymentVertex.Version);
+           
             var deployment = new DeploymentResource
             {
                 ReleaseId = release.Id,
@@ -183,7 +108,7 @@ namespace OctopusPuppet.OctopusProvider
 
             deploymentTask = _repository.Tasks.Get(queuedDeployment.TaskId);
 
-            var result = new ComponentVertextDeploymentResult();
+            var result = new ComponentVertexDeploymentResult();
 
             switch (deploymentTask.State)
             {
