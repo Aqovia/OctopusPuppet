@@ -94,7 +94,7 @@ namespace OctopusPuppet.Deployer
 
             var deployComponentResults = await WhenAll(componentDeploymentForProductDeploymentStepTasks, cancellationToken);
 
-            return deployComponentResults != null && !deployComponentResults.Any(x => x != ComponentVertexDeploymentStatus.Success);
+            return deployComponentResults != null && !deployComponentResults.Any(x => x.Status != ComponentVertexDeploymentStatus.Success);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace OctopusPuppet.Deployer
         /// </summary>
         /// <param name="componentDeploymentVertex"></param>
         /// <param name="cancellationToken"></param>
-        private ComponentVertexDeploymentStatus DeployComponent(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken)
+        private IComponentVertextDeploymentResult DeployComponent(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken)
         {
             try
             {
@@ -111,7 +111,11 @@ namespace OctopusPuppet.Deployer
                 {
                     if (cancellationToken.IsCancellationRequested)
                     {
-                        return ComponentVertexDeploymentStatus.Cancelled;
+                        return new ComponentVertextDeploymentResult
+                        {
+                            Status = ComponentVertexDeploymentStatus.Cancelled,
+                            Description = "Cancelled"
+                        };
                     }
 
                     //Start progress
@@ -131,27 +135,22 @@ namespace OctopusPuppet.Deployer
                         });
                     }
 
-                    Exception exception = null;
-                    ComponentVertexDeploymentStatus status;
+                    IComponentVertextDeploymentResult result;
 
                     try
                     {
-                        status = _componentVertexDeployer.Deploy(componentDeploymentVertex, cancellationToken, _progress);
+                        result = _componentVertexDeployer.Deploy(componentDeploymentVertex, cancellationToken, _progress);
                     }
                     catch (Exception ex)
                     {
-                        status = ComponentVertexDeploymentStatus.Failure;
-                        exception = ex;
-                    }
-
-                    var text = string.Empty;
-
-                    if (exception != null)
-                    {
                         var stringBuilder = new StringBuilder();
-                        WriteExceptionDetails(exception, stringBuilder, 1);
+                        WriteExceptionDetails(ex, stringBuilder, 1);
 
-                        text += Environment.NewLine + stringBuilder;
+                        result = new ComponentVertextDeploymentResult
+                        {
+                            Status = ComponentVertexDeploymentStatus.Failure,
+                            Description = stringBuilder.ToString()
+                        };
                     }
 
                     //Finish progress    
@@ -160,7 +159,7 @@ namespace OctopusPuppet.Deployer
                         _progress.Report(new ComponentVertexDeploymentProgress
                         {
                             Vertex = componentDeploymentVertex,
-                            Status = status,
+                            Status = result.Status,
                             MinimumValue = 0,
                             MaximumValue =
                                 componentDeploymentVertex.DeploymentDuration.HasValue
@@ -170,11 +169,11 @@ namespace OctopusPuppet.Deployer
                                 componentDeploymentVertex.DeploymentDuration.HasValue
                                     ? componentDeploymentVertex.DeploymentDuration.Value.Ticks
                                     : 0,
-                            Text = text
+                            Text = result.Description
                         });
                     }
 
-                    return status;
+                    return result;
                 }
                 finally
                 {
@@ -183,7 +182,11 @@ namespace OctopusPuppet.Deployer
             }
             catch (OperationCanceledException)
             {
-                return ComponentVertexDeploymentStatus.Cancelled;
+                return new ComponentVertextDeploymentResult
+                {
+                    Status = ComponentVertexDeploymentStatus.Cancelled,
+                    Description = "Cancelled"
+                };
             }
         }
 

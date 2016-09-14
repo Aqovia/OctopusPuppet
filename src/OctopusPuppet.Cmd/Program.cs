@@ -87,10 +87,12 @@ namespace OctopusPuppet.Cmd
 
         private static int BranchDeployment(BranchDeploymentOptions opts)
         {
+            var notifier = GetNotifier(opts.HideDeploymentProgress, opts.Teamcity);
+
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
             var componentFilter = GetComponentFilter(opts.ComponentFilterPath, opts.ComponentFilter);
 
-            Console.WriteLine("Retrieve branch deployment plans for TargetEnvironment=\"{0}\" Branch=\"{1}\"", opts.TargetEnvironment, opts.Branch);
+            notifier.PrintActionMessage(string.Format("Retrieve branch deployment plans for TargetEnvironment=\"{0}\" Branch=\"{1}\"", opts.TargetEnvironment, opts.Branch));
             var redeployDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(opts.TargetEnvironment, opts.Branch, componentFilter);
             var environmentDeploymentPlan = redeployDeploymentPlans.EnvironmentDeploymentPlan;
 
@@ -98,12 +100,12 @@ namespace OctopusPuppet.Cmd
             var componentGraph = deploymentScheduler.GetComponentDeploymentGraph(environmentDeploymentPlan);
             var environmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
 
-            PrintEnvironmentDeploy(environmentDeployment);
+            notifier.PrintEnvironmentDeploy(environmentDeployment);
             SaveEnvironmentDeploy(opts.EnvironmentDeploymentPath, environmentDeployment);
 
             if (opts.Deploy)
             {
-                return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParalleDeployments);
+                return Deploy(notifier, opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.MaximumParalleDeployments);
             }
 
             return 0;
@@ -111,10 +113,12 @@ namespace OctopusPuppet.Cmd
 
         private static int MirrorEnvironment(MirrorEnvironmentOptions opts)
         {
+            var notifier = GetNotifier(opts.HideDeploymentProgress, opts.Teamcity);
+
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
             var componentFilter = GetComponentFilter(opts.ComponentFilterPath, opts.ComponentFilter);
 
-            Console.WriteLine("Retrieve mirror environment plans for SourceEnvironment=\"{0}\" TargetEnvironment=\"{1}\"", opts.SourceEnvironment, opts.TargetEnvironment);
+            notifier.PrintActionMessage(string.Format("Retrieve mirror environment plans for SourceEnvironment=\"{0}\" TargetEnvironment=\"{1}\"", opts.SourceEnvironment, opts.TargetEnvironment));
             var environmentMirrorDeploymentPlans = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(opts.SourceEnvironment, opts.TargetEnvironment, componentFilter);
             var environmentDeploymentPlan = environmentMirrorDeploymentPlans.EnvironmentDeploymentPlan;
 
@@ -122,12 +126,12 @@ namespace OctopusPuppet.Cmd
             var componentGraph = deploymentScheduler.GetComponentDeploymentGraph(environmentDeploymentPlan);
             var environmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
 
-            PrintEnvironmentDeploy(environmentDeployment);
+            notifier.PrintEnvironmentDeploy(environmentDeployment);
             SaveEnvironmentDeploy(opts.EnvironmentDeploymentPath, environmentDeployment);
 
             if (opts.Deploy)
             {
-                return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParalleDeployments);
+                return Deploy(notifier, opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.MaximumParalleDeployments);
             }
 
             return 0;
@@ -135,10 +139,12 @@ namespace OctopusPuppet.Cmd
 
         private static int Redeployment(RedploymentOptions opts)
         {
+            var notifier = GetNotifier(opts.HideDeploymentProgress, opts.Teamcity);
+
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
             var componentFilter = GetComponentFilter(opts.ComponentFilterPath, opts.ComponentFilter);
 
-            Console.WriteLine("Retrieve mirror environment plans for TargetEnvironment=\"{0}\"", opts.TargetEnvironment);
+            notifier.PrintActionMessage(string.Format("Retrieve mirror environment plans for TargetEnvironment=\"{0}\"", opts.TargetEnvironment));
             var redeployDeploymentPlans = deploymentPlanner.GetRedeployDeploymentPlans(opts.TargetEnvironment, componentFilter);
             var environmentDeploymentPlan = redeployDeploymentPlans.EnvironmentDeploymentPlan;
 
@@ -146,12 +152,12 @@ namespace OctopusPuppet.Cmd
             var componentGraph = deploymentScheduler.GetComponentDeploymentGraph(environmentDeploymentPlan);
             var environmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
 
-            PrintEnvironmentDeploy(environmentDeployment);
+            notifier.PrintEnvironmentDeploy(environmentDeployment);
             SaveEnvironmentDeploy(opts.EnvironmentDeploymentPath, environmentDeployment);
 
             if (opts.Deploy)
             {
-                return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParalleDeployments);
+                return Deploy(notifier, opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.MaximumParalleDeployments);
             }
 
             return 0;
@@ -159,22 +165,25 @@ namespace OctopusPuppet.Cmd
 
         private static int Deploy(DeployOptions opts)
         {
+            var notifier = GetNotifier(opts.HideDeploymentProgress, opts.Teamcity);
+
             var environmentDeployment = LoadEnvironmentDeploy(opts.EnvironmentDeploymentPath);
-            return Deploy(opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.HideDeploymentProgress, opts.MaximumParallelDeployments);
+            return Deploy(notifier, opts.OctopusUrl, opts.OctopusApiKey, opts.TargetEnvironment, environmentDeployment, opts.MaximumParallelDeployments);
         }
 
         private static int CommandLineParsingError(IEnumerable<Error> errors)
         {
+            var notifier = GetNotifier(false, false);
+
             var firstError = errors.FirstOrDefault();
             if (firstError is VersionRequestedError)
             {
-                Console.WriteLine(FileVersion);
+                notifier.PrintVersion(FileVersion);
                 return 0;
             }
 
             var helpText = GetHelpText(ParsedResult);
-
-            Console.WriteLine(helpText);
+            notifier.PrintHelp(helpText);
 
             if (firstError is HelpRequestedError)
             {
@@ -182,12 +191,6 @@ namespace OctopusPuppet.Cmd
             }
 
             return -1;
-        }
-
-        private static void PrintEnvironmentDeploy(EnvironmentDeployment environmentDeployment)
-        {
-            var environmentDeploymentJson = JsonConvert.SerializeObject(environmentDeployment, new JsonSerializerSettings { Formatting = Formatting.Indented });
-            Console.WriteLine(environmentDeploymentJson);
         }
 
         private static EnvironmentDeployment LoadEnvironmentDeploy(string path)
@@ -206,7 +209,7 @@ namespace OctopusPuppet.Cmd
             File.WriteAllText(path, environmentDeploymentJson);
         }
 
-        private static int Deploy(string url, string apiKey, string targetEnvironment, EnvironmentDeployment environmentDeployment, bool hideDeploymentProgress, int maximumParalleDeployments)
+        private static int Deploy(INotifier notificaiton, string url, string apiKey, string targetEnvironment, EnvironmentDeployment environmentDeployment, int maximumParalleDeployments)
         {
             var environment = new Environment
             {
@@ -214,10 +217,9 @@ namespace OctopusPuppet.Cmd
                 Name = targetEnvironment
             };
 
-            var progress = hideDeploymentProgress ? null : new ConsoleDeployProgress();
             var componentVertexDeployer = new OctopusComponentVertexDeployer(url, apiKey, environment);
             var cancellationTokenSource = new CancellationTokenSource();
-            var deploymentExecutor = new DeploymentExecutor(componentVertexDeployer, environmentDeployment, cancellationTokenSource.Token, progress, maximumParalleDeployments);
+            var deploymentExecutor = new DeploymentExecutor(componentVertexDeployer, environmentDeployment, cancellationTokenSource.Token, notificaiton, maximumParalleDeployments);
             var allDeploymentsSucceded = deploymentExecutor.Execute().ConfigureAwait(false).GetAwaiter().GetResult();
 
             return allDeploymentsSucceded ? 0 : 1;
@@ -305,6 +307,19 @@ namespace OctopusPuppet.Cmd
             var json = File.ReadAllText(componentFilterPath);
             var componentFilter = JsonConvert.DeserializeObject<ComponentFilter>(json);
             return componentFilter;
+        }
+
+        private static INotifier GetNotifier(bool hideDeploymentProgress, bool useTeamcity)
+        {
+            if (hideDeploymentProgress)
+            {
+                return null;
+            }
+            if (useTeamcity || !string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("TEAMCITY_VERSION")))
+            {
+                return new TeamcityConsoleDeployNotifier();
+            }
+            return new ConsoleDeployNotfier();
         }
     }
 }

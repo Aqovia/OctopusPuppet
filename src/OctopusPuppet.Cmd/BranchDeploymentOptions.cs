@@ -64,5 +64,11 @@ namespace OctopusPuppet.Cmd
             SetName = "BranchDeployment",
             HelpText = "Environment Deployment path to save to.")]
         public string EnvironmentDeploymentPath { get; set; }
+
+        [Option("Teamcity",
+            Default = false,
+            SetName = "BranchDeployment",
+            HelpText = "Use Teamcity output")]
+        public bool Teamcity { get; set; }
     }
 }
