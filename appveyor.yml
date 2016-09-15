@@ -29,7 +29,7 @@ artifacts:
     name: OctopusPuppet.Gui
     type: zip
 
-  - path: teamcity-plugin/Drops/octopuspuppet-metarunner.zip
+  - path: octopuspuppet-metarunner.zip
     name: OctopusPuppet.Teamcity
     type: zip    
 
