@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<meta-runner name="OctopusPuppet: Redeploy">
+  <description>Run OctopusPuppet redeploy within TeamCity</description>
+  <settings>
+    <parameters>
+      <!-- Mandatory Fields -->
+      <param name="teamcity.tool.microsoft.octopuspuppet.octopusurl" value="" spec="text description='The url to the octopus server e.g. http://octopus.test.com/' display='normal' label='Octopus url:' validationMode=''" />
+      <param name="teamcity.tool.microsoft.octopuspuppet.octopusapikey" value="" spec="password description='The api key for the octopus server e.g. API-HAAAS4MM6YBBSAIQVVHCQQUEA0' display='normal' label='Octopus api key:' validationMode=''" />
+      <param name="teamcity.tool.microsoft.octopuspuppet.targetenvironment" value="" spec="text description='The environment to deploy to.' display='normal' label='Target Environment:' validationMode='not_empty'" />
+      <!-- Optional Fields -->
+      <param name="teamcity.tool.microsoft.octopuspuppet.componentfilterpath" value="" spec="text description='Component filter path to save to. Relative to the working directory.' display='normal' label='Component filter path to save to:' validationMode=''" />
+      <param name="teamcity.tool.microsoft.octopuspuppet.componentfilter" value="" spec="text description='Component filter json.' display='normal' label='Component filter json:' validationMode=''" />
+      <param name="teamcity.tool.microsoft.octopuspuppet.environmentdeploymentpath" value="" spec="text description='Environment Deployment path to save to. Relative to the working directory.' display='normal' label='Environment deployment path to save to:' validationMode=''" />
+      <param name="teamcity.tool.microsoft.octopuspuppet.hidedeploymentprogress" value="" spec="checkbox checkedValue='true' uncheckedValue='false' description='Hide deployment progress.' display='normal' label='Hide deployment progress:' validationMode=''" />
+      <param name="teamcity.tool.microsoft.octopuspuppet.deploy" value="" spec="checkbox checkedValue='true' uncheckedValue='false' description='Deploy.' display='normal' label='Deploy:' validationMode=''" />
+      <param name="teamcity.tool.microsoft.octopuspuppet.maximumparalleldeployments" value="" spec="text description='Maximum parallel deployments' display='normal' label='Maximum parallel deployments:' validationMode=''" />
+    </parameters>
+    <build-runners>
+      <runner name="OctopusPuppet" type="jetbrains_powershell">
+        <parameters>
+          <param name="jetbrains_powershell_execution" value="PS1" />
+          <param name="jetbrains_powershell_noprofile" value="true" />
+          <param name="jetbrains_powershell_errorToError" value="error" />
+          <param name="jetbrains_powershell_script_mode" value="CODE" />
+          <param name="jetbrains_powershell_bitness" value="x86" />
+          <param name="jetbrains_powershell_minVersion" value="3.0" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="jetbrains_powershell_script_code">
+<![CDATA[
+$ErrorActionPreference = "Stop" 
+
+$toolPath = "`"%teamcity.agent.tools.dir%\octopuspuppet-metarunner\bin\OctopusPuppet.Cmd.exe`""
+$octopusUrl = '%teamcity.tool.microsoft.octopuspuppet.octopusurl%'
+$octopusApiKey = '%teamcity.tool.microsoft.octopuspuppet.octopusapikey%'
+$targetEnvironment = "%teamcity.tool.microsoft.octopuspuppet.targetenvironment%"
+
+$componentFilterPath = "%teamcity.tool.microsoft.octopuspuppet.componentfilterpath%"
+$componentFilter = @'
+%teamcity.tool.microsoft.octopuspuppet.componentfilter%
+'@
+$environmentDeploymentPath = "%teamcity.tool.microsoft.octopuspuppet.environmentdeploymentpath%"
+$hideDeploymentProgress = "%teamcity.tool.microsoft.octopuspuppet.hidedeploymentprogress%" -eq 'true'
+$deploy = "%teamcity.tool.microsoft.octopuspuppet.deploy%" -eq 'true'
+$maximumParallelDeployments = "%teamcity.tool.microsoft.octopuspuppet.maximumparalleldeployments%"
+
+try 
+{
+    $command = "Redeployment --OctopusUrl `"$octopusUrl`" --OctopusApiKey `"$octopusApiKey`" --TargetEnvironment `"$targetEnvironment`""
+
+    if (![String]::IsNullOrEmpty($componentFilterPath)){
+        $command += " --ComponentFilterPath `"$componentFilterPath`"" 
+    }
+
+    if (![String]::IsNullOrEmpty($componentFilter)){
+        $componentFilterJsonBase64Encoded = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($componentFilter))
+        $command += " --ComponentFilter `"$componentFilterJsonBase64Encoded`"" 
+    }       
+  
+    if (![String]::IsNullOrEmpty($environmentDeploymentPath)){
+        $command += " --EnvironmentDeploymentPath `"$environmentDeploymentPath`"" 
+    }
+
+    if ($deploy){
+        $command += " --Deploy"
+    }
+
+    if ($hideDeploymentProgress){
+        $command += " --HideDeploymentProgress"
+    }
+
+    if (![String]::IsNullOrEmpty($maximumParallelDeployments)){
+        $command += " --MaximumParallelDeployments $maximumParallelDeployments"
+    }
+
+    $cmd = $toolPath
+    $cmdArgs = $command
+
+    $pinfo = New-Object System.Diagnostics.ProcessStartInfo
+    $pinfo.FileName = $cmd
+    $pinfo.RedirectStandardError = $false
+    $pinfo.RedirectStandardOutput = $false
+    $pinfo.UseShellExecute = $false
+    $pinfo.Arguments = $cmdArgs
+
+    $p = New-Object System.Diagnostics.Process
+    $p.StartInfo = $pinfo
+    $p.Start() 
+    $p.WaitForExit()
+
+    Exit $p.ExitCode
+} 
+catch 
+{
+    $global:buildResult = "#teamcity[buildStatus status='FAILURE' text='Unable to execute Redeployment.']"
+    write-host $global:buildResult
+
+    Write-Error $_
+    Exit 1
+}
+]]>
+          </param>
+        </parameters>
+      </runner>
+    </build-runners>
+    <requirements />
+  </settings>
+</meta-runner>
