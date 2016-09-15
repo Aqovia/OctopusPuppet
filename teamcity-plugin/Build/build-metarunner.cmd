@@ -1,5 +1,3 @@
-
-
 RMDIR "%~dp0..\Drops" /S /Q
 MKDIR "%~dp0..\Drops"
 MKDIR "%~dp0..\Drops\Temp"
@@ -12,10 +10,10 @@ DEL "%~dp0..\Drops\Temp\agent\bin\*.xml"
 DEL "%~dp0..\Drops\Temp\agent\bin\*.pdb"
 
 @PowerShell -File %~dp0Create-Zip.ps1 %~dp0..\Drops\Temp\agent\ %~dp0..\Drops\Temp\agent\octopuspuppet-metarunner.zip
-PAUSE
+
 DEL "%~dp0..\Drops\Temp\agent\*.xml"
 RMDIR "%~dp0..\Drops\Temp\agent\bin" /S /Q
-PAUSE
+
 @PowerShell -File "%~dp0Create-Zip.ps1" -target %~dp0..\Drops\Temp\ %~dp0..\Drops\octopuspuppet-metarunner.zip
 
 RMDIR "%~dp0..\Drops\Temp\" /S /Q
