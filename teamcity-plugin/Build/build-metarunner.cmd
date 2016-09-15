@@ -19,5 +19,3 @@ PAUSE
 @PowerShell -File "%~dp0Create-Zip.ps1" -target %~dp0..\Drops\Temp\ %~dp0..\Drops\octopuspuppet-metarunner.zip
 
 RMDIR "%~dp0..\Drops\Temp\" /S /Q
-
-PAUSE
