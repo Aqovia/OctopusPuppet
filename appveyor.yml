@@ -16,7 +16,7 @@ before_build:
   - nuget restore  
 
 after_build:
-  - cmd: %APPVEYOR_BUILD_FOLDER%\teamcity-plugin\Build\build-metarunner.cmd
+  - cmd: teamcity-plugin\Build\build-metarunner.cmd
   - cmd: 7z a OctopusPuppet.Cmd.zip %APPVEYOR_BUILD_FOLDER%\src\OctopusPuppet.Cmd\bin\Release\*.*
   - cmd: 7z a OctopusPuppet.Gui.zip %APPVEYOR_BUILD_FOLDER%\src\OctopusPuppet.Gui\bin\Release\*.*
 
