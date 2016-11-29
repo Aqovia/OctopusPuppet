@@ -49,11 +49,11 @@ _This is often used for redeploying when settings/feature toggles have changed._
 
 # Why
 
-When running micro-services architecture one of the downsides is that there is plenty of stuff to deploy. To reduce this tax you need to ensure as much as possible is automated. Octopus goes a long way to making a great experince, but there are a few short comings.
+When running micro-services architecture one of the downsides is that there is plenty of stuff to deploy. To reduce this tax you need to ensure as much as possible is automated. Octopus goes a long way to making a great experience, but there are a few short comings.
 
 Deployment Taxes:
 * It is often difficult to see how components are dependent on each other. The ideal situation is a graphical graph which shows component deployment dependencies.
-* Having one giant octopus deployment project is not feasable either. Often we don't want to deploy everything as this takes ages. The ideal situation is a differential deployment. It will only deploy what has not already been deployed.
+* Having one giant octopus deployment project is not feasible either. Often we don't want to deploy everything as this takes ages. The ideal situation is a differential deployment. It will only deploy what has not already been deployed.
 * There appears to be no way of calling other deployments from a deployment in Octopus. This is due to Octopus will block the deployment. So you can't call the Octopus API and wait until the deployment is finished as Octopus will only start running the task once the wait is finished. The ideal situation is a way to call deployments from deployments or have something that can orchestrate this.
 
 # How
