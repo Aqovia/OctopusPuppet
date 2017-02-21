@@ -40,3 +40,8 @@ build:
 
 test:
   assemblies: '*.Tests.dll'  
+
+image: Visual Studio 2015
+
+install:
+  - set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
