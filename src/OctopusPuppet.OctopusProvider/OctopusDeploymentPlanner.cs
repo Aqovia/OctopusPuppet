@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using Newtonsoft.Json;
 using Octopus.Client;
@@ -11,12 +12,13 @@ namespace OctopusPuppet.OctopusProvider
     public class OctopusDeploymentPlanner : IDeploymentPlanner
     {
         private const string ComponentDependancies = "ComponentDependencies";
-        private readonly OctopusRepository _repository;
+        private readonly IOctopusRepository _repository;
 
-        public OctopusDeploymentPlanner(string url, string apiKey)
+        public OctopusDeploymentPlanner(string url, string apiKey) : this(new OctopusRepository(new OctopusServerEndpoint(url, apiKey))) {}
+
+        public OctopusDeploymentPlanner(IOctopusRepository repository)
         {
-            var octopusServerEndpoint = new OctopusServerEndpoint(url, apiKey);
-            _repository = new OctopusRepository(octopusServerEndpoint);
+            _repository = repository;
         }
 
         private List<ReleaseResource> GetReleaseResources(string projectId)
@@ -48,16 +50,23 @@ namespace OctopusPuppet.OctopusProvider
                     .Where(x => x.EnvironmentId == environmentId);
             }
 
-            if (dashboardItemResources.Any(x => (new SemanticVersion(x.ReleaseVersion)).SpecialVersion == branch))
+            if (dashboardItemResources.Any(x => GetSemanticVersionOrNull(x.ReleaseVersion)?.SpecialVersion == branch))
             {
                 dashboardItemResources = dashboardItemResources
-                    .Where(x => (new SemanticVersion(x.ReleaseVersion)).SpecialVersion == branch);
+                    .Where(x => GetSemanticVersionOrNull(x.ReleaseVersion)?.SpecialVersion == branch);
             }
 
             var dashboardItemResource = dashboardItemResources
                 .FirstOrDefault();
 
             return dashboardItemResource;
+        }
+
+        private SemanticVersion GetSemanticVersionOrNull(string versionString)
+        {
+            SemanticVersion version;
+            SemanticVersion.TryParse(versionString, out version);
+            return version;
         }
 
         /// <summary>
@@ -67,17 +76,16 @@ namespace OctopusPuppet.OctopusProvider
         /// <returns></returns>
         private List<Branch> GetBranchesForProject(string projectId)
         {
-            var branches = GetReleaseResources(projectId)
-                .Select(x=> new Branch
-                    {
-                        Name = new SemanticVersion(x.Version).SpecialVersion,
-                        Id = new SemanticVersion(x.Version).SpecialVersion
-                    }
-                )
-                .Distinct()
-                .ToList();
+            var branches = from r in GetReleaseResources(projectId)
+                let version = GetSemanticVersionOrNull(r.Version)
+                where version != null
+                select new Branch
+                {
+                    Name = version.SpecialVersion,
+                    Id = version.SpecialVersion
+                };
 
-            return branches;
+            return branches.ToList();
         }
 
         /// <summary>
@@ -99,13 +107,13 @@ namespace OctopusPuppet.OctopusProvider
             }
 
             //If we dont have any release in a branch assume master
-            if (!string.IsNullOrEmpty(branch) && releaseResources.All(x => (new SemanticVersion(x.Version)).SpecialVersion != branch))
+            if (!string.IsNullOrEmpty(branch) && releaseResources.All(x => GetSemanticVersionOrNull(x.Version)?.SpecialVersion != branch))
             {
                 branch = string.Empty;
             }
 
             //Get release for branch
-            var releaseResource = releaseResources.FirstOrDefault(x => (new SemanticVersion(x.Version)).SpecialVersion == branch);
+            var releaseResource = releaseResources.FirstOrDefault(x => GetSemanticVersionOrNull(x.Version)?.SpecialVersion == branch);
             if (releaseResource == null) return null;
             
             // No other way to calculate duration otherwise :<
@@ -150,8 +158,7 @@ namespace OctopusPuppet.OctopusProvider
                 .Where(x => x.EnvironmentId == environmentId && x.ProjectId == projectId);
 
             var dashboardItemResource = dashboardItemResources.FirstOrDefault();
-
-            if (dashboardItemResource == null) return null;
+            if (dashboardItemResource == null || GetSemanticVersionOrNull(dashboardItemResource.ReleaseVersion) == null) return null;
 
             var componentDeployedOnEnvironmentFromDuration = dashboardItemResource.CompletedTime - dashboardItemResource.QueueTime;
 

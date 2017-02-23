@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using Caliburn.Micro;
 using Microsoft.Win32;
 using Newtonsoft.Json;
@@ -149,29 +150,28 @@ namespace OctopusPuppet.Gui.ViewModels
             get { return EnvironmentDeployment != null && CancellationTokenSource != null; }
         }
 
-        public void GetBranchesAndEnvironments()
+        public async Task GetBranchesAndEnvironments()
         {
+
             if (!string.IsNullOrEmpty(_octopusUrl) && !string.IsNullOrEmpty(_octopusApiKey))
             {
                 IsLoadingData = true;
-                Task.Factory.StartNew(() =>
+                try
                 {
-                    try
+                    await Task.Factory.StartNew(() =>
                     {
                         var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
 
                         Branches = deploymentPlanner.GetBranches();
                         Environments = deploymentPlanner.GetEnvironments();
-                    }
-                    catch
-                    {
-                        Branches = new List<Branch>();
-                        Environments = new List<Environment>();                  
-                    }
-                }).ContinueWith(task => 
+                    });
+                }
+                catch (Exception x)
                 {
-                    IsLoadingData = false;
-                });
+                    MessageBox.Show(x.Message, x.GetType().Name, MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                IsLoadingData = false;
             }
             else
             {
