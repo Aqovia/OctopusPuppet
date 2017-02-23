@@ -12,12 +12,13 @@ namespace OctopusPuppet.OctopusProvider
     public class OctopusDeploymentPlanner : IDeploymentPlanner
     {
         private const string ComponentDependancies = "ComponentDependencies";
-        private readonly OctopusRepository _repository;
+        private readonly IOctopusRepository _repository;
 
-        public OctopusDeploymentPlanner(string url, string apiKey)
+        public OctopusDeploymentPlanner(string url, string apiKey) : this(new OctopusRepository(new OctopusServerEndpoint(url, apiKey))) {}
+
+        public OctopusDeploymentPlanner(IOctopusRepository repository)
         {
-            var octopusServerEndpoint = new OctopusServerEndpoint(url, apiKey);
-            _repository = new OctopusRepository(octopusServerEndpoint);
+            _repository = repository;
         }
 
         private List<ReleaseResource> GetReleaseResources(string projectId)
