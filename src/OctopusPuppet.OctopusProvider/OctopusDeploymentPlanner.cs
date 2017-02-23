@@ -158,8 +158,7 @@ namespace OctopusPuppet.OctopusProvider
                 .Where(x => x.EnvironmentId == environmentId && x.ProjectId == projectId);
 
             var dashboardItemResource = dashboardItemResources.FirstOrDefault();
-
-            if (dashboardItemResource == null) return null;
+            if (dashboardItemResource == null || GetSemanticVersionOrNull(dashboardItemResource.ReleaseVersion) == null) return null;
 
             var componentDeployedOnEnvironmentFromDuration = dashboardItemResource.CompletedTime - dashboardItemResource.QueueTime;
 
