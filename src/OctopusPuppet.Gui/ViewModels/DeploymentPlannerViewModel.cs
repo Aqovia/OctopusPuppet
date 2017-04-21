@@ -751,6 +751,17 @@ namespace OctopusPuppet.Gui.ViewModels
                     CancellationTokenSource = new CancellationTokenSource();
                     var deploymentExecutor = new DeploymentExecutor(deployers, EnvironmentDeployment, CancellationTokenSource.Token, this, MaximumParallelDeployment);
                     var allDeploymentsSucceded = deploymentExecutor.Execute().ConfigureAwait(false).GetAwaiter().GetResult();
+
+                    var successfullyDeployedComponents = EnvironmentDeploymentResult
+                        .ProductDeployments
+                        .SelectMany(x => x.DeploymentSteps)
+                        .SelectMany(x => x.ComponentDeployments)
+                        .Where(x => x.Status == ComponentVertexDeploymentStatus.Success && x.Vertex.DeploymentAction != PlanAction.Skip);
+
+                    foreach (var successfullyDeployedComponent in successfullyDeployedComponents)
+                    {
+                        successfullyDeployedComponent.Vertex.DeploymentAction = PlanAction.Skip;
+                    }
                 }
                 catch
                 {
