@@ -657,6 +657,157 @@ namespace OctopusPuppet.Gui.ViewModels
             EnvironmentDeployment = environmentDeployment;
         }
 
+        private VariableAction _selectedSetVariablesTo = VariableAction.Update;
+        public VariableAction SelectedSetVariablesTo
+        {
+            get { return _selectedSetVariablesTo; }
+            set
+            {
+                if (value == _selectedSetVariablesTo) return;
+                _selectedSetVariablesTo = value;
+                NotifyOfPropertyChange(() => SelectedSetVariablesTo);
+            }
+        }
+
+        public void SetAllVariablesTo()
+        {
+            if (EnvironmentDeployment == null)
+            {
+                return;
+            }
+
+            var componentsToDeploy = EnvironmentDeployment
+                .ProductDeployments
+                .SelectMany(x => x.DeploymentSteps)
+                .SelectMany(x => x.ComponentDeployments)
+                .Where(x => x.Vertex.VariableAction != SelectedSetVariablesTo)
+                .ToList();
+
+            foreach (var componentToDeploy in componentsToDeploy)
+            {
+                componentToDeploy.Vertex.VariableAction = SelectedSetVariablesTo;
+            }
+
+            if (componentsToDeploy.Any())
+            {
+                var temp = EnvironmentDeployment;
+                EnvironmentDeployment = null;
+                EnvironmentDeployment = temp;
+            }
+        }
+
+        private PlanAction _selectedSetAllDeploymentsTo = PlanAction.Change;
+        public PlanAction SelectedSetAllDeploymentsTo
+        {
+            get { return _selectedSetAllDeploymentsTo; }
+            set
+            {
+                if (value == _selectedSetAllDeploymentsTo) return;
+                _selectedSetAllDeploymentsTo = value;
+                NotifyOfPropertyChange(() => SelectedSetAllDeploymentsTo);
+            }
+        }
+
+        public void SetAllDeploymentsTo()
+        {
+            if (EnvironmentDeployment == null)
+            {
+                return;
+            }
+
+            var componentsToDeploy = EnvironmentDeployment
+                .ProductDeployments
+                .SelectMany(x => x.DeploymentSteps)
+                .SelectMany(x => x.ComponentDeployments)
+                .Where(x => x.Vertex.DeploymentAction != SelectedSetAllDeploymentsTo)
+                .ToList();
+
+            var deploymentPlans = EnvironmentDeploymentPlan.DeploymentPlans
+                .Where(x => x.Action != SelectedSetAllDeploymentsTo)
+                .ToList();
+
+            foreach (var componentToDeploy in componentsToDeploy)
+            {
+                componentToDeploy.Vertex.DeploymentAction = SelectedSetAllDeploymentsTo;
+            }
+
+            foreach (var deploymentPlan in deploymentPlans)
+            {
+                deploymentPlan.Action = SelectedSetAllDeploymentsTo;
+            }
+
+            if (componentsToDeploy.Any())
+            {
+                var temp = EnvironmentDeployment;
+                EnvironmentDeployment = null;
+                EnvironmentDeployment = temp;
+            }
+
+            if (deploymentPlans.Any())
+            {
+                var temp = EnvironmentDeploymentPlan;
+                EnvironmentDeploymentPlan = null;
+                EnvironmentDeploymentPlan = temp;
+            }
+        }
+
+        public void SkipAllPassedDeployments()
+        {
+            var successfullyDeployedComponents = EnvironmentDeploymentResult
+                .ProductDeployments
+                .SelectMany(x => x.DeploymentSteps)
+                .SelectMany(x => x.ComponentDeployments)
+                .Where(x => x.Status == ComponentVertexDeploymentStatus.Success && x.Vertex.DeploymentAction != PlanAction.Skip)
+                .ToList();
+
+            var componentsToDeploy = EnvironmentDeployment
+                .ProductDeployments
+                .SelectMany(x => x.DeploymentSteps)
+                .SelectMany(x => x.ComponentDeployments)
+                .Where(x => successfullyDeployedComponents.Any(y => y.Vertex.Equals(x.Vertex)))
+                .ToList();
+
+            var deploymentPlans = EnvironmentDeploymentPlan.DeploymentPlans
+                .Where(x => successfullyDeployedComponents.Any(y => y.Vertex.Id == x.Id && y.Vertex.Name == x.Name))
+                .ToList();
+
+            foreach (var successfullyDeployedComponent in successfullyDeployedComponents)
+            {
+                successfullyDeployedComponent.Vertex.DeploymentAction = PlanAction.Skip;
+            }
+
+            foreach (var componentToDeploy in componentsToDeploy)
+            {
+                componentToDeploy.Vertex.DeploymentAction = SelectedSetAllDeploymentsTo;
+            }
+
+            foreach (var deploymentPlan in deploymentPlans)
+            {
+                deploymentPlan.Action = SelectedSetAllDeploymentsTo;
+            }
+
+            if (successfullyDeployedComponents.Any())
+            {
+                var temp = EnvironmentDeploymentResult;
+                EnvironmentDeploymentResult = null;
+                EnvironmentDeploymentResult = temp;
+            }
+
+            if (componentsToDeploy.Any())
+            {
+                var temp = EnvironmentDeployment;
+                EnvironmentDeployment = null;
+                EnvironmentDeployment = temp;
+            }
+
+            if (deploymentPlans.Any())
+            {
+                var temp = EnvironmentDeploymentPlan;
+                EnvironmentDeploymentPlan = null;
+                EnvironmentDeploymentPlan = temp;
+            }
+        }
+
         private int _maximumParallelDeployment = 4;
         public int MaximumParallelDeployment
         {
@@ -752,16 +903,7 @@ namespace OctopusPuppet.Gui.ViewModels
                     var deploymentExecutor = new DeploymentExecutor(deployers, EnvironmentDeployment, CancellationTokenSource.Token, this, MaximumParallelDeployment);
                     var allDeploymentsSucceded = deploymentExecutor.Execute().ConfigureAwait(false).GetAwaiter().GetResult();
 
-                    var successfullyDeployedComponents = EnvironmentDeploymentResult
-                        .ProductDeployments
-                        .SelectMany(x => x.DeploymentSteps)
-                        .SelectMany(x => x.ComponentDeployments)
-                        .Where(x => x.Status == ComponentVertexDeploymentStatus.Success && x.Vertex.DeploymentAction != PlanAction.Skip);
-
-                    foreach (var successfullyDeployedComponent in successfullyDeployedComponents)
-                    {
-                        successfullyDeployedComponent.Vertex.DeploymentAction = PlanAction.Skip;
-                    }
+                    SkipAllPassedDeployments();
                 }
                 catch
                 {

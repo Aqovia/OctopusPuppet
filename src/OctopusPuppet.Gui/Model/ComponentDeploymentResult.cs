@@ -10,6 +10,11 @@ namespace OctopusPuppet.Gui.Model
     {
         public static implicit operator ComponentDeploymentResult(ComponentDeployment componentDeployment)
         {
+            if (componentDeployment == null)
+            {
+                return null;
+            }
+
             return new ComponentDeploymentResult
             {
                 Vertex = componentDeployment.Vertex,

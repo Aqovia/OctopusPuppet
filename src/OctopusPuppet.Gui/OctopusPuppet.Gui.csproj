@@ -151,6 +151,7 @@
     <Compile Include="ViewModels\StringWrapper.cs" />
     <Compile Include="Views\ComponentGraphLayout.cs" />
     <Compile Include="ViewModels\DeploymentPlannerViewModel.cs" />
+    <Compile Include="Views\DataContextSpy.cs" />
     <Compile Include="Views\DeploymentPlannerView.xaml.cs">
       <DependentUpon>DeploymentPlannerView.xaml</DependentUpon>
     </Compile>
