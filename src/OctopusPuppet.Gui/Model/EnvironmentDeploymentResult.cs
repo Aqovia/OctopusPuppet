@@ -9,6 +9,11 @@ namespace OctopusPuppet.Gui.Model
     {
         public static implicit operator EnvironmentDeploymentResult(EnvironmentDeployment environmentDeployment)
         {
+            if (environmentDeployment == null)
+            {
+                return null;
+            }
+
             return new EnvironmentDeploymentResult(new List<ProductDeploymentResult>())
             {
                 ProductDeployments = environmentDeployment.ProductDeployments.Select(x => (ProductDeploymentResult)x).ToList()

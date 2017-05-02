@@ -9,6 +9,11 @@ namespace OctopusPuppet.Gui.Model
     {
         public static implicit operator ProductDeploymentStepResult(ProductDeploymentStep productDeploymentStep)
         {
+            if (productDeploymentStep == null)
+            {
+                return null;
+            }
+
             return new ProductDeploymentStepResult(new List<ComponentDeploymentResult>())
             {
                 ExecutionOrder = productDeploymentStep.ExecutionOrder,
