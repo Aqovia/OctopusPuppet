@@ -778,12 +778,12 @@ namespace OctopusPuppet.Gui.ViewModels
 
             foreach (var componentToDeploy in componentsToDeploy)
             {
-                componentToDeploy.Vertex.DeploymentAction = SelectedSetAllDeploymentsTo;
+                componentToDeploy.Vertex.DeploymentAction = PlanAction.Skip;
             }
 
             foreach (var deploymentPlan in deploymentPlans)
             {
-                deploymentPlan.Action = SelectedSetAllDeploymentsTo;
+                deploymentPlan.Action = PlanAction.Skip;
             }
 
             if (successfullyDeployedComponents.Any())
