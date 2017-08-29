@@ -15,6 +15,8 @@ namespace OctopusPuppet.DeploymentPlanner
         {
             var token = JToken.Load(reader);
             var version = token.ToString();
+            if (string.IsNullOrEmpty(version))
+                return null;
             return new SemVer(version);
         }
 
