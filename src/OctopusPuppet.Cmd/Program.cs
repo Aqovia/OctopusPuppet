@@ -93,7 +93,7 @@ namespace OctopusPuppet.Cmd
             var componentFilter = GetComponentFilter(opts.ComponentFilterPath, opts.ComponentFilter);
 
             notifier.PrintActionMessage(string.Format("Retrieve branch deployment plans for TargetEnvironment=\"{0}\" Branch=\"{1}\"", opts.TargetEnvironment, opts.Branch));
-            var redeployDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(opts.TargetEnvironment, opts.Branch, componentFilter);
+            var redeployDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(opts.TargetEnvironment, opts.Branch, opts.DoNotUseDifferentialDeployment, componentFilter);
             var environmentDeploymentPlan = redeployDeploymentPlans.EnvironmentDeploymentPlan;
 
             var deploymentScheduler = new DeploymentScheduler();
@@ -118,7 +118,7 @@ namespace OctopusPuppet.Cmd
             var componentFilter = GetComponentFilter(opts.ComponentFilterPath, opts.ComponentFilter);
 
             notifier.PrintActionMessage(string.Format("Retrieve mirror environment plans for SourceEnvironment=\"{0}\" TargetEnvironment=\"{1}\"", opts.SourceEnvironment, opts.TargetEnvironment));
-            var environmentMirrorDeploymentPlans = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(opts.SourceEnvironment, opts.TargetEnvironment, componentFilter);
+            var environmentMirrorDeploymentPlans = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(opts.SourceEnvironment, opts.TargetEnvironment, opts.DoNotUseDifferentialDeployment, componentFilter);
             var environmentDeploymentPlan = environmentMirrorDeploymentPlans.EnvironmentDeploymentPlan;
 
             var deploymentScheduler = new DeploymentScheduler();
@@ -264,6 +264,7 @@ namespace OctopusPuppet.Cmd
                 .AddPostOptionsLine("    [--ComponentFilterPath \"componentFilter.json\"]")
                 .AddPostOptionsLine("    [--ComponentFilter \"Component filter json base64 encoded\"]")
                 .AddPostOptionsLine("    [--Deploy]")
+                .AddPostOptionsLine("    [--DoNotUseDifferentialDeployment]")
                 .AddPostOptionsLine("    [--UpdateVariables]")
                 .AddPostOptionsLine("    [--EnvironmentDeploymentPath \"environmentDeployment.json\"]")
                 .AddPostOptionsLine("    [--MaximumParallelDeployments 4]")
@@ -277,6 +278,7 @@ namespace OctopusPuppet.Cmd
                 .AddPostOptionsLine("    [--ComponentFilterPath \"componentFilter.json\"]")
                 .AddPostOptionsLine("    [--ComponentFilter \"Component filter json base64 encoded\"]")
                 .AddPostOptionsLine("    [--Deploy]")
+                .AddPostOptionsLine("    [--DoNotUseDifferentialDeployment]")
                 .AddPostOptionsLine("    [--UpdateVariables]")
                 .AddPostOptionsLine("    [--EnvironmentDeploymentPath \"environmentDeployment.json\"]")
                 .AddPostOptionsLine("    [--MaximumParallelDeployments 4]")

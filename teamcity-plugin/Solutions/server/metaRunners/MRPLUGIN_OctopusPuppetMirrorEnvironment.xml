@@ -15,6 +15,7 @@
       <param name="teamcity.tool.microsoft.octopuspuppet.hidedeploymentprogress" value="" spec="checkbox checkedValue='true' uncheckedValue='false' description='Hide deployment progress.' display='normal' label='Hide deployment progress:' validationMode=''" />
       <param name="teamcity.tool.microsoft.octopuspuppet.updatevariables" value="" spec="checkbox checkedValue='true' uncheckedValue='false' description='Update Variables.' display='normal' label='Update Variables:' validationMode=''" />
       <param name="teamcity.tool.microsoft.octopuspuppet.deploy" value="" spec="checkbox checkedValue='true' uncheckedValue='false' description='Deploy.' display='normal' label='Deploy:' validationMode=''" />
+      <param name="teamcity.tool.microsoft.octopuspuppet.donotusedifferentialdeployment" value="" spec="checkbox checkedValue='true' uncheckedValue='false' description='Do not use differential deployment.' display='normal' label='Do not use differential deployment:' validationMode=''" />
       <param name="teamcity.tool.microsoft.octopuspuppet.maximumparalleldeployments" value="" spec="text description='Maximum parallel deployments' display='normal' label='Maximum parallel deployments:' validationMode=''" />
     </parameters>
     <build-runners>
@@ -44,6 +45,7 @@ $componentFilter = @'
 $environmentDeploymentPath = "%teamcity.tool.microsoft.octopuspuppet.environmentdeploymentpath%"
 $hideDeploymentProgress = "%teamcity.tool.microsoft.octopuspuppet.hidedeploymentprogress%" -eq 'true'
 $deploy = "%teamcity.tool.microsoft.octopuspuppet.deploy%" -eq 'true'
+$doNotUseDifferentialDeployment = "%teamcity.tool.microsoft.octopuspuppet.donotusedifferentialdeployment%" -eq 'true'
 $updateVariables = "%teamcity.tool.microsoft.octopuspuppet.updatevariables%" -eq 'true'
 $maximumParallelDeployments = "%teamcity.tool.microsoft.octopuspuppet.maximumparalleldeployments%"
 
@@ -66,6 +68,10 @@ try
 
     if ($deploy){
         $command += " --Deploy"
+    }
+
+    if ($doNotUseDifferentialDeployment){
+        $command += " --DoNotUseDifferentialDeployment"
     }
 
     if ($updateVariables){

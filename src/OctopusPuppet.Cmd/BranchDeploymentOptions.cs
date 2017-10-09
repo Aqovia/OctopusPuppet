@@ -47,6 +47,12 @@ namespace OctopusPuppet.Cmd
             HelpText = "Deploy")]
         public bool Deploy { get; set; }
 
+        [Option('f', "DoNotUseDifferentialDeployment",
+            Default = false,
+            SetName = "BranchDeployment",
+            HelpText = "Do not use differential deployment")]
+        public bool DoNotUseDifferentialDeployment { get; set; }
+
         [Option('u', "UpdateVariables",
              Default = false,
              SetName = "BranchDeployment",
@@ -60,7 +66,7 @@ namespace OctopusPuppet.Cmd
         public bool HideDeploymentProgress { get; set; }
 
         [Option('p', "MaximumParallelDeployments",
-            Default = 4,
+            Default = 2,
             SetName = "BranchDeployment",
             HelpText = "Maximum parallel deployments")]
         public int MaximumParallelDeployments { get; set; }
