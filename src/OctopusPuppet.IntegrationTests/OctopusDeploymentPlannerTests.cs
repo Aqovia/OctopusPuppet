@@ -45,7 +45,7 @@ namespace OctopusPuppet.IntegrationTests
             var environmentFrom = ConfigurationManager.AppSettings["EnvironmentFrom"];
             var environmentTo = ConfigurationManager.AppSettings["EnvironmentTo"];
 
-            var dashboard = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(environmentFrom, environmentTo);
+            var dashboard = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(environmentFrom, environmentTo, false);
 
             var deploymentScheduler = new DeploymentScheduler();
             var products = deploymentScheduler.GetComponentDeploymentGraph(dashboard.EnvironmentDeploymentPlan);
@@ -65,7 +65,7 @@ namespace OctopusPuppet.IntegrationTests
             var environment = ConfigurationManager.AppSettings["EnvironmentFrom"];
             var branch = "Master";
 
-            var dashboard = deploymentPlanner.GetBranchDeploymentPlans(environment, branch);
+            var dashboard = deploymentPlanner.GetBranchDeploymentPlans(environment, branch, false);
 
             var difference = JsonConvert.SerializeObject(dashboard.EnvironmentDeploymentPlan.DeploymentPlans.Where(x => x.Action != PlanAction.Skip));
 
