@@ -67,6 +67,7 @@ namespace OctopusPuppet.OctopusProvider
             };
 
             var queuedDeployment = _repository.Deployments.Create(deployment);
+            componentDeploymentVertex.DeploymentId = queuedDeployment.Id;
             var deploymentTask = _repository.Tasks.Get(queuedDeployment.TaskId);
 
             Action<TaskResource[]> interval = tasks =>

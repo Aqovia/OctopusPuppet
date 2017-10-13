@@ -83,6 +83,7 @@
     <Compile Include="DeploymentPlanner\IDeploymentPlanner.cs" />
     <Compile Include="DeploymentPlanner\SemVer.cs" />
     <Compile Include="DeploymentPlanner\SemVerJsonConverter.cs" />
+    <Compile Include="LogMessager\ILogMessager.cs" />
     <Compile Include="Scheduler\ComponentDeployment.cs" />
     <Compile Include="Scheduler\ComponentDeploymentGraph.cs" />
     <Compile Include="Scheduler\DeploymentStepGraph.cs" />

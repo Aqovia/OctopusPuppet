@@ -10,6 +10,7 @@ using CommandLine.Text;
 using Newtonsoft.Json;
 using OctopusPuppet.Deployer;
 using OctopusPuppet.DeploymentPlanner;
+using OctopusPuppet.LogMessager;
 using OctopusPuppet.OctopusProvider;
 using OctopusPuppet.Scheduler;
 using Environment = OctopusPuppet.DeploymentPlanner.Environment;
@@ -87,7 +88,8 @@ namespace OctopusPuppet.Cmd
 
         private static int BranchDeployment(BranchDeploymentOptions opts)
         {
-            var notifier = GetNotifier(opts.HideDeploymentProgress, opts.Teamcity);
+            var logMessager = new OctopusLogMessager(opts.OctopusUrl, opts.OctopusApiKey);
+            var notifier = GetNotifier(logMessager, opts.HideDeploymentProgress, opts.Teamcity);
 
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
             var componentFilter = GetComponentFilter(opts.ComponentFilterPath, opts.ComponentFilter);
@@ -112,7 +114,8 @@ namespace OctopusPuppet.Cmd
 
         private static int MirrorEnvironment(MirrorEnvironmentOptions opts)
         {
-            var notifier = GetNotifier(opts.HideDeploymentProgress, opts.Teamcity);
+            var logMessager = new OctopusLogMessager(opts.OctopusUrl, opts.OctopusApiKey);
+            var notifier = GetNotifier(logMessager, opts.HideDeploymentProgress, opts.Teamcity);
 
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
             var componentFilter = GetComponentFilter(opts.ComponentFilterPath, opts.ComponentFilter);
@@ -136,7 +139,8 @@ namespace OctopusPuppet.Cmd
 
         private static int Redeployment(RedploymentOptions opts)
         {
-            var notifier = GetNotifier(opts.HideDeploymentProgress, opts.Teamcity);
+            var logMessager = new OctopusLogMessager(opts.OctopusUrl, opts.OctopusApiKey);
+            var notifier = GetNotifier(logMessager, opts.HideDeploymentProgress, opts.Teamcity);
 
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
             var componentFilter = GetComponentFilter(opts.ComponentFilterPath, opts.ComponentFilter);
@@ -190,7 +194,8 @@ namespace OctopusPuppet.Cmd
 
         private static int Deploy(DeployOptions opts)
         {
-            var notifier = GetNotifier(opts.HideDeploymentProgress, opts.Teamcity);
+            var logMessager = new OctopusLogMessager(opts.OctopusUrl, opts.OctopusApiKey);
+            var notifier = GetNotifier(logMessager, opts.HideDeploymentProgress, opts.Teamcity);
 
             var environmentDeployment = LoadEnvironmentDeploy(opts.EnvironmentDeploymentPath);
             var deployers = GetDeployers(opts.TargetEnvironment, true, true, opts.OctopusUrl, opts.OctopusApiKey);
@@ -199,7 +204,7 @@ namespace OctopusPuppet.Cmd
 
         private static int CommandLineParsingError(IEnumerable<Error> errors)
         {
-            var notifier = GetNotifier(false, false);
+            var notifier = GetNotifier(null, false, false);
 
             var firstError = errors.FirstOrDefault();
             if (firstError is VersionRequestedError)
@@ -333,7 +338,7 @@ namespace OctopusPuppet.Cmd
             return componentFilter;
         }
 
-        private static INotifier GetNotifier(bool hideDeploymentProgress, bool useTeamcity)
+        private static INotifier GetNotifier(ILogMessager logMessager, bool hideDeploymentProgress, bool useTeamcity)
         {
             if (hideDeploymentProgress)
             {
@@ -341,9 +346,9 @@ namespace OctopusPuppet.Cmd
             }
             if (useTeamcity || !string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("TEAMCITY_VERSION")))
             {
-                return new TeamcityConsoleDeployNotifier();
+                return new TeamcityConsoleDeployNotifier(logMessager);
             }
-            return new ConsoleDeployNotfier();
+            return new ConsoleDeployNotfier(logMessager);
         }
     }
 }
