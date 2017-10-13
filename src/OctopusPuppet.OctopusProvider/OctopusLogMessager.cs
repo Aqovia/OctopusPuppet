@@ -25,7 +25,16 @@ namespace OctopusPuppet.OctopusProvider
 
         private Uri GetOctopusDeploymentUrl(ComponentVertexDeploymentProgress value)
         {
+            if (string.IsNullOrEmpty(value.Vertex.DeploymentId))
+            {
+                return null;
+            }
+
             var deployment = _repository.Deployments.Get(value.Vertex.DeploymentId);
+            if (deployment == null)
+            {
+                return null;
+            }
             var deploymentUri = new Uri(new Uri(_url), new Uri(deployment.Links["Web"].AsString()));
             return deploymentUri;
         }
@@ -40,6 +49,10 @@ namespace OctopusPuppet.OctopusProvider
         {
             var name = GetName(componentVertexDeploymentProgress);
             var deploymentUri = GetOctopusDeploymentUrl(componentVertexDeploymentProgress);
+            if (deploymentUri == null)
+            {
+                return string.Format("Deployment failed for {0}", name);
+            }
             return string.Format("Deployment failed for {0} - {1}", name, deploymentUri);
         }
 
@@ -47,6 +60,10 @@ namespace OctopusPuppet.OctopusProvider
         {
             var name = GetName(componentVertexDeploymentProgress);
             var deploymentUri = GetOctopusDeploymentUrl(componentVertexDeploymentProgress);
+            if (deploymentUri == null)
+            {
+                return string.Format("Deployment cancelled for {0}", name);
+            }
             return string.Format("Deployment cancelled for {0} - {1}", name, deploymentUri);
         }
 
@@ -54,6 +71,10 @@ namespace OctopusPuppet.OctopusProvider
         {
             var name = GetName(componentVertexDeploymentProgress);
             var deploymentUri = GetOctopusDeploymentUrl(componentVertexDeploymentProgress);
+            if (deploymentUri == null)
+            {
+                return string.Format("Deployment succeeded for {0}", name);
+            }
             return string.Format("Deployment succeeded for {0} - {1}", name, deploymentUri);
         }
     }
