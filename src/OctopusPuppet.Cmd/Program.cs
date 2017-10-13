@@ -88,7 +88,7 @@ namespace OctopusPuppet.Cmd
 
         private static int BranchDeployment(BranchDeploymentOptions opts)
         {
-            var logMessager = new OctopusLogMessager(opts.OctopusUrl, opts.OctopusApiKey);
+            var logMessager = new OctopusLogMessager(opts.OctopusUrl);
             var notifier = GetNotifier(logMessager, opts.HideDeploymentProgress, opts.Teamcity);
 
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
@@ -114,7 +114,7 @@ namespace OctopusPuppet.Cmd
 
         private static int MirrorEnvironment(MirrorEnvironmentOptions opts)
         {
-            var logMessager = new OctopusLogMessager(opts.OctopusUrl, opts.OctopusApiKey);
+            var logMessager = new OctopusLogMessager(opts.OctopusUrl);
             var notifier = GetNotifier(logMessager, opts.HideDeploymentProgress, opts.Teamcity);
 
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
@@ -139,7 +139,7 @@ namespace OctopusPuppet.Cmd
 
         private static int Redeployment(RedploymentOptions opts)
         {
-            var logMessager = new OctopusLogMessager(opts.OctopusUrl, opts.OctopusApiKey);
+            var logMessager = new OctopusLogMessager(opts.OctopusUrl);
             var notifier = GetNotifier(logMessager, opts.HideDeploymentProgress, opts.Teamcity);
 
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
@@ -194,7 +194,7 @@ namespace OctopusPuppet.Cmd
 
         private static int Deploy(DeployOptions opts)
         {
-            var logMessager = new OctopusLogMessager(opts.OctopusUrl, opts.OctopusApiKey);
+            var logMessager = new OctopusLogMessager(opts.OctopusUrl);
             var notifier = GetNotifier(logMessager, opts.HideDeploymentProgress, opts.Teamcity);
 
             var environmentDeployment = LoadEnvironmentDeploy(opts.EnvironmentDeploymentPath);

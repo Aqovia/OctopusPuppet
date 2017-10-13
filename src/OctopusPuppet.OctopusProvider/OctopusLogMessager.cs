@@ -1,5 +1,4 @@
 ﻿using System;
-using Octopus.Client;
 using OctopusPuppet.Deployer;
 using OctopusPuppet.LogMessager;
 
@@ -8,14 +7,10 @@ namespace OctopusPuppet.OctopusProvider
     public class OctopusLogMessager : ILogMessager
     {
         private readonly string _url;
-        private readonly IOctopusRepository _repository;
 
-        public OctopusLogMessager(string url, string apiKey) : this(url, new OctopusRepository(new OctopusServerEndpoint(url, apiKey))) { }
-
-        private OctopusLogMessager(string url, IOctopusRepository repository)
+        public OctopusLogMessager(string url)
         {
             _url = url;
-            _repository = repository;
         }
 
         private string GetName(ComponentVertexDeploymentProgress value)
@@ -29,13 +24,8 @@ namespace OctopusPuppet.OctopusProvider
             {
                 return null;
             }
-
-            var deployment = _repository.Deployments.Get(value.Vertex.DeploymentId);
-            if (deployment == null)
-            {
-                return null;
-            }
-            var deploymentUri = new Uri(new Uri(_url), new Uri(deployment.Links["Web"].AsString()));
+            
+            var deploymentUri = new Uri(string.Format("{0}/app#/deployments/{1}", _url, value.Vertex.DeploymentId));
             return deploymentUri;
         }
 
