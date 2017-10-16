@@ -1,12 +1,19 @@
-﻿using OctopusPuppet.Deployer;
+﻿using OctopusPuppet.Scheduler;
 
 namespace OctopusPuppet.LogMessager
 {
     public interface ILogMessager
     {
-        string DeploymentStarted(ComponentVertexDeploymentProgress componentVertexDeploymentProgress);
-        string DeploymentFailed(ComponentVertexDeploymentProgress componentVertexDeploymentProgress);
-        string DeploymentCancelled(ComponentVertexDeploymentProgress componentVertexDeploymentProgress);
-        string DeploymentSuccess(ComponentVertexDeploymentProgress componentVertexDeploymentProgress);
+        string DeploymentSkipped(ComponentDeploymentVertex componentDeploymentVertex);
+
+        string DeploymentStarted(ComponentDeploymentVertex componentDeploymentVertex);
+
+        string DeploymentFailed(ComponentDeploymentVertex componentDeploymentVertex, string errorMessage);
+
+        string DeploymentProgress(ComponentDeploymentVertex componentDeploymentVertex, string processingMessage);
+
+        string DeploymentCancelled(ComponentDeploymentVertex componentDeploymentVertex);
+
+        string DeploymentSuccess(ComponentDeploymentVertex componentDeploymentVertex);
     }
 }

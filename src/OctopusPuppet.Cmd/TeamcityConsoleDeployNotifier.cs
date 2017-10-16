@@ -131,7 +131,7 @@ namespace OctopusPuppet.Cmd
             var flowId = GetFlowId(value);
             var timeStamp = GetJavaTimeStamp();
 
-            var progressMessage = _serviceMessageFormatter.FormatMessage("progressMessage", _logMessager.DeploymentStarted(value));
+            var progressMessage = _serviceMessageFormatter.FormatMessage("progressMessage", _logMessager.DeploymentStarted(value.Vertex));
 
             var testStartedMessage = _serviceMessageFormatter.FormatMessage("testStarted", new
             {
@@ -154,7 +154,7 @@ namespace OctopusPuppet.Cmd
             var flowId = GetFlowId(value);
             var timeStamp = GetJavaTimeStamp();
 
-            var progressMessage = _serviceMessageFormatter.FormatMessage("progressMessage", _logMessager.DeploymentFailed(value));
+            var progressMessage = _serviceMessageFormatter.FormatMessage("progressMessage", _logMessager.DeploymentFailed(value.Vertex, value.Text));
 
             var buildProblemMessage = _serviceMessageFormatter.FormatMessage("buildProblem", new
             {
@@ -202,7 +202,7 @@ namespace OctopusPuppet.Cmd
             var flowId = GetFlowId(value);
             var timeStamp = GetJavaTimeStamp();
 
-            var progressMessage = _serviceMessageFormatter.FormatMessage("progressMessage", _logMessager.DeploymentCancelled(value));
+            var progressMessage = _serviceMessageFormatter.FormatMessage("progressMessage", _logMessager.DeploymentCancelled(value.Vertex));
 
             var testFailedMessage = _serviceMessageFormatter.FormatMessage("testFailed", new
             {
@@ -241,7 +241,7 @@ namespace OctopusPuppet.Cmd
             var flowId = GetFlowId(value);
             var timeStamp = GetJavaTimeStamp();
 
-            var progressMessage = _serviceMessageFormatter.FormatMessage("progressMessage", _logMessager.DeploymentSuccess(value));
+            var progressMessage = _serviceMessageFormatter.FormatMessage("progressMessage", _logMessager.DeploymentSuccess(value.Vertex));
 
             var testIgnoredMessage = _serviceMessageFormatter.FormatMessage("testIgnored", new
             {
