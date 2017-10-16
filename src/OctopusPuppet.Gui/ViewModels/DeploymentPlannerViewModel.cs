@@ -924,7 +924,7 @@ namespace OctopusPuppet.Gui.ViewModels
                     };
 
                     CancellationTokenSource = new CancellationTokenSource();
-                    var deploymentExecutor = new DeploymentExecutor(deployers, EnvironmentDeployment, CancellationTokenSource.Token, this, MaximumParallelDeployment);
+                    var deploymentExecutor = new DeploymentExecutor(deployers, EnvironmentDeployment, CancellationTokenSource.Token, new OctopusLogMessager(_octopusUrl), this, MaximumParallelDeployment);
                     var allDeploymentsSucceded = deploymentExecutor.Execute().ConfigureAwait(false).GetAwaiter().GetResult();
 
                     SkipAllPassedDeployments();

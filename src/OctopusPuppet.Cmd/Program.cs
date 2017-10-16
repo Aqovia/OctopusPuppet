@@ -109,7 +109,7 @@ namespace OctopusPuppet.Cmd
 
             var deployers = GetDeployers(opts.TargetEnvironment, opts.UpdateVariables, opts.Deploy, opts.OctopusUrl, opts.OctopusApiKey);
 
-            return Deploy(notifier, environmentDeployment, opts.MaximumParallelDeployments, deployers);
+            return Deploy(notifier, logMessager, environmentDeployment, opts.MaximumParallelDeployments, deployers);
         }
 
         private static int MirrorEnvironment(MirrorEnvironmentOptions opts)
@@ -134,7 +134,7 @@ namespace OctopusPuppet.Cmd
 
             var deployers = GetDeployers(opts.TargetEnvironment, opts.UpdateVariables, opts.Deploy, opts.OctopusUrl, opts.OctopusApiKey);
 
-            return Deploy(notifier, environmentDeployment, opts.MaximumParalleDeployments, deployers);
+            return Deploy(notifier, logMessager, environmentDeployment, opts.MaximumParalleDeployments, deployers);
         }
 
         private static int Redeployment(RedploymentOptions opts)
@@ -159,7 +159,7 @@ namespace OctopusPuppet.Cmd
 
             var deployers = GetDeployers(opts.TargetEnvironment, opts.UpdateVariables, opts.Deploy, opts.OctopusUrl, opts.OctopusApiKey);
 
-            return Deploy(notifier, environmentDeployment, opts.MaximumParalleDeployments, deployers);
+            return Deploy(notifier, logMessager, environmentDeployment, opts.MaximumParalleDeployments, deployers);
         }
 
         private static void SetUpdateVariablesOnDeploymentPlan(EnvironmentDeployment environmentDeployment)
@@ -199,7 +199,7 @@ namespace OctopusPuppet.Cmd
 
             var environmentDeployment = LoadEnvironmentDeploy(opts.EnvironmentDeploymentPath);
             var deployers = GetDeployers(opts.TargetEnvironment, true, true, opts.OctopusUrl, opts.OctopusApiKey);
-            return Deploy(notifier, environmentDeployment, opts.MaximumParallelDeployments, deployers);
+            return Deploy(notifier, logMessager, environmentDeployment, opts.MaximumParallelDeployments, deployers);
         }
 
         private static int CommandLineParsingError(IEnumerable<Error> errors)
@@ -240,10 +240,10 @@ namespace OctopusPuppet.Cmd
             File.WriteAllText(path, environmentDeploymentJson);
         }
 
-        private static int Deploy(INotifier notificaiton, EnvironmentDeployment environmentDeployment, int maximumParalleDeployments, IEnumerable<IComponentVertexDeployer> deployers)
+        private static int Deploy(INotifier notificaiton, ILogMessager logMessager, EnvironmentDeployment environmentDeployment, int maximumParalleDeployments, IEnumerable<IComponentVertexDeployer> deployers)
         {
             var cancellationTokenSource = new CancellationTokenSource();
-            var deploymentExecutor = new DeploymentExecutor(deployers, environmentDeployment, cancellationTokenSource.Token, notificaiton, maximumParalleDeployments);
+            var deploymentExecutor = new DeploymentExecutor(deployers, environmentDeployment, cancellationTokenSource.Token, logMessager, notificaiton, maximumParalleDeployments);
             var allDeploymentsSucceded = deploymentExecutor.Execute().ConfigureAwait(false).GetAwaiter().GetResult();
 
             return allDeploymentsSucceded ? 0 : 1;

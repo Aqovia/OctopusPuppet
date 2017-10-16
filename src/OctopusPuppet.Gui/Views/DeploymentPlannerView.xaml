@@ -603,7 +603,7 @@
                                                                 </HierarchicalDataTemplate>
                                                                 <DataTemplate DataType="{x:Type model:ComponentDeploymentResult}">
                                                                     <StackPanel Orientation="Horizontal">
-                                                                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Stretch" Text="{Binding Text}" TextAlignment="Left"/>
+                                                                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Stretch" views:NavigationService.Text="{Binding Text}" TextAlignment="Left"/>
                                                                     </StackPanel>
                                                                 </DataTemplate>
                                                             </ContentControl.Resources>

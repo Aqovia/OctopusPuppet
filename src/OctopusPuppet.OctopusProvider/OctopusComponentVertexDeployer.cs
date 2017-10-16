@@ -4,6 +4,7 @@ using Octopus.Client;
 using Octopus.Client.Model;
 using OctopusPuppet.Deployer;
 using OctopusPuppet.DeploymentPlanner;
+using OctopusPuppet.LogMessager;
 using OctopusPuppet.Scheduler;
 
 namespace OctopusPuppet.OctopusProvider
@@ -35,16 +36,14 @@ namespace OctopusPuppet.OctopusProvider
             _repository = new OctopusRepository(octopusServerEndpoint);
         }
 
-        
-
-        public ComponentVertexDeploymentResult Deploy(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken, IProgress<ComponentVertexDeploymentProgress> progress)
+        public ComponentVertexDeploymentResult Deploy(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken, ILogMessager logMessager, IProgress<ComponentVertexDeploymentProgress> progress)
         {
             if (!componentDeploymentVertex.Exists || componentDeploymentVertex.DeploymentAction == PlanAction.Skip)
             {
                 return new ComponentVertexDeploymentResult
                 {
                     Status = ComponentVertexDeploymentStatus.Success,
-                    Description = "Skipped"
+                    Description = logMessager.DeploymentSkipped(componentDeploymentVertex)
                 };
             }
 
@@ -89,7 +88,7 @@ namespace OctopusPuppet.OctopusProvider
 
                     if (progress != null)
                     {
-                        progress.Report(new ComponentVertexDeploymentProgress
+                        var componentVertexDeploymentProgress = new ComponentVertexDeploymentProgress
                         {
                             Vertex = componentDeploymentVertex,
                             Status = ComponentVertexDeploymentStatus.InProgress,
@@ -99,8 +98,9 @@ namespace OctopusPuppet.OctopusProvider
                                     ? componentDeploymentVertex.DeploymentDuration.Value.Ticks
                                     : 0,
                             Value = duration.Ticks,
-                            Text = task.Description
-                        });
+                            Text = logMessager.DeploymentProgress(componentDeploymentVertex, task.Description)
+                        };
+                        progress.Report(componentVertexDeploymentProgress);
                     }
                 }
             };
@@ -115,24 +115,24 @@ namespace OctopusPuppet.OctopusProvider
             {
                 case TaskState.Success:
                     result.Status = ComponentVertexDeploymentStatus.Success;
-                    result.Description = "Deployed";
+                    result.Description = logMessager.DeploymentSuccess(componentDeploymentVertex);
                     break;
 
                 case TaskState.Canceled:
                 case TaskState.Cancelling:
                     result.Status = ComponentVertexDeploymentStatus.Cancelled;
-                    result.Description = "Cancelled";
+                    result.Description = logMessager.DeploymentCancelled(componentDeploymentVertex);
                     break;
 
                 case TaskState.Failed:
                 case TaskState.TimedOut:
                     result.Status = ComponentVertexDeploymentStatus.Failure;
-                    result.Description = deploymentTask.ErrorMessage;
+                    result.Description = logMessager.DeploymentFailed(componentDeploymentVertex, deploymentTask.ErrorMessage);
                     break;
 
                 default:
                     result.Status = ComponentVertexDeploymentStatus.Failure;
-                    result.Description = deploymentTask.ErrorMessage;
+                    result.Description = logMessager.DeploymentFailed(componentDeploymentVertex, deploymentTask.ErrorMessage);
                     break;
             }
 

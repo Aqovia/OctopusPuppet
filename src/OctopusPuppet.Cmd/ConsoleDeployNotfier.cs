@@ -73,7 +73,7 @@ namespace OctopusPuppet.Cmd
 
         private void ComponentDeploymentStarted(ComponentVertexDeploymentProgress value)
         {
-            Console.Out.WriteLine("{0} - expected deployment duration {1}", _logMessager.DeploymentStarted(value), value.Vertex.DeploymentDuration);
+            Console.Out.WriteLine(_logMessager.DeploymentStarted(value.Vertex));
         }
 
         private void ComponentDeploymentInProgress(ComponentVertexDeploymentProgress value)
@@ -82,17 +82,17 @@ namespace OctopusPuppet.Cmd
 
         private void ComponentDeploymentFailure(ComponentVertexDeploymentProgress value)
         {
-            Console.Out.WriteLine("{0}\r\n{1}", _logMessager.DeploymentFailed(value), value.Text);
+            Console.Out.WriteLine(_logMessager.DeploymentFailed(value.Vertex, value.Text));
         }
 
         private void ComponentDeploymentCancelled(ComponentVertexDeploymentProgress value)
         {
-            Console.Out.WriteLine(_logMessager.DeploymentCancelled(value));
+            Console.Out.WriteLine(_logMessager.DeploymentCancelled(value.Vertex));
         }
 
         private void ComponentDeploymentSuccess(ComponentVertexDeploymentProgress value)
         {
-            Console.Out.WriteLine(_logMessager.DeploymentSuccess(value));
+            Console.Out.WriteLine(_logMessager.DeploymentSuccess(value.Vertex));
         }
     }
 }
