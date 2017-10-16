@@ -146,6 +146,7 @@ namespace OctopusPuppet.Cmd
 
         private void ComponentDeploymentInProgress(ComponentVertexDeploymentProgress value)
         {
+
         }
 
         private void ComponentDeploymentFailure(ComponentVertexDeploymentProgress value)
@@ -158,7 +159,7 @@ namespace OctopusPuppet.Cmd
 
             var buildProblemMessage = _serviceMessageFormatter.FormatMessage("buildProblem", new
             {
-                description = string.Format("Deployment failed for {0}", name),
+                description = _logMessager.DeploymentFailed(value.Vertex, value.Text),
                 identity = name,
                 flowId = flowId,
                 timeStamp = timeStamp
@@ -167,16 +168,16 @@ namespace OctopusPuppet.Cmd
             var testFailedMessage = _serviceMessageFormatter.FormatMessage("testFailed", new
             {
                 name = name,
-                message = "Deployment failed",
-                details = value.Text,
+                message = _logMessager.DeploymentFailed(value.Vertex, value.Text),
+                details = _logMessager.DeploymentFailed(value.Vertex, value.Text),
                 flowId = flowId,
                 timeStamp = timeStamp
             });
 
             var failedDeploymentMessage = _serviceMessageFormatter.FormatMessage("message", new
             {
-                text = value.Text,
-                errorDetails = value.Text,
+                text = _logMessager.DeploymentFailed(value.Vertex, value.Text),
+                errorDetails = _logMessager.DeploymentFailed(value.Vertex, value.Text),
                 status = "ERROR",
                 flowId = flowId,
                 timeStamp = timeStamp
@@ -207,16 +208,16 @@ namespace OctopusPuppet.Cmd
             var testFailedMessage = _serviceMessageFormatter.FormatMessage("testFailed", new
             {
                 name = name,
-                message = "Deployment cancelled",
-                details = string.Format("Cancelled deployment for {0}", name),
+                message = _logMessager.DeploymentCancelled(value.Vertex),
+                details = _logMessager.DeploymentCancelled(value.Vertex),
                 flowId = flowId,
                 timeStamp = timeStamp
             });
 
             var cancelledDeploymentMessage = _serviceMessageFormatter.FormatMessage("message", new
             {
-                text = string.Format("Cancelled deploy for {0}", name),
-                errorDetails = string.Format("Cancelled deploy for {0}", name),
+                text = _logMessager.DeploymentCancelled(value.Vertex),
+                errorDetails = _logMessager.DeploymentCancelled(value.Vertex),
                 status = "ERROR",
                 flowId = flowId,
                 timeStamp = timeStamp
@@ -246,7 +247,7 @@ namespace OctopusPuppet.Cmd
             var testIgnoredMessage = _serviceMessageFormatter.FormatMessage("testIgnored", new
             {
                 name = name,
-                message = string.Format("Plan action was {0} for {1}", value.Vertex.DeploymentAction, name),
+                message = _logMessager.DeploymentSkipped(value.Vertex),
                 flowId = flowId,
                 timeStamp = timeStamp
             });
