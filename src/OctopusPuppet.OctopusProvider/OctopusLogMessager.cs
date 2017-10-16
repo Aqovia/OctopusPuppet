@@ -1,5 +1,4 @@
-﻿using System;
-using OctopusPuppet.Deployer;
+﻿using OctopusPuppet.Deployer;
 using OctopusPuppet.LogMessager;
 
 namespace OctopusPuppet.OctopusProvider
@@ -18,14 +17,14 @@ namespace OctopusPuppet.OctopusProvider
             return string.IsNullOrEmpty(value.Vertex.Name) ? value.Vertex.Id : value.Vertex.Name;
         }
 
-        private Uri GetOctopusDeploymentUrl(ComponentVertexDeploymentProgress value)
+        private string GetOctopusDeploymentUrl(ComponentVertexDeploymentProgress value)
         {
-            if (string.IsNullOrEmpty(value.Vertex.DeploymentId))
+            if (value.Vertex == null || string.IsNullOrEmpty(value.Vertex.DeploymentId))
             {
                 return null;
             }
             
-            var deploymentUri = new Uri(string.Format("{0}/app#/deployments/{1}", _url, value.Vertex.DeploymentId));
+            var deploymentUri = string.Format("{0}/app#/deployments/{1}", _url, value.Vertex.DeploymentId);
             return deploymentUri;
         }
 
