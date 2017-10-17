@@ -1,14 +1,14 @@
 ﻿using System;
-using OctopusPuppet.LogMessager;
+using OctopusPuppet.LogMessages;
 using OctopusPuppet.Scheduler;
 
 namespace OctopusPuppet.OctopusProvider
 {
-    public class OctopusLogMessager : ILogMessager
+    public class OctopusLogMessages : ILogMessages
     {
         private readonly string _url;
 
-        public OctopusLogMessager(string url)
+        public OctopusLogMessages(string url)
         {
             _url = url;
         }

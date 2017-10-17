@@ -3,7 +3,7 @@ using System.Threading;
 using Octopus.Client;
 using OctopusPuppet.Deployer;
 using OctopusPuppet.DeploymentPlanner;
-using OctopusPuppet.LogMessager;
+using OctopusPuppet.LogMessages;
 using OctopusPuppet.Scheduler;
 
 namespace OctopusPuppet.OctopusProvider
@@ -17,7 +17,7 @@ namespace OctopusPuppet.OctopusProvider
             _repository = new OctopusRepository(new OctopusServerEndpoint(octopusUrl, octopusApiKey));
         }
 
-        public ComponentVertexDeploymentResult Deploy(ComponentDeploymentVertex vertex, CancellationToken cancellationToken, ILogMessager logMessager, IProgress<ComponentVertexDeploymentProgress> progress)
+        public ComponentVertexDeploymentResult Deploy(ComponentDeploymentVertex vertex, CancellationToken cancellationToken, ILogMessages logMessages, IProgress<ComponentVertexDeploymentProgress> progress)
         {
             if (!vertex.Exists || vertex.VariableAction == VariableAction.Leave)
             {

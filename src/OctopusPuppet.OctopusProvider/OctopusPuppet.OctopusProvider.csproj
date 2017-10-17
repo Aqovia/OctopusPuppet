@@ -52,7 +52,7 @@
     <Compile Include="OctopusComponentVertexDeployer.cs" />
     <Compile Include="OctopusComponentVertexVariableUpdater.cs" />
     <Compile Include="OctopusDeploymentPlanner.cs" />
-    <Compile Include="OctopusLogMessager.cs" />
+    <Compile Include="OctopusLogMessages.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceExtensions.cs" />
   </ItemGroup>
