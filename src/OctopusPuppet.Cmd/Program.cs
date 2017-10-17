@@ -10,7 +10,7 @@ using CommandLine.Text;
 using Newtonsoft.Json;
 using OctopusPuppet.Deployer;
 using OctopusPuppet.DeploymentPlanner;
-using OctopusPuppet.LogMessager;
+using OctopusPuppet.LogMessages;
 using OctopusPuppet.OctopusProvider;
 using OctopusPuppet.Scheduler;
 using Environment = OctopusPuppet.DeploymentPlanner.Environment;
@@ -88,7 +88,7 @@ namespace OctopusPuppet.Cmd
 
         private static int BranchDeployment(BranchDeploymentOptions opts)
         {
-            var logMessager = new OctopusLogMessager(opts.OctopusUrl);
+            var logMessager = new OctopusLogMessages(opts.OctopusUrl);
             var notifier = GetNotifier(opts.HideDeploymentProgress, opts.Teamcity, logMessager);
 
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
@@ -114,7 +114,7 @@ namespace OctopusPuppet.Cmd
 
         private static int MirrorEnvironment(MirrorEnvironmentOptions opts)
         {
-            var logMessager = new OctopusLogMessager(opts.OctopusUrl);
+            var logMessager = new OctopusLogMessages(opts.OctopusUrl);
             var notifier = GetNotifier(opts.HideDeploymentProgress, opts.Teamcity, logMessager);
 
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
@@ -139,7 +139,7 @@ namespace OctopusPuppet.Cmd
 
         private static int Redeployment(RedploymentOptions opts)
         {
-            var logMessager = new OctopusLogMessager(opts.OctopusUrl);
+            var logMessager = new OctopusLogMessages(opts.OctopusUrl);
             var notifier = GetNotifier(opts.HideDeploymentProgress, opts.Teamcity, logMessager);
 
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
@@ -194,7 +194,7 @@ namespace OctopusPuppet.Cmd
 
         private static int Deploy(DeployOptions opts)
         {
-            var logMessager = new OctopusLogMessager(opts.OctopusUrl);
+            var logMessager = new OctopusLogMessages(opts.OctopusUrl);
             var notifier = GetNotifier(opts.HideDeploymentProgress, opts.Teamcity, logMessager);
 
             var environmentDeployment = LoadEnvironmentDeploy(opts.EnvironmentDeploymentPath);
@@ -204,7 +204,7 @@ namespace OctopusPuppet.Cmd
 
         private static int CommandLineParsingError(IEnumerable<Error> errors)
         {
-            var notifier = GetNotifier(false, false);
+            var notifier = GetNotifier();
 
             var firstError = errors.FirstOrDefault();
             if (firstError is VersionRequestedError)
@@ -240,10 +240,10 @@ namespace OctopusPuppet.Cmd
             File.WriteAllText(path, environmentDeploymentJson);
         }
 
-        private static int Deploy(INotifier notificaiton, ILogMessager logMessager, EnvironmentDeployment environmentDeployment, int maximumParalleDeployments, IEnumerable<IComponentVertexDeployer> deployers)
+        private static int Deploy(INotifier notificaiton, ILogMessages logMessages, EnvironmentDeployment environmentDeployment, int maximumParalleDeployments, IEnumerable<IComponentVertexDeployer> deployers)
         {
             var cancellationTokenSource = new CancellationTokenSource();
-            var deploymentExecutor = new DeploymentExecutor(deployers, environmentDeployment, cancellationTokenSource.Token, logMessager, notificaiton, maximumParalleDeployments);
+            var deploymentExecutor = new DeploymentExecutor(deployers, environmentDeployment, cancellationTokenSource.Token, logMessages, notificaiton, maximumParalleDeployments);
             var allDeploymentsSucceded = deploymentExecutor.Execute().ConfigureAwait(false).GetAwaiter().GetResult();
 
             return allDeploymentsSucceded ? 0 : 1;
@@ -338,7 +338,7 @@ namespace OctopusPuppet.Cmd
             return componentFilter;
         }
 
-        private static INotifier GetNotifier(bool hideDeploymentProgress, bool useTeamcity, ILogMessager logMessager = null)
+        private static INotifier GetNotifier(bool hideDeploymentProgress = false, bool useTeamcity = false, ILogMessages logMessages = null)
         {
             if (hideDeploymentProgress)
             {
@@ -346,9 +346,9 @@ namespace OctopusPuppet.Cmd
             }
             if (useTeamcity || !string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("TEAMCITY_VERSION")))
             {
-                return new TeamcityConsoleDeployNotifier(logMessager);
+                return new TeamcityConsoleDeployNotifier(logMessages);
             }
-            return new ConsoleDeployNotfier(logMessager);
+            return new ConsoleDeployNotfier(logMessages);
         }
     }
 }

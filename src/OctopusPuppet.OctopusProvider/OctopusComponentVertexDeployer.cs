@@ -4,7 +4,7 @@ using Octopus.Client;
 using Octopus.Client.Model;
 using OctopusPuppet.Deployer;
 using OctopusPuppet.DeploymentPlanner;
-using OctopusPuppet.LogMessager;
+using OctopusPuppet.LogMessages;
 using OctopusPuppet.Scheduler;
 
 namespace OctopusPuppet.OctopusProvider
@@ -36,14 +36,14 @@ namespace OctopusPuppet.OctopusProvider
             _repository = new OctopusRepository(octopusServerEndpoint);
         }
 
-        public ComponentVertexDeploymentResult Deploy(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken, ILogMessager logMessager, IProgress<ComponentVertexDeploymentProgress> progress)
+        public ComponentVertexDeploymentResult Deploy(ComponentDeploymentVertex componentDeploymentVertex, CancellationToken cancellationToken, ILogMessages logMessages, IProgress<ComponentVertexDeploymentProgress> progress)
         {
             if (!componentDeploymentVertex.Exists || componentDeploymentVertex.DeploymentAction == PlanAction.Skip)
             {
                 return new ComponentVertexDeploymentResult
                 {
                     Status = ComponentVertexDeploymentStatus.Success,
-                    Description = logMessager.DeploymentSkipped(componentDeploymentVertex)
+                    Description = logMessages.DeploymentSkipped(componentDeploymentVertex)
                 };
             }
 
@@ -98,7 +98,7 @@ namespace OctopusPuppet.OctopusProvider
                                     ? componentDeploymentVertex.DeploymentDuration.Value.Ticks
                                     : 0,
                             Value = duration.Ticks,
-                            Text = logMessager.DeploymentProgress(componentDeploymentVertex, task.Description)
+                            Text = logMessages.DeploymentProgress(componentDeploymentVertex, task.Description)
                         };
                         progress.Report(componentVertexDeploymentProgress);
                     }
@@ -115,24 +115,24 @@ namespace OctopusPuppet.OctopusProvider
             {
                 case TaskState.Success:
                     result.Status = ComponentVertexDeploymentStatus.Success;
-                    result.Description = logMessager.DeploymentSuccess(componentDeploymentVertex);
+                    result.Description = logMessages.DeploymentSuccess(componentDeploymentVertex);
                     break;
 
                 case TaskState.Canceled:
                 case TaskState.Cancelling:
                     result.Status = ComponentVertexDeploymentStatus.Cancelled;
-                    result.Description = logMessager.DeploymentCancelled(componentDeploymentVertex);
+                    result.Description = logMessages.DeploymentCancelled(componentDeploymentVertex);
                     break;
 
                 case TaskState.Failed:
                 case TaskState.TimedOut:
                     result.Status = ComponentVertexDeploymentStatus.Failure;
-                    result.Description = logMessager.DeploymentFailed(componentDeploymentVertex, deploymentTask.ErrorMessage);
+                    result.Description = logMessages.DeploymentFailed(componentDeploymentVertex, deploymentTask.ErrorMessage);
                     break;
 
                 default:
                     result.Status = ComponentVertexDeploymentStatus.Failure;
-                    result.Description = logMessager.DeploymentFailed(componentDeploymentVertex, deploymentTask.ErrorMessage);
+                    result.Description = logMessages.DeploymentFailed(componentDeploymentVertex, deploymentTask.ErrorMessage);
                     break;
             }
 

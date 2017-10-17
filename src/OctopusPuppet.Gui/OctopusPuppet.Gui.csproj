@@ -157,7 +157,7 @@
     </Compile>
     <Compile Include="Views\EnvironmentDeploymentResultHiearchyFlattener.cs" />
     <Compile Include="Views\EnvironmentDeploymentHiearchyFlattener.cs" />
-    <Compile Include="Views\NavigationService.cs" />
+    <Compile Include="Views\UrlLinkifier.cs" />
     <Page Include="Views\ComponentGraphDataTemplates.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

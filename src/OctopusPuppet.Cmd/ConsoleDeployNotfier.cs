@@ -2,18 +2,18 @@
 using CommandLine.Text;
 using Newtonsoft.Json;
 using OctopusPuppet.Deployer;
-using OctopusPuppet.LogMessager;
+using OctopusPuppet.LogMessages;
 using OctopusPuppet.Scheduler;
 
 namespace OctopusPuppet.Cmd
 {
     public class ConsoleDeployNotfier : INotifier
     {
-        private readonly ILogMessager _logMessager;
+        private readonly ILogMessages _logMessages;
 
-        public ConsoleDeployNotfier(ILogMessager logMessager)
+        public ConsoleDeployNotfier(ILogMessages logMessages)
         {
-            _logMessager = logMessager;
+            _logMessages = logMessages;
         }
 
         public void Report(ComponentVertexDeploymentProgress value)
@@ -73,7 +73,7 @@ namespace OctopusPuppet.Cmd
 
         private void ComponentDeploymentStarted(ComponentVertexDeploymentProgress value)
         {
-            Console.Out.WriteLine(_logMessager.DeploymentStarted(value.Vertex));
+            Console.Out.WriteLine(_logMessages.DeploymentStarted(value.Vertex));
         }
 
         private void ComponentDeploymentInProgress(ComponentVertexDeploymentProgress value)
@@ -82,17 +82,17 @@ namespace OctopusPuppet.Cmd
 
         private void ComponentDeploymentFailure(ComponentVertexDeploymentProgress value)
         {
-            Console.Out.WriteLine(_logMessager.DeploymentFailed(value.Vertex, value.Text));
+            Console.Out.WriteLine(_logMessages.DeploymentFailed(value.Vertex, value.Text));
         }
 
         private void ComponentDeploymentCancelled(ComponentVertexDeploymentProgress value)
         {
-            Console.Out.WriteLine(_logMessager.DeploymentCancelled(value.Vertex));
+            Console.Out.WriteLine(_logMessages.DeploymentCancelled(value.Vertex));
         }
 
         private void ComponentDeploymentSuccess(ComponentVertexDeploymentProgress value)
         {
-            Console.Out.WriteLine(_logMessager.DeploymentSuccess(value.Vertex));
+            Console.Out.WriteLine(_logMessages.DeploymentSuccess(value.Vertex));
         }
     }
 }

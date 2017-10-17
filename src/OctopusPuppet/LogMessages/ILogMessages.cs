@@ -1,8 +1,8 @@
 ﻿using OctopusPuppet.Scheduler;
 
-namespace OctopusPuppet.LogMessager
+namespace OctopusPuppet.LogMessages
 {
-    public interface ILogMessager
+    public interface ILogMessages
     {
         string DeploymentSkipped(ComponentDeploymentVertex componentDeploymentVertex);
 
