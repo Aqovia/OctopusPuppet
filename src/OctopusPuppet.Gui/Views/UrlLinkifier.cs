@@ -7,15 +7,16 @@ using System.Windows.Documents;
 
 namespace OctopusPuppet.Gui.Views
 {
-    public static class NavigationService
+    //Class copied from: https://stackoverflow.com/questions/861409/wpf-making-hyperlinks-clickable
+    public static class UrlLinkifier
     {
-        // Copied from http://geekswithblogs.net/casualjim/archive/2005/12/01/61722.aspx
-        private static readonly Regex RE_URL = new Regex(@"(http[s]?|ftp):[^\s]*");
+        //Simplified the regex, but could possible use http://flanders.co.nz/2009/11/08/a-good-url-regular-expression-repost/
+        private static readonly Regex UrlRegex = new Regex(@"(http[s]?|ftp):[^\s]*");
 
         public static readonly DependencyProperty TextProperty = DependencyProperty.RegisterAttached(
             "Text",
             typeof(string),
-            typeof(NavigationService),
+            typeof(UrlLinkifier),
             new PropertyMetadata(null, OnTextChanged)
         );
 
@@ -27,25 +28,25 @@ namespace OctopusPuppet.Gui.Views
 
         private static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var text_block = d as TextBlock;
-            if (text_block == null)
+            var textBlock = d as TextBlock;
+            if (textBlock == null)
                 return;
 
-            text_block.Inlines.Clear();
+            textBlock.Inlines.Clear();
 
-            var new_text = (string)e.NewValue;
-            if (string.IsNullOrEmpty(new_text))
+            var newText = (string)e.NewValue;
+            if (string.IsNullOrEmpty(newText))
                 return;
 
             // Find all URLs using a regular expression
-            int last_pos = 0;
-            foreach (Match match in RE_URL.Matches(new_text))
+            var lastPosition = 0;
+            foreach (Match match in UrlRegex.Matches(newText))
             {
                 // Copy raw string from the last position up to the match
-                if (match.Index != last_pos)
+                if (match.Index != lastPosition)
                 {
-                    var raw_text = new_text.Substring(last_pos, match.Index - last_pos);
-                    text_block.Inlines.Add(new Run(raw_text));
+                    var rawText = newText.Substring(lastPosition, match.Index - lastPosition);
+                    textBlock.Inlines.Add(new Run(rawText));
                 }
 
                 // Create a hyperlink for the match
@@ -53,23 +54,25 @@ namespace OctopusPuppet.Gui.Views
                 {
                     NavigateUri = new Uri(match.Value)
                 };
+
                 link.Click += OnUrlClick;
 
-                text_block.Inlines.Add(link);
+                textBlock.Inlines.Add(link);
 
                 // Update the last matched position
-                last_pos = match.Index + match.Length;
+                lastPosition = match.Index + match.Length;
             }
 
             // Finally, copy the remainder of the string
-            if (last_pos < new_text.Length)
-                text_block.Inlines.Add(new Run(new_text.Substring(last_pos)));
+            if (lastPosition < newText.Length)
+            {
+                textBlock.Inlines.Add(new Run(newText.Substring(lastPosition)));
+            }
         }
 
         private static void OnUrlClick(object sender, RoutedEventArgs e)
         {
             var link = (Hyperlink)sender;
-            // Do something with link.NavigateUri like:
             Process.Start(link.NavigateUri.ToString());
         }
     }
