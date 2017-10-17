@@ -89,7 +89,7 @@ namespace OctopusPuppet.Cmd
         private static int BranchDeployment(BranchDeploymentOptions opts)
         {
             var logMessager = new OctopusLogMessager(opts.OctopusUrl);
-            var notifier = GetNotifier(logMessager, opts.HideDeploymentProgress, opts.Teamcity);
+            var notifier = GetNotifier(opts.HideDeploymentProgress, opts.Teamcity, logMessager);
 
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
             var componentFilter = GetComponentFilter(opts.ComponentFilterPath, opts.ComponentFilter);
@@ -115,7 +115,7 @@ namespace OctopusPuppet.Cmd
         private static int MirrorEnvironment(MirrorEnvironmentOptions opts)
         {
             var logMessager = new OctopusLogMessager(opts.OctopusUrl);
-            var notifier = GetNotifier(logMessager, opts.HideDeploymentProgress, opts.Teamcity);
+            var notifier = GetNotifier(opts.HideDeploymentProgress, opts.Teamcity, logMessager);
 
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
             var componentFilter = GetComponentFilter(opts.ComponentFilterPath, opts.ComponentFilter);
@@ -140,7 +140,7 @@ namespace OctopusPuppet.Cmd
         private static int Redeployment(RedploymentOptions opts)
         {
             var logMessager = new OctopusLogMessager(opts.OctopusUrl);
-            var notifier = GetNotifier(logMessager, opts.HideDeploymentProgress, opts.Teamcity);
+            var notifier = GetNotifier(opts.HideDeploymentProgress, opts.Teamcity, logMessager);
 
             var deploymentPlanner = new OctopusDeploymentPlanner(opts.OctopusUrl, opts.OctopusApiKey);
             var componentFilter = GetComponentFilter(opts.ComponentFilterPath, opts.ComponentFilter);
@@ -195,7 +195,7 @@ namespace OctopusPuppet.Cmd
         private static int Deploy(DeployOptions opts)
         {
             var logMessager = new OctopusLogMessager(opts.OctopusUrl);
-            var notifier = GetNotifier(logMessager, opts.HideDeploymentProgress, opts.Teamcity);
+            var notifier = GetNotifier(opts.HideDeploymentProgress, opts.Teamcity, logMessager);
 
             var environmentDeployment = LoadEnvironmentDeploy(opts.EnvironmentDeploymentPath);
             var deployers = GetDeployers(opts.TargetEnvironment, true, true, opts.OctopusUrl, opts.OctopusApiKey);
@@ -204,7 +204,7 @@ namespace OctopusPuppet.Cmd
 
         private static int CommandLineParsingError(IEnumerable<Error> errors)
         {
-            var notifier = GetNotifier(null, false, false);
+            var notifier = GetNotifier(false, false);
 
             var firstError = errors.FirstOrDefault();
             if (firstError is VersionRequestedError)
@@ -338,7 +338,7 @@ namespace OctopusPuppet.Cmd
             return componentFilter;
         }
 
-        private static INotifier GetNotifier(ILogMessager logMessager, bool hideDeploymentProgress, bool useTeamcity)
+        private static INotifier GetNotifier(bool hideDeploymentProgress, bool useTeamcity, ILogMessager logMessager = null)
         {
             if (hideDeploymentProgress)
             {
