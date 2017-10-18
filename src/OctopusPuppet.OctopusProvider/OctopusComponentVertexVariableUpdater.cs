@@ -3,20 +3,21 @@ using System.Threading;
 using Octopus.Client;
 using OctopusPuppet.Deployer;
 using OctopusPuppet.DeploymentPlanner;
+using OctopusPuppet.LogMessages;
 using OctopusPuppet.Scheduler;
 
 namespace OctopusPuppet.OctopusProvider
 {
     public class OctopusComponentVertexVariableUpdater : IComponentVertexDeployer
     {
-        private OctopusRepository _repository;
+        private readonly OctopusRepository _repository;
 
         public OctopusComponentVertexVariableUpdater(string octopusUrl, string octopusApiKey)
         {
             _repository = new OctopusRepository(new OctopusServerEndpoint(octopusUrl, octopusApiKey));
         }
 
-        public ComponentVertexDeploymentResult Deploy(ComponentDeploymentVertex vertex, CancellationToken cancellationToken, IProgress<ComponentVertexDeploymentProgress> progress)
+        public ComponentVertexDeploymentResult Deploy(ComponentDeploymentVertex vertex, CancellationToken cancellationToken, ILogMessages logMessages, IProgress<ComponentVertexDeploymentProgress> progress)
         {
             if (!vertex.Exists || vertex.VariableAction == VariableAction.Leave)
             {

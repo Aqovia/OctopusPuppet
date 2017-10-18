@@ -4,6 +4,7 @@ using JetBrains.TeamCity.ServiceMessages.Write;
 using Newtonsoft.Json;
 using OctopusPuppet.Deployer;
 using OctopusPuppet.DeploymentPlanner;
+using OctopusPuppet.LogMessages;
 using OctopusPuppet.Scheduler;
 using Environment = System.Environment;
 
@@ -11,8 +12,14 @@ namespace OctopusPuppet.Cmd
 {
     public class TeamcityConsoleDeployNotifier : INotifier
     {
+        private readonly ILogMessages _logMessages;
         private readonly string NoParent = "0";
         private readonly ServiceMessageFormatter _serviceMessageFormatter = new ServiceMessageFormatter();
+
+        public TeamcityConsoleDeployNotifier(ILogMessages logMessages)
+        {
+            _logMessages = logMessages;
+        }
 
         public void Report(ComponentVertexDeploymentProgress value)
         {
@@ -124,7 +131,7 @@ namespace OctopusPuppet.Cmd
             var flowId = GetFlowId(value);
             var timeStamp = GetJavaTimeStamp();
 
-            var progressMessage = _serviceMessageFormatter.FormatMessage("progressMessage", string.Format("Deployment started for {0}", name));
+            var progressMessage = _serviceMessageFormatter.FormatMessage("progressMessage", _logMessages.DeploymentStarted(value.Vertex));
 
             var testStartedMessage = _serviceMessageFormatter.FormatMessage("testStarted", new
             {
@@ -139,6 +146,7 @@ namespace OctopusPuppet.Cmd
 
         private void ComponentDeploymentInProgress(ComponentVertexDeploymentProgress value)
         {
+
         }
 
         private void ComponentDeploymentFailure(ComponentVertexDeploymentProgress value)
@@ -147,11 +155,11 @@ namespace OctopusPuppet.Cmd
             var flowId = GetFlowId(value);
             var timeStamp = GetJavaTimeStamp();
 
-            var progressMessage = _serviceMessageFormatter.FormatMessage("progressMessage", string.Format("Deployment failed for {0}", name));
+            var progressMessage = _serviceMessageFormatter.FormatMessage("progressMessage", _logMessages.DeploymentFailed(value.Vertex, value.Text));
 
             var buildProblemMessage = _serviceMessageFormatter.FormatMessage("buildProblem", new
             {
-                description = string.Format("Deployment failed for {0}", name),
+                description = _logMessages.DeploymentFailed(value.Vertex, value.Text),
                 identity = name,
                 flowId = flowId,
                 timeStamp = timeStamp
@@ -160,16 +168,16 @@ namespace OctopusPuppet.Cmd
             var testFailedMessage = _serviceMessageFormatter.FormatMessage("testFailed", new
             {
                 name = name,
-                message = "Deployment failed",
-                details = value.Text,
+                message = _logMessages.DeploymentFailed(value.Vertex, value.Text),
+                details = _logMessages.DeploymentFailed(value.Vertex, value.Text),
                 flowId = flowId,
                 timeStamp = timeStamp
             });
 
             var failedDeploymentMessage = _serviceMessageFormatter.FormatMessage("message", new
             {
-                text = value.Text,
-                errorDetails = value.Text,
+                text = _logMessages.DeploymentFailed(value.Vertex, value.Text),
+                errorDetails = _logMessages.DeploymentFailed(value.Vertex, value.Text),
                 status = "ERROR",
                 flowId = flowId,
                 timeStamp = timeStamp
@@ -195,21 +203,21 @@ namespace OctopusPuppet.Cmd
             var flowId = GetFlowId(value);
             var timeStamp = GetJavaTimeStamp();
 
-            var progressMessage = _serviceMessageFormatter.FormatMessage("progressMessage", string.Format("Deployment cancelled for {0}", name));
+            var progressMessage = _serviceMessageFormatter.FormatMessage("progressMessage", _logMessages.DeploymentCancelled(value.Vertex));
 
             var testFailedMessage = _serviceMessageFormatter.FormatMessage("testFailed", new
             {
                 name = name,
-                message = "Deployment cancelled",
-                details = string.Format("Cancelled deployment for {0}", name),
+                message = _logMessages.DeploymentCancelled(value.Vertex),
+                details = _logMessages.DeploymentCancelled(value.Vertex),
                 flowId = flowId,
                 timeStamp = timeStamp
             });
 
             var cancelledDeploymentMessage = _serviceMessageFormatter.FormatMessage("message", new
             {
-                text = string.Format("Cancelled deploy for {0}", name),
-                errorDetails = string.Format("Cancelled deploy for {0}", name),
+                text = _logMessages.DeploymentCancelled(value.Vertex),
+                errorDetails = _logMessages.DeploymentCancelled(value.Vertex),
                 status = "ERROR",
                 flowId = flowId,
                 timeStamp = timeStamp
@@ -234,12 +242,12 @@ namespace OctopusPuppet.Cmd
             var flowId = GetFlowId(value);
             var timeStamp = GetJavaTimeStamp();
 
-            var progressMessage = _serviceMessageFormatter.FormatMessage("progressMessage", string.Format("Deployment succeeded for {0}", name));
+            var progressMessage = _serviceMessageFormatter.FormatMessage("progressMessage", _logMessages.DeploymentSuccess(value.Vertex));
 
             var testIgnoredMessage = _serviceMessageFormatter.FormatMessage("testIgnored", new
             {
                 name = name,
-                message = string.Format("Plan action was {0} for {1}", value.Vertex.DeploymentAction, name),
+                message = _logMessages.DeploymentSkipped(value.Vertex),
                 flowId = flowId,
                 timeStamp = timeStamp
             });

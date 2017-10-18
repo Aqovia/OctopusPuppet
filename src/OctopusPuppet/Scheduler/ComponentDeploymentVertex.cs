@@ -15,6 +15,7 @@ namespace OctopusPuppet.Scheduler
         /// </summary>
         public SemVer Version { get; private set; }
 
+        public string DeploymentId { get; set; }
         public PlanAction DeploymentAction { get; set; }
         public VariableAction VariableAction { get; set; }
         public TimeSpan? DeploymentDuration { get; set; }
