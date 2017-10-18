@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
 using System.Windows;
 using Caliburn.Micro;
 using OctopusPuppet.Gui.ViewModels;
@@ -19,6 +20,7 @@ namespace OctopusPuppet.Gui
                    { "SizeToContent", SizeToContent.Manual },
                    { "Height" , 768  },
                    { "Width"  , 768 },
+                   { "Title" , "Octopus Puppet - " + Assembly.GetEntryAssembly().GetName().Version }
                };
 
             DisplayRootViewFor<DeploymentPlannerViewModel>(settings);
