@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using OctopusPuppet.LogMessages;
 using OctopusPuppet.Scheduler;
 
 namespace OctopusPuppet.Deployer
@@ -14,15 +15,17 @@ namespace OctopusPuppet.Deployer
         private readonly IEnumerable<IComponentVertexDeployer> _deployers;
         private readonly EnvironmentDeployment _environmentDeployment;
         private readonly CancellationToken _cancellationToken;
+        private readonly ILogMessages _logMessages;
         private readonly IProgress<ComponentVertexDeploymentProgress> _progress;
         private readonly int _maximumParallelDeployments;
         private SemaphoreSlim _throttler;
 
-        public DeploymentExecutor(IEnumerable<IComponentVertexDeployer> deployers, EnvironmentDeployment environmentDeployment, CancellationToken cancellationToken, IProgress<ComponentVertexDeploymentProgress> progress, int maximumParallelDeployments = 4)
+        public DeploymentExecutor(IEnumerable<IComponentVertexDeployer> deployers, EnvironmentDeployment environmentDeployment, CancellationToken cancellationToken, ILogMessages logMessages, IProgress<ComponentVertexDeploymentProgress> progress, int maximumParallelDeployments = 4)
         {
             _deployers = deployers;
             _environmentDeployment = environmentDeployment;
             _cancellationToken = cancellationToken;
+            _logMessages = logMessages;
             _progress = progress;
             _maximumParallelDeployments = maximumParallelDeployments;
         }
@@ -114,14 +117,14 @@ namespace OctopusPuppet.Deployer
                         return new ComponentVertexDeploymentResult
                         {
                             Status = ComponentVertexDeploymentStatus.Cancelled,
-                            Description = "Cancelled"
+                            Description = _logMessages.DeploymentCancelled(componentDeploymentVertex)
                         };
                     }
 
                     //Start progress
                     if (_progress != null)
                     {
-                        _progress.Report(new ComponentVertexDeploymentProgress
+                        var componentVertexDeploymentProgress = new ComponentVertexDeploymentProgress
                         {
                             Vertex = componentDeploymentVertex,
                             Status = ComponentVertexDeploymentStatus.Started,
@@ -131,17 +134,18 @@ namespace OctopusPuppet.Deployer
                                     ? componentDeploymentVertex.DeploymentDuration.Value.Ticks
                                     : 0,
                             Value = 0,
-                            Text = "Started"
-                        });
+                            Text = _logMessages.DeploymentStarted(componentDeploymentVertex)
+                        };
+                        _progress.Report(componentVertexDeploymentProgress);
                     }
 
-                    ComponentVertexDeploymentResult result = new ComponentVertexDeploymentResult();
+                    var result = new ComponentVertexDeploymentResult();
 
                     try
                     {
                         foreach (var deployer in _deployers)
                         {
-                            result = deployer.Deploy(componentDeploymentVertex, cancellationToken, _progress);
+                            result = deployer.Deploy(componentDeploymentVertex, cancellationToken, _logMessages, _progress);
                         }
                     }
                     catch (Exception ex)
@@ -152,14 +156,14 @@ namespace OctopusPuppet.Deployer
                         result = new ComponentVertexDeploymentResult
                         {
                             Status = ComponentVertexDeploymentStatus.Failure,
-                            Description = stringBuilder.ToString()
+                            Description = _logMessages.DeploymentFailed(componentDeploymentVertex, stringBuilder.ToString()) 
                         };
                     }
 
                     //Finish progress    
                     if (_progress != null)
                     {
-                        _progress.Report(new ComponentVertexDeploymentProgress
+                        var componentVertexDeploymentProgress = new ComponentVertexDeploymentProgress
                         {
                             Vertex = componentDeploymentVertex,
                             Status = result.Status,
@@ -173,7 +177,8 @@ namespace OctopusPuppet.Deployer
                                     ? componentDeploymentVertex.DeploymentDuration.Value.Ticks
                                     : 0,
                             Text = result.Description
-                        });
+                        };
+                        _progress.Report(componentVertexDeploymentProgress);
                     }
 
                     return result;
@@ -188,7 +193,7 @@ namespace OctopusPuppet.Deployer
                 return new ComponentVertexDeploymentResult
                 {
                     Status = ComponentVertexDeploymentStatus.Cancelled,
-                    Description = "Cancelled"
+                    Description = _logMessages.DeploymentCancelled(componentDeploymentVertex)
                 };
             }
         }

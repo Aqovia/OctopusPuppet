@@ -161,3 +161,4 @@ $RECYCLE.BIN/
 **/App_Data/XmlDocument.xml
 Logs/*
 !**/PowershellModules/tools/*
+/.vs
