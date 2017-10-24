@@ -126,11 +126,7 @@ namespace OctopusPuppet.OctopusProvider
             
             var projectVariables = _repository.VariableSets.Get(releaseResource.ProjectVariableSetSnapshotId);
 
-            var componentDependancies = projectVariables.Variables
-                .Where(x => x.Name == ComponentDependancies)
-                .SelectMany(x => JsonConvert.DeserializeObject<string[]>(x.Value))
-                .Where(x => componentFilter == null || componentFilter.Match(x))
-                .ToList();
+            var componentDependancies = GetComponentDependancies(componentFilter, projectVariables, releaseResource.Id);
 
             var component = new Component
             {
@@ -141,6 +137,28 @@ namespace OctopusPuppet.OctopusProvider
             };
 
             return component;
+        }
+
+        private static List<string> GetComponentDependancies(ComponentFilter componentFilter, VariableSetResource projectVariables,
+            string releaseId)
+        {
+            var componentDependancies = projectVariables.Variables
+                .Where(x => x.Name == ComponentDependancies && !string.IsNullOrEmpty(x.Value)).ToList();
+
+            try
+            {
+                return componentDependancies
+                    .SelectMany(x => JsonConvert.DeserializeObject<string[]>(x.Value))
+                    .Where(x => componentFilter == null || componentFilter.Match(x))
+                    .ToList();
+            }
+            catch
+            {
+                var releaseUri = string.Format("/app#/releases/{0}", releaseId);
+
+                throw new Exception(string.Format("The variable {0} is not a valid json string array. Please update at {1}\r\nCurrent value:\r\n{2}",
+                    componentDependancies, releaseUri, componentDependancies.First().Value));
+            }
         }
 
         /// <summary>
@@ -166,11 +184,8 @@ namespace OctopusPuppet.OctopusProvider
             var release = _repository.Releases.Get(dashboardItemResource.ReleaseId);
             var projectVariables = _repository.VariableSets.Get(release.ProjectVariableSetSnapshotId);
 
-            var componentDependancies = projectVariables.Variables
-                .Where(x => x.Name == ComponentDependancies)
-                .SelectMany(x => JsonConvert.DeserializeObject<string[]>(x.Value))
-                .Where(x => componentFilter == null || componentFilter.Match(x))
-                .ToList();
+ 
+            var componentDependancies = GetComponentDependancies(componentFilter, projectVariables, dashboardItemResource.ReleaseId);
 
             var component = new Component
             {
