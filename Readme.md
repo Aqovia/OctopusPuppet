@@ -11,6 +11,8 @@ Octopus Puppet
 
 See [https://github.com/Aqovia/OctopusPuppet](https://github.com/Aqovia/OctopusPuppet) for information about Octopus Puppet.
 
+![Octopus Puppet](/docs/img/icon-512x512.png?raw=true "Octopus Puppet")
+
 **Generate deployment plan**
 ![Generate deployment plan screen](/docs/img/Generate_deployment_plan.png?raw=true "Generate deployment plan screen")
 
