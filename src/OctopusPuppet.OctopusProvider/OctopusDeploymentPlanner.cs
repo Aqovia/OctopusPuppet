@@ -214,7 +214,14 @@ namespace OctopusPuppet.OctopusProvider
             }
             else if (componentFrom == null)
             {
-                deploymentPlan.Action = PlanAction.Remove;
+                /*
+                 * A release is deployed (e.g. a feature branch) but our desired branch release (e.g. master) doesn't have any release. 
+                 * We should perhaps remove the deployed component (componentTo), but this logic is not implemented at the moment. 
+                 * Octopus would need to have a built-in 'uninstall' feature, which it doesn't.
+                 * In the absence of such feature, components are removed manually.
+                 */ 
+                //deploymentPlan.Action = PlanAction.Remove;
+                deploymentPlan.Action = PlanAction.Skip;
             }
             else if (componentTo == null)
             {
