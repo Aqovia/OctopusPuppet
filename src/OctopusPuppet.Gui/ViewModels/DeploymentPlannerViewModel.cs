@@ -39,7 +39,7 @@ namespace OctopusPuppet.Gui.ViewModels
             _environmentMirrorToEnvironments = new List<Environment>();
             _selectedEnvironmentMirrorToEnvironment = null;
 
-            _layoutAlgorithmTypes = new List<string>(new []
+            _layoutAlgorithmTypes = new List<string>(new[]
             {
                 "Tree",
                 "Circular",
@@ -411,7 +411,7 @@ namespace OctopusPuppet.Gui.ViewModels
             var componentFilter = new ComponentFilter()
             {
                 Include = ComponentFilterInclude,
-                Expressions = ComponentFilterExpressions.Select(x=>x.Text).ToList()
+                Expressions = ComponentFilterExpressions.Select(x => x.Text).ToList()
             };
 
             var json = JsonConvert.SerializeObject(componentFilter, Formatting.Indented);
@@ -471,7 +471,7 @@ namespace OctopusPuppet.Gui.ViewModels
                     var deploymentPlanner = new OctopusDeploymentPlanner(_apiSettings.Url, _apiSettings.ApiKey);
                     var componentFilter = new ComponentFilter
                     {
-                        Expressions = ComponentFilterExpressions.Select(x=>x.Text).ToList(),
+                        Expressions = ComponentFilterExpressions.Select(x => x.Text).ToList(),
                         Include = ComponentFilterInclude
                     };
 
@@ -567,7 +567,7 @@ namespace OctopusPuppet.Gui.ViewModels
             {
                 try
                 {
-                    var deploymentPlanner = new OctopusDeploymentPlanner(_apiSettings.Url,_apiSettings.ApiKey);
+                    var deploymentPlanner = new OctopusDeploymentPlanner(_apiSettings.Url, _apiSettings.ApiKey);
                     var componentFilter = new ComponentFilter
                     {
                         Expressions = ComponentFilterExpressions.Select(x => x.Text).ToList(),
@@ -639,7 +639,7 @@ namespace OctopusPuppet.Gui.ViewModels
             var saveFileDialog = new SaveFileDialog
             {
                 DefaultExt = "json",
-                Filter =  "Text files (*.json)|*.json|All files (*.*)|*.*",
+                Filter = "Text files (*.json)|*.json|All files (*.*)|*.*",
                 FileName = EnvironmentDeploymentSaveFileName
             };
             if (saveFileDialog.ShowDialog() != true) return;
