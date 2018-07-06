@@ -12,6 +12,7 @@ namespace OctopusPuppet.OctopusProvider
     {
         private const string ComponentDependanciesVariableName = "ComponentDependencies";
         private readonly IOctopusRepository _repository;
+        private List<ProjectResource> _cachedProjects;
 
         public OctopusDeploymentPlanner(string url, string apiKey) : this(new OctopusRepository(new OctopusServerEndpoint(url, apiKey))) {}
 
@@ -20,9 +21,12 @@ namespace OctopusPuppet.OctopusProvider
             _repository = repository;
         }
 
+        private ProjectResource GetProjectById(string id) => _cachedProjects.First(x => x.Id == id);
+        private ProjectResource GetProjectByName(string name) => _cachedProjects.First(x => x.Name == name);
+
         private List<ReleaseResource> GetReleaseResources(string projectId)
         {
-            var project = _repository.Projects.Get(projectId);
+            var project = GetProjectById(projectId);
 
             var releases = new List<ReleaseResource>();
             var skip = 0;
@@ -139,7 +143,7 @@ namespace OctopusPuppet.OctopusProvider
             return component;
         }
 
-        private static List<string> GetComponentDependancies(ComponentFilter componentFilter, VariableSetResource projectVariables,
+        private List<string> GetComponentDependancies(ComponentFilter componentFilter, VariableSetResource projectVariables,
             string releaseId)
         {
             var componentDependanciesVariables = projectVariables.Variables
@@ -258,16 +262,17 @@ namespace OctopusPuppet.OctopusProvider
         public List<Branch> GetBranches()
         {
             var branches = new List<Branch>();
+            
+            _cachedProjects = _repository.Projects.FindAll();
 
-            var projectIds = _repository.Projects.GetAll().Select(x=>x.Id);
-
-            foreach (var projectId in projectIds)
+            foreach (var project in _cachedProjects)
             {
-                if (_repository.Projects.Get(projectId).IsDisabled)
+                if (project.IsDisabled)
                 {
                     continue;
                 }
-                branches.AddRange(GetBranchesForProject(projectId));
+
+                branches.AddRange(GetBranchesForProject(project.Id));
             }
 
             branches = branches
@@ -312,7 +317,7 @@ namespace OctopusPuppet.OctopusProvider
 
             foreach (var dashboardProjectResource in dashboard.Projects)
             {
-                if (_repository.Projects.Get(dashboardProjectResource.Id).IsDisabled)
+                if (_cachedProjects.First(x=>x.Id == dashboardProjectResource.Id).IsDisabled)
                 {
                     continue;
                 }
@@ -367,7 +372,7 @@ namespace OctopusPuppet.OctopusProvider
 
             foreach (var dashboardProjectResource in dashboard.Projects)
             {
-                if (_repository.Projects.Get(dashboardProjectResource.Id).IsDisabled)
+                if (_cachedProjects.First(x=>x.Id == dashboardProjectResource.Id).IsDisabled)
                 {
                     continue;
                 }
@@ -417,7 +422,7 @@ namespace OctopusPuppet.OctopusProvider
 
             foreach (var dashboardProjectResource in dashboard.Projects)
             {
-                if (_repository.Projects.Get(dashboardProjectResource.Id).IsDisabled)
+                if (_cachedProjects.First(x=>x.Id == dashboardProjectResource.Id).IsDisabled)
                 {
                     continue;
                 }
