@@ -12,6 +12,7 @@ using Microsoft.Win32;
 using Newtonsoft.Json;
 using OctopusPuppet.Deployer;
 using OctopusPuppet.DeploymentPlanner;
+using OctopusPuppet.Gui.Model;
 using OctopusPuppet.OctopusProvider;
 using OctopusPuppet.Scheduler;
 using QuickGraph;
@@ -54,8 +55,11 @@ namespace OctopusPuppet.Gui.ViewModels
 
             _selectedLayoutAlgorithmType = "EfficientSugiyama";
 
-            OctopusApiKey = ConfigurationManager.AppSettings["OctopusApiKey"];
-            OctopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
+            ApiSettings = new OctopusApiSettings
+            (
+                ConfigurationManager.AppSettings["OctopusUrl"],
+                ConfigurationManager.AppSettings["OctopusApiKey"]
+            );
 
             LoadDefaultComponentFilterJson();
         }
@@ -153,14 +157,14 @@ namespace OctopusPuppet.Gui.ViewModels
         public async Task GetBranchesAndEnvironments()
         {
 
-            if (!string.IsNullOrEmpty(_octopusUrl) && !string.IsNullOrEmpty(_octopusApiKey))
+            if (!_apiSettings.IsEmpty)
             {
                 IsLoadingData = true;
                 try
                 {
                     await Task.Factory.StartNew(() =>
                     {
-                        var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
+                        var deploymentPlanner = new OctopusDeploymentPlanner(_apiSettings.Url, _apiSettings.ApiKey);
 
                         Branches = deploymentPlanner.GetBranches();
                         Environments = deploymentPlanner.GetEnvironments();
@@ -180,18 +184,20 @@ namespace OctopusPuppet.Gui.ViewModels
             }
         }
 
-        private string _octopusApiKey;
-        public string OctopusApiKey
+        private OctopusApiSettings _apiSettings;
+        public OctopusApiSettings ApiSettings
         {
-            get { return _octopusApiKey; }
+            get { return _apiSettings; }
             set
             {
-                if (value == _octopusApiKey) return;
-                _octopusApiKey = value;
+                if (value == _apiSettings)
+                    return;
+
+                _apiSettings = value;
 
                 GetBranchesAndEnvironments();
 
-                NotifyOfPropertyChange(() => OctopusApiKey);
+                NotifyOfPropertyChange(() => ApiSettings);
 
                 NotifyOfPropertyChange(() => CanBranchDeployment);
                 NotifyOfPropertyChange(() => CanRedeployment);
@@ -200,30 +206,7 @@ namespace OctopusPuppet.Gui.ViewModels
             }
         }
 
-        private string _octopusUrl;
-        public string OctopusUrl
-        {
-            get { return _octopusUrl; }
-            set
-            {
-                if (value == _octopusUrl) return;
-                _octopusUrl = value;
-
-                GetBranchesAndEnvironments();
-
-                NotifyOfPropertyChange(() => OctopusUrl);
-
-                NotifyOfPropertyChange(() => CanBranchDeployment);
-                NotifyOfPropertyChange(() => CanRedeployment);
-                NotifyOfPropertyChange(() => CanEnvironmentMirror);
-                NotifyOfPropertyChange(() => CanGetBranchesAndEnvironments);
-            }
-        }
-
-        public bool CanGetBranchesAndEnvironments
-        {
-            get { return !string.IsNullOrEmpty(OctopusUrl) && !string.IsNullOrEmpty(OctopusApiKey); }
-        }
+        public bool CanGetBranchesAndEnvironments => !_apiSettings.IsEmpty;
 
         private List<Branch> _branchDeploymentBranches;
         public List<Branch> BranchDeploymentBranches
@@ -470,10 +453,9 @@ namespace OctopusPuppet.Gui.ViewModels
         {
             get
             {
-                return !(string.IsNullOrEmpty(_octopusApiKey) 
-                    || string.IsNullOrEmpty(_octopusApiKey) 
-                    || _selectedBranchDeploymentEnvironment == null 
-                    || _selectedBranchDeploymentBranch == null);
+                return !_apiSettings.IsEmpty &&
+                       !(_selectedBranchDeploymentEnvironment == null
+                         || _selectedBranchDeploymentBranch == null);
             }
         }
 
@@ -486,7 +468,7 @@ namespace OctopusPuppet.Gui.ViewModels
             {
                 try
                 {
-                    var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
+                    var deploymentPlanner = new OctopusDeploymentPlanner(_apiSettings.Url, _apiSettings.ApiKey);
                     var componentFilter = new ComponentFilter
                     {
                         Expressions = ComponentFilterExpressions.Select(x=>x.Text).ToList(),
@@ -522,9 +504,8 @@ namespace OctopusPuppet.Gui.ViewModels
         {
             get
             {
-                return !(string.IsNullOrEmpty(_octopusApiKey) 
-                    || string.IsNullOrEmpty(_octopusApiKey) 
-                    || _selectedRedeploymentEnvironment == null);
+                return !_apiSettings.IsEmpty &&
+                       _selectedRedeploymentEnvironment != null;
             }
         }
 
@@ -537,7 +518,7 @@ namespace OctopusPuppet.Gui.ViewModels
             {
                 try
                 {
-                    var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
+                    var deploymentPlanner = new OctopusDeploymentPlanner(_apiSettings.Url, _apiSettings.ApiKey);
                     var componentFilter = new ComponentFilter
                     {
                         Expressions = ComponentFilterExpressions.Select(x => x.Text).ToList(),
@@ -571,10 +552,9 @@ namespace OctopusPuppet.Gui.ViewModels
         {
             get
             {
-                return !(string.IsNullOrEmpty(_octopusApiKey) 
-                    || string.IsNullOrEmpty(_octopusApiKey) 
-                    || _selectedEnvironmentMirrorFromEnvironment == null
-                    || _selectedEnvironmentMirrorToEnvironment == null);
+                return !_apiSettings.IsEmpty &&
+                       !(_selectedEnvironmentMirrorFromEnvironment == null
+                         || _selectedEnvironmentMirrorToEnvironment == null);
             }
         }
 
@@ -587,7 +567,7 @@ namespace OctopusPuppet.Gui.ViewModels
             {
                 try
                 {
-                    var deploymentPlanner = new OctopusDeploymentPlanner(_octopusUrl, _octopusApiKey);
+                    var deploymentPlanner = new OctopusDeploymentPlanner(_apiSettings.Url,_apiSettings.ApiKey);
                     var componentFilter = new ComponentFilter
                     {
                         Expressions = ComponentFilterExpressions.Select(x => x.Text).ToList(),
@@ -919,12 +899,12 @@ namespace OctopusPuppet.Gui.ViewModels
                 {
                     var deployers = new IComponentVertexDeployer[]
                     {
-                        new OctopusComponentVertexVariableUpdater(_octopusUrl, _octopusApiKey),
-                        new OctopusComponentVertexDeployer(_octopusUrl, _octopusApiKey, EnvironmentToDeployTo),
+                        new OctopusComponentVertexVariableUpdater(_apiSettings),
+                        new OctopusComponentVertexDeployer(_apiSettings, EnvironmentToDeployTo),
                     };
 
                     CancellationTokenSource = new CancellationTokenSource();
-                    var deploymentExecutor = new DeploymentExecutor(deployers, EnvironmentDeployment, CancellationTokenSource.Token, new OctopusLogMessages(_octopusUrl), this, MaximumParallelDeployment);
+                    var deploymentExecutor = new DeploymentExecutor(deployers, EnvironmentDeployment, CancellationTokenSource.Token, new OctopusLogMessages(_apiSettings.Url), this, MaximumParallelDeployment);
                     var allDeploymentsSucceded = deploymentExecutor.Execute().ConfigureAwait(false).GetAwaiter().GetResult();
 
                     SkipAllPassedDeployments();

@@ -12,17 +12,21 @@ namespace OctopusPuppet.OctopusProvider
     {
         private const string ComponentDependanciesVariableName = "ComponentDependencies";
         private readonly IOctopusRepository _repository;
-        private List<ProjectResource> _cachedProjects;
+        private static List<ProjectResource> _cachedProjects;
 
-        public OctopusDeploymentPlanner(string url, string apiKey) : this(new OctopusRepository(new OctopusServerEndpoint(url, apiKey))) {}
+        public OctopusDeploymentPlanner(string url, string apiKey) : this(new OctopusRepository(new OctopusServerEndpoint(url, apiKey))) { }
 
         public OctopusDeploymentPlanner(IOctopusRepository repository)
         {
             _repository = repository;
+
+            if (_cachedProjects == null)
+                RefreshCachedProjects();
         }
 
-        private ProjectResource GetProjectById(string id) => _cachedProjects.First(x => x.Id == id);
-        private ProjectResource GetProjectByName(string name) => _cachedProjects.First(x => x.Name == name);
+        private ProjectResource GetProjectById(string id) => _cachedProjects.FirstOrDefault(x => x.Id == id);
+        private ProjectResource GetProjectByName(string name) => _cachedProjects.FirstOrDefault(x => x.Name == name);
+        private void RefreshCachedProjects() => _cachedProjects = _repository.Projects.FindAll();
 
         private List<ReleaseResource> GetReleaseResources(string projectId)
         {
@@ -263,9 +267,9 @@ namespace OctopusPuppet.OctopusProvider
         public List<Branch> GetBranches()
         {
             var branches = new List<Branch>();
-            
-            _cachedProjects = _repository.Projects.FindAll();
 
+            RefreshCachedProjects();
+            
             foreach (var project in _cachedProjects)
             {
                 if (project.IsDisabled)

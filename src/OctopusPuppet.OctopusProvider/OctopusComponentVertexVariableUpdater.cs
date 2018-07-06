@@ -12,9 +12,9 @@ namespace OctopusPuppet.OctopusProvider
     {
         private readonly OctopusRepository _repository;
 
-        public OctopusComponentVertexVariableUpdater(string octopusUrl, string octopusApiKey)
+        public OctopusComponentVertexVariableUpdater(OctopusApiSettings apiSettings)
         {
-            _repository = new OctopusRepository(new OctopusServerEndpoint(octopusUrl, octopusApiKey));
+            _repository = new OctopusRepository(new OctopusServerEndpoint(apiSettings.Url, apiSettings.ApiKey));
         }
 
         public ComponentVertexDeploymentResult Deploy(ComponentDeploymentVertex vertex, CancellationToken cancellationToken, ILogMessages logMessages, IProgress<ComponentVertexDeploymentProgress> progress)
