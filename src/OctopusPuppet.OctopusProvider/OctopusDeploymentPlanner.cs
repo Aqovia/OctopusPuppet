@@ -154,6 +154,7 @@ namespace OctopusPuppet.OctopusProvider
                 return componentDependanciesVariables
                     .SelectMany(x => JsonConvert.DeserializeObject<string[]>(x.Value))
                     .Where(x => componentFilter == null || componentFilter.Match(x))
+                    .Where(x => GetProjectByName(x)?.IsDisabled == false)
                     .ToList();
             }
             catch
