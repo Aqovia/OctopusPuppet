@@ -24,7 +24,7 @@ namespace OctopusPuppet.OctopusProvider
                 RefreshCachedProjects();
         }
 
-        private ProjectResource GetProjectById(string id) => _cachedProjects.FirstOrDefault(x => x.Id == id);
+        private ProjectResource GetProjectById(string id) => _cachedProjects.SingleOrDefault(x => x.Id == id);
         private ProjectResource GetProjectByName(string name) => _cachedProjects.FirstOrDefault(x => x.Name == name);
         private void RefreshCachedProjects() => _cachedProjects = _repository.Projects.FindAll();
 
@@ -322,7 +322,7 @@ namespace OctopusPuppet.OctopusProvider
 
             foreach (var dashboardProjectResource in dashboard.Projects)
             {
-                if (_cachedProjects.First(x => x.Id == dashboardProjectResource.Id).IsDisabled)
+                if (GetProjectById(dashboardProjectResource.Id).IsDisabled)
                 {
                     continue;
                 }
@@ -377,7 +377,7 @@ namespace OctopusPuppet.OctopusProvider
 
             foreach (var dashboardProjectResource in dashboard.Projects)
             {
-                if (_cachedProjects.First(x => x.Id == dashboardProjectResource.Id).IsDisabled)
+                if (GetProjectById(dashboardProjectResource.Id).IsDisabled)
                 {
                     continue;
                 }
@@ -427,7 +427,7 @@ namespace OctopusPuppet.OctopusProvider
 
             foreach (var dashboardProjectResource in dashboard.Projects)
             {
-                if (_cachedProjects.First(x => x.Id == dashboardProjectResource.Id).IsDisabled)
+                if (GetProjectById(dashboardProjectResource.Id).IsDisabled)
                 {
                     continue;
                 }
