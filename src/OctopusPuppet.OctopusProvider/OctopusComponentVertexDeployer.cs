@@ -19,7 +19,7 @@ namespace OctopusPuppet.OctopusProvider
         private readonly int _timeoutAfterMinutes;
         private readonly OctopusRepository _repository;
 
-        public OctopusComponentVertexDeployer(string url, string apiKey, DeploymentPlanner.Environment environmentToDeployTo, 
+        public OctopusComponentVertexDeployer(OctopusApiSettings apiSettings, DeploymentPlanner.Environment environmentToDeployTo, 
             string comments = "",
             bool forcePackageDownload = false,
             bool forcePackageRedeployment = false,
@@ -32,7 +32,7 @@ namespace OctopusPuppet.OctopusProvider
             _forcePackageRedeployment = forcePackageRedeployment;
             _pollIntervalSeconds = pollIntervalSeconds;
             _timeoutAfterMinutes = timeoutAfterMinutes;
-            var octopusServerEndpoint = new OctopusServerEndpoint(url, apiKey);
+            var octopusServerEndpoint = new OctopusServerEndpoint(apiSettings.Url, apiSettings.ApiKey);
             _repository = new OctopusRepository(octopusServerEndpoint);
         }
 

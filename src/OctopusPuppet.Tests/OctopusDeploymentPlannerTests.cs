@@ -16,12 +16,21 @@ namespace OctopusPuppet.Tests
         private static OctopusDeploymentPlanner GetSutForVersion(string versionNumber)
         {
             var repo = Substitute.For<IOctopusRepository>();
-            repo.Projects.GetAll().Returns(new List<ReferenceDataItem> { new ReferenceDataItem("123", "") });
 
-            var project = new ProjectResource();
-            repo.Projects.Get("123").Returns(project);
-            repo.Projects.GetReleases(project)
+            var project2 = new ProjectResource("124", "", "Projects-124");
+
+            repo.Projects.GetAll().Returns(new List<ReferenceDataItem> { new ReferenceDataItem("123", "") });
+            repo.Projects.FindAll().Returns(new List<ProjectResource> { project2 });
+
+            var project1 = new ProjectResource() { Id = "123" };
+            repo.Projects.Get("123").Returns(project1);
+            repo.Projects.GetReleases(project1)
                 .Returns(new ResourceCollection<ReleaseResource>(new[] { new ReleaseResource(versionNumber, "123", "") },
+                    new LinkCollection()));
+
+            repo.Projects.Get("124").Returns(project2);
+            repo.Projects.GetReleases(project2)
+                .Returns(new ResourceCollection<ReleaseResource>(new[] { new ReleaseResource(versionNumber, "124", "") },
                     new LinkCollection()));
 
             var sut = new OctopusDeploymentPlanner(repo);

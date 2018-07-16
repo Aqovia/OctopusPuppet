@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="OctopusApiSettings.cs" />
     <Compile Include="OctopusComponentVertexDeployer.cs" />
     <Compile Include="OctopusComponentVertexVariableUpdater.cs" />
     <Compile Include="OctopusDeploymentPlanner.cs" />

@@ -183,12 +183,12 @@ namespace OctopusPuppet.Cmd
 
             if (updateVariables)
             {
-                yield return new OctopusComponentVertexVariableUpdater(octopusUrl, apiKey);
+                yield return new OctopusComponentVertexVariableUpdater(new OctopusApiSettings(octopusUrl, apiKey));
             }
 
             if (deploy)
             {
-                yield return new OctopusComponentVertexDeployer(octopusUrl, apiKey, environment);
+                yield return new OctopusComponentVertexDeployer(new OctopusApiSettings(octopusUrl, apiKey), environment);
             }
         }
 

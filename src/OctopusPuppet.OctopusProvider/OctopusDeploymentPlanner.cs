@@ -12,17 +12,25 @@ namespace OctopusPuppet.OctopusProvider
     {
         private const string ComponentDependanciesVariableName = "ComponentDependencies";
         private readonly IOctopusRepository _repository;
+        private static List<ProjectResource> _cachedProjects;
 
-        public OctopusDeploymentPlanner(string url, string apiKey) : this(new OctopusRepository(new OctopusServerEndpoint(url, apiKey))) {}
+        public OctopusDeploymentPlanner(string url, string apiKey) : this(new OctopusRepository(new OctopusServerEndpoint(url, apiKey))) { }
 
         public OctopusDeploymentPlanner(IOctopusRepository repository)
         {
             _repository = repository;
+
+            if (_cachedProjects == null)
+                RefreshCachedProjects();
         }
+
+        private ProjectResource GetProjectById(string id) => _cachedProjects.SingleOrDefault(x => x.Id == id);
+        private ProjectResource GetProjectByName(string name) => _cachedProjects.FirstOrDefault(x => x.Name == name);
+        private void RefreshCachedProjects() => _cachedProjects = _repository.Projects.FindAll();
 
         private List<ReleaseResource> GetReleaseResources(string projectId)
         {
-            var project = _repository.Projects.Get(projectId);
+            var project = GetProjectById(projectId);
 
             var releases = new List<ReleaseResource>();
             var skip = 0;
@@ -76,13 +84,13 @@ namespace OctopusPuppet.OctopusProvider
         private List<Branch> GetBranchesForProject(string projectId)
         {
             var branches = from r in GetReleaseResources(projectId)
-                let version = GetSemanticVersionOrNull(r.Version)
-                where version != null
-                select new Branch
-                {
-                    Name = version.SpecialVersion,
-                    Id = version.SpecialVersion
-                };
+                           let version = GetSemanticVersionOrNull(r.Version)
+                           where version != null
+                           select new Branch
+                           {
+                               Name = version.SpecialVersion,
+                               Id = version.SpecialVersion
+                           };
 
             return branches.ToList();
         }
@@ -114,16 +122,16 @@ namespace OctopusPuppet.OctopusProvider
             //Get release for branch
             var releaseResource = releaseResources.FirstOrDefault(x => GetSemanticVersionOrNull(x.Version)?.SpecialVersion == branch);
             if (releaseResource == null) return null;
-            
+
             // No other way to calculate duration otherwise :<
             var dashboardItemResource = GetClosestMatchingDashboardItemResource(dashboard, environmentId, projectId, branch);
 
             var healthy = dashboardItemResource != null && dashboardItemResource.State == TaskState.Success;
 
-            var componentDeployedOnEnvironmentFromDuration = dashboardItemResource == null 
-                ? null 
+            var componentDeployedOnEnvironmentFromDuration = dashboardItemResource == null
+                ? null
                 : dashboardItemResource.CompletedTime - dashboardItemResource.QueueTime;
-            
+
             var projectVariables = _repository.VariableSets.Get(releaseResource.ProjectVariableSetSnapshotId);
 
             var componentDependancies = GetComponentDependancies(componentFilter, projectVariables, releaseResource.Id);
@@ -139,7 +147,7 @@ namespace OctopusPuppet.OctopusProvider
             return component;
         }
 
-        private static List<string> GetComponentDependancies(ComponentFilter componentFilter, VariableSetResource projectVariables,
+        private List<string> GetComponentDependancies(ComponentFilter componentFilter, VariableSetResource projectVariables,
             string releaseId)
         {
             var componentDependanciesVariables = projectVariables.Variables
@@ -150,6 +158,7 @@ namespace OctopusPuppet.OctopusProvider
                 return componentDependanciesVariables
                     .SelectMany(x => JsonConvert.DeserializeObject<string[]>(x.Value))
                     .Where(x => componentFilter == null || componentFilter.Match(x))
+                    .Where(x => GetProjectByName(x)?.IsDisabled == false)
                     .ToList();
             }
             catch
@@ -180,11 +189,11 @@ namespace OctopusPuppet.OctopusProvider
             var componentDeployedOnEnvironmentFromDuration = dashboardItemResource.CompletedTime - dashboardItemResource.QueueTime;
 
             var healthy = dashboardItemResource.State == TaskState.Success;
-            
+
             var release = _repository.Releases.Get(dashboardItemResource.ReleaseId);
             var projectVariables = _repository.VariableSets.Get(release.ProjectVariableSetSnapshotId);
 
- 
+
             var componentDependancies = GetComponentDependancies(componentFilter, projectVariables, dashboardItemResource.ReleaseId);
 
             var component = new Component
@@ -219,7 +228,7 @@ namespace OctopusPuppet.OctopusProvider
                  * We should perhaps remove the deployed component (componentTo), but this logic is not implemented at the moment. 
                  * Octopus would need to have a built-in 'uninstall' feature, which it doesn't.
                  * In the absence of such feature, components are removed manually.
-                 */ 
+                 */
                 //deploymentPlan.Action = PlanAction.Remove;
                 deploymentPlan.Action = PlanAction.Skip;
             }
@@ -259,15 +268,16 @@ namespace OctopusPuppet.OctopusProvider
         {
             var branches = new List<Branch>();
 
-            var projectIds = _repository.Projects.GetAll().Select(x=>x.Id);
+            RefreshCachedProjects();
 
-            foreach (var projectId in projectIds)
+            foreach (var project in _cachedProjects)
             {
-                if (_repository.Projects.Get(projectId).IsDisabled)
+                if (project.IsDisabled)
                 {
                     continue;
                 }
-                branches.AddRange(GetBranchesForProject(projectId));
+
+                branches.AddRange(GetBranchesForProject(project.Id));
             }
 
             branches = branches
@@ -280,13 +290,13 @@ namespace OctopusPuppet.OctopusProvider
 
         public EnvironmentDeploymentPlans GetEnvironmentMirrorDeploymentPlans(string environmentFrom, string environmentTo, bool doNotUseDifferentialDeployment, ComponentFilter componentFilter = null)
         {
-            var environments = environmentFrom == environmentTo ? 
-                new[] {environmentFrom} : 
-                new[] {environmentFrom, environmentTo};
+            var environments = environmentFrom == environmentTo ?
+                new[] { environmentFrom } :
+                new[] { environmentFrom, environmentTo };
 
             var environmentIds = _repository.Environments
                 .GetAll()
-                .Where(x=>environments.Contains(x.Name))
+                .Where(x => environments.Contains(x.Name))
                 .ToArray();
 
             var environmentReferenceFrom = environmentIds.FirstOrDefault(x => x.Name == environmentFrom);
@@ -301,7 +311,7 @@ namespace OctopusPuppet.OctopusProvider
                 throw new Exception(string.Format("Unable to find environment - {0}", environmentTo));
             }
 
-            var dashboard = _repository.Dashboards.GetDynamicDashboard(null, environmentIds.Select(x=>x.Id).ToArray());
+            var dashboard = _repository.Dashboards.GetDynamicDashboard(null, environmentIds.Select(x => x.Id).ToArray());
 
             var environmentDeploymentPlan = new EnvironmentDeploymentPlans
             {
@@ -312,7 +322,7 @@ namespace OctopusPuppet.OctopusProvider
 
             foreach (var dashboardProjectResource in dashboard.Projects)
             {
-                if (_repository.Projects.Get(dashboardProjectResource.Id).IsDisabled)
+                if (GetProjectById(dashboardProjectResource.Id).IsDisabled)
                 {
                     continue;
                 }
@@ -326,9 +336,9 @@ namespace OctopusPuppet.OctopusProvider
 
                 var projectId = dashboardProjectResource.Id;
 
-                var componentFrom = GetComponentForEnvironment(dashboard, environmentReferenceFrom.Id, projectId, componentFilter);                
+                var componentFrom = GetComponentForEnvironment(dashboard, environmentReferenceFrom.Id, projectId, componentFilter);
 
-                var componentTo = environmentReferenceFrom.Id == environmentReferenceTo.Id 
+                var componentTo = environmentReferenceFrom.Id == environmentReferenceTo.Id
                     ? componentFrom
                     : GetComponentForEnvironment(dashboard, environmentReferenceTo.Id, projectId, componentFilter);
 
@@ -355,8 +365,8 @@ namespace OctopusPuppet.OctopusProvider
             {
                 throw new Exception(string.Format("Unable to find environment - {0}", environment));
             }
-            
-            var dashboard = _repository.Dashboards.GetDynamicDashboard(null, environmentIds.Select(x=>x.Id).ToArray());
+
+            var dashboard = _repository.Dashboards.GetDynamicDashboard(null, environmentIds.Select(x => x.Id).ToArray());
 
             var branchDeploymentPlan = new BranchDeploymentPlans
             {
@@ -367,7 +377,7 @@ namespace OctopusPuppet.OctopusProvider
 
             foreach (var dashboardProjectResource in dashboard.Projects)
             {
-                if (_repository.Projects.Get(dashboardProjectResource.Id).IsDisabled)
+                if (GetProjectById(dashboardProjectResource.Id).IsDisabled)
                 {
                     continue;
                 }
@@ -407,7 +417,7 @@ namespace OctopusPuppet.OctopusProvider
                 throw new Exception(string.Format("Unable to find environment - {0}", environment));
             }
 
-            var dashboard = _repository.Dashboards.GetDynamicDashboard(null, environmentIds.Select(x=>x.Id).ToArray());
+            var dashboard = _repository.Dashboards.GetDynamicDashboard(null, environmentIds.Select(x => x.Id).ToArray());
 
             var redeployDeploymentPlans = new RedeployDeploymentPlans
             {
@@ -417,7 +427,7 @@ namespace OctopusPuppet.OctopusProvider
 
             foreach (var dashboardProjectResource in dashboard.Projects)
             {
-                if (_repository.Projects.Get(dashboardProjectResource.Id).IsDisabled)
+                if (GetProjectById(dashboardProjectResource.Id).IsDisabled)
                 {
                     continue;
                 }
