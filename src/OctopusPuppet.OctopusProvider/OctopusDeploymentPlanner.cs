@@ -28,7 +28,7 @@ namespace OctopusPuppet.OctopusProvider
         private ProjectResource GetProjectByName(string name) => _cachedProjects.FirstOrDefault(x => x.Name == name);
         private void RefreshCachedProjects() => _cachedProjects = _repository.Projects.FindAll();
 
-        private List<ReleaseResource> GetReleaseResources(string projectId)
+        private List<ReleaseResource> GetReleaseResources(string projectId, uint maxLastestNumberOfReleaseLookup = 150)
         {
             var project = GetProjectById(projectId);
 
@@ -40,7 +40,9 @@ namespace OctopusPuppet.OctopusProvider
                 var releasePages = _repository.Projects.GetReleases(project, skip);
                 releases.AddRange(releasePages.Items);
                 skip += releasePages.ItemsPerPage;
-                shouldPage = releasePages.TotalResults > skip;
+                shouldPage = maxLastestNumberOfReleaseLookup == 0 
+                    ? releasePages.TotalResults > skip 
+                    : releasePages.TotalResults > skip && maxLastestNumberOfReleaseLookup > skip;
             } while (shouldPage);
 
             return releases;
