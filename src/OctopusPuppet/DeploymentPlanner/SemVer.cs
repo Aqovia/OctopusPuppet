@@ -18,8 +18,8 @@ namespace OctopusPuppet.DeploymentPlanner
     [JsonConverter(typeof(SemVerJsonConverter))]
     public sealed class SemVer : IComparable, IComparable<SemVer>, IEquatable<SemVer>
     {
-        private static readonly Regex SemanticVersionRegex = new Regex("^(?<Version>\\d+(\\s*\\.\\s*\\d+){0,3})(?<Release>-[a-z][0-9a-z-]*)?$", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
-        private static readonly Regex StrictSemanticVersionRegex = new Regex("^(?<Version>\\d+(\\.\\d+){2})(?<Release>-[a-z][0-9a-z-]*)?$", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
+        private static readonly Regex SemanticVersionRegex = new Regex(@"^(?<Version>\d+(\.\d+){1,3})(?<Release>-[A-Za-z][0-9A-Za-z.-]*)?$", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
+        private static readonly Regex StrictSemanticVersionRegex = new Regex(@"^(?<Version>\d+(\.\d+){2})(?<Release>-[A-Za-z][0-9A-Za-z.-]*)?$", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
         private const RegexOptions _flags = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled;
         private readonly string _originalString;
 

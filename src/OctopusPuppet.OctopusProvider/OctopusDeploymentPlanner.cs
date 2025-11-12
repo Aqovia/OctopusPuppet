@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Octopus.Client;
 using Octopus.Client.Model;
@@ -40,8 +41,8 @@ namespace OctopusPuppet.OctopusProvider
                 var releasePages = _repository.Projects.GetReleases(project, skip);
                 releases.AddRange(releasePages.Items);
                 skip += releasePages.ItemsPerPage;
-                shouldPage = maxLastestNumberOfReleaseLookup == 0 
-                    ? releasePages.TotalResults > skip 
+                shouldPage = maxLastestNumberOfReleaseLookup == 0
+                    ? releasePages.TotalResults > skip
                     : releasePages.TotalResults > skip && maxLastestNumberOfReleaseLookup > skip;
             } while (shouldPage);
 
@@ -71,10 +72,10 @@ namespace OctopusPuppet.OctopusProvider
             return dashboardItemResource;
         }
 
-        private SemanticVersion GetSemanticVersionOrNull(string versionString)
+        private SemVer GetSemanticVersionOrNull(string versionString)
         {
-            SemanticVersion version;
-            SemanticVersion.TryParse(versionString, out version);
+            SemVer version;
+            SemVer.TryParse(versionString, out version);
             return version;
         }
 
