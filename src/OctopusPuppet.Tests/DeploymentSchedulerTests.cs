@@ -51,8 +51,6 @@ namespace OctopusPuppet.Tests
             return new EnvironmentDeploymentPlan(componentDeploymentPlans);
         }
 
-        //create test to item that you are deploying is is what you have selected
-
         [Fact]
         public void GetDeploymentPlan_Should_Use_InputBranch_As_DeploymentBranch()
         {
