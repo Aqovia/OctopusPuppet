@@ -39,6 +39,35 @@ namespace OctopusPuppet.Tests
             return environmentDeploymentPlan;
         }
 
+
+
+        private EnvironmentDeploymentPlan GetEnvironmentDeploymentPlanWithReleaseBranch()
+        {
+            var componentDeploymentPlans = new List<ComponentDeploymentPlan>()
+            {
+                new ComponentDeploymentPlan() {Id ="release-1.5.1", Name = "release-1.5.1", Action = PlanAction.Change, ComponentFrom = new Component(){Dependancies = {}, Version = new SemVer("1.2.345-release-1.5.1"), DeploymentDuration = new TimeSpan(0,0,100)}, ComponentTo = null},
+            };
+
+            return new EnvironmentDeploymentPlan(componentDeploymentPlans);
+        }
+
+        [Fact]
+        public void GetDeploymentPlan_Should_Use_InputBranch_As_DeploymentBranch()
+        {
+            var environmentDeploymentPlan = GetEnvironmentDeploymentPlanWithReleaseBranch();
+            var deploymentScheduler = new DeploymentScheduler();
+            var componentGraph = deploymentScheduler.GetComponentDeploymentGraph(environmentDeploymentPlan);
+            var environmentDeployment = deploymentScheduler.GetEnvironmentDeployment(componentGraph);
+
+            var product = environmentDeployment.ProductDeployments.Single();
+            var deployedComponent = product.DeploymentSteps.SelectMany(x => x.ComponentDeployments).Single();
+
+            deployedComponent.Vertex.Id.Should().Be("release-1.5.1");
+            deployedComponent.Vertex.Name.Should().Be("release-1.5.1");
+            deployedComponent.Vertex.Version.SpecialVersion.Should().Be("release-1.5.1");
+        }
+
+
         [Fact]
         public void GetDeploymentPlanForComponentJson()
         {
@@ -59,7 +88,7 @@ namespace OctopusPuppet.Tests
 
             products1.DeploymentSteps.Count().Should().Be(ExpectedNumberOfDeploymentStepsForProductDeployment1);
             products1.DeploymentSteps.SelectMany(productDeploymentStep => productDeploymentStep.ComponentDeployments).Count().Should().Be(ExpectedNumberOfComponentDeploymentsForProductDeployment1);
-        }
+        } 
 
         [Fact]
         public void GetDeploymentPlanForComponentDeploymentList()
@@ -116,7 +145,7 @@ namespace OctopusPuppet.Tests
             var g_d = new ComponentDeploymentEdge(g, d);
             var h_e = new ComponentDeploymentEdge(h, e);
             var h_d = new ComponentDeploymentEdge(h, d);
-            
+
             var y_x = new ComponentDeploymentEdge(y, x);
             var z_y = new ComponentDeploymentEdge(z, y);
 
@@ -136,6 +165,6 @@ namespace OctopusPuppet.Tests
 
             products1.DeploymentSteps.Count().Should().Be(ExpectedNumberOfDeploymentStepsForProductDeployment1);
             products1.DeploymentSteps.SelectMany(productDeploymentStep => productDeploymentStep.ComponentDeployments).Count().Should().Be(ExpectedNumberOfComponentDeploymentsForProductDeployment1);
-        }   
+        }
     }
 }
