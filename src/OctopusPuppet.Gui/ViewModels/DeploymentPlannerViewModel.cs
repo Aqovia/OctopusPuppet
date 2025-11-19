@@ -362,6 +362,18 @@ namespace OctopusPuppet.Gui.ViewModels
             }
         }
 
+        private bool _excludeMasterBranch = false;
+        public bool ExcludeMasterBranch
+        {
+            get { return _excludeMasterBranch; }
+            set
+            {
+                if (value == _excludeMasterBranch) return;
+                _excludeMasterBranch = value;
+                NotifyOfPropertyChange(() => ExcludeMasterBranch);
+            }
+        }
+
         private bool _componentFilterInclude = false;
         public bool ComponentFilterInclude
         {
@@ -475,7 +487,7 @@ namespace OctopusPuppet.Gui.ViewModels
                         Include = ComponentFilterInclude
                     };
 
-                    var branchDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(_selectedBranchDeploymentEnvironment.Name, _selectedBranchDeploymentBranch.Name, _doNotUseDifferentialDeploymentForBranchDeployment, componentFilter);
+                    var branchDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(_selectedBranchDeploymentEnvironment.Name, _selectedBranchDeploymentBranch.Name, _doNotUseDifferentialDeploymentForBranchDeployment, _excludeMasterBranch, componentFilter);
                     EnvironmentDeploymentPlan = branchDeploymentPlans.EnvironmentDeploymentPlan;
 
                     var deploymentScheduler = new DeploymentScheduler();
@@ -573,7 +585,7 @@ namespace OctopusPuppet.Gui.ViewModels
                         Expressions = ComponentFilterExpressions.Select(x => x.Text).ToList(),
                         Include = ComponentFilterInclude
                     };
-                    var environmentMirrorDeploymentPlans = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(_selectedEnvironmentMirrorFromEnvironment.Name, _selectedEnvironmentMirrorToEnvironment.Name, _doNotUseDifferentialDeploymentForMirror, componentFilter);
+                    var environmentMirrorDeploymentPlans = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(_selectedEnvironmentMirrorFromEnvironment.Name, _selectedEnvironmentMirrorToEnvironment.Name, _doNotUseDifferentialDeploymentForMirror, _excludeMasterBranch,componentFilter);
 
                     EnvironmentDeploymentPlan = environmentMirrorDeploymentPlans.EnvironmentDeploymentPlan;
 

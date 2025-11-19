@@ -210,7 +210,7 @@ namespace OctopusPuppet.OctopusProvider
             return component;
         }
 
-        private ComponentDeploymentPlan GetEnvironmentDeploymentPlan(string projectId, string projectName, Component componentFrom, Component componentTo, bool doNotUseDifferentialDeployment = false)
+        private ComponentDeploymentPlan GetEnvironmentDeploymentPlan(string projectId, string projectName, Component componentFrom, Component componentTo, bool doNotUseDifferentialDeployment = false, bool excludeMasterBranch = false)
         {
             var deploymentPlan = new ComponentDeploymentPlan
             {
@@ -235,6 +235,11 @@ namespace OctopusPuppet.OctopusProvider
                 //deploymentPlan.Action = PlanAction.Remove;
                 deploymentPlan.Action = PlanAction.Skip;
             }
+            else if (!doNotUseDifferentialDeployment && excludeMasterBranch && string.IsNullOrWhiteSpace(componentFrom.Version.SpecialVersion))
+            {
+
+                deploymentPlan.Action = PlanAction.Skip;
+            }
             else if (componentTo == null)
             {
                 deploymentPlan.Action = PlanAction.Change;
@@ -242,6 +247,7 @@ namespace OctopusPuppet.OctopusProvider
             else if (componentFrom.Version == componentTo.Version && componentTo.Healthy)
             {
                 deploymentPlan.Action = doNotUseDifferentialDeployment ? PlanAction.Change : PlanAction.Skip;
+
             }
             else
             {
@@ -291,7 +297,7 @@ namespace OctopusPuppet.OctopusProvider
             return branches;
         }
 
-        public EnvironmentDeploymentPlans GetEnvironmentMirrorDeploymentPlans(string environmentFrom, string environmentTo, bool doNotUseDifferentialDeployment, ComponentFilter componentFilter = null)
+        public EnvironmentDeploymentPlans GetEnvironmentMirrorDeploymentPlans(string environmentFrom, string environmentTo, bool doNotUseDifferentialDeployment, bool excludeMasterBranch, ComponentFilter componentFilter = null)
         {
             var environments = environmentFrom == environmentTo ?
                 new[] { environmentFrom } :
@@ -345,7 +351,7 @@ namespace OctopusPuppet.OctopusProvider
                     ? componentFrom
                     : GetComponentForEnvironment(dashboard, environmentReferenceTo.Id, projectId, componentFilter);
 
-                var deploymentPlan = GetEnvironmentDeploymentPlan(projectId, projectName, componentFrom, componentTo, doNotUseDifferentialDeployment);
+                var deploymentPlan = GetEnvironmentDeploymentPlan(projectId, projectName, componentFrom, componentTo, doNotUseDifferentialDeployment, excludeMasterBranch);
 
                 environmentDeploymentPlan.EnvironmentDeploymentPlan.DeploymentPlans.Add(deploymentPlan);
             }
@@ -354,7 +360,7 @@ namespace OctopusPuppet.OctopusProvider
         }
 
 
-        public BranchDeploymentPlans GetBranchDeploymentPlans(string environment, string branch, bool doNotUseDifferentialDeployment, ComponentFilter componentFilter = null)
+        public BranchDeploymentPlans GetBranchDeploymentPlans(string environment, string branch, bool doNotUseDifferentialDeployment, bool excludeMasterBranch, ComponentFilter componentFilter = null)
         {
             var environments = new[] { environment };
 
@@ -397,7 +403,7 @@ namespace OctopusPuppet.OctopusProvider
                 var componentFrom = GetComponentForBranch(dashboard, environmentReference.Id, projectId, branch, componentFilter);
                 var componentTo = GetComponentForEnvironment(dashboard, environmentReference.Id, projectId, componentFilter);
 
-                var deploymentPlan = GetEnvironmentDeploymentPlan(projectId, projectName, componentFrom, componentTo, doNotUseDifferentialDeployment);
+                var deploymentPlan = GetEnvironmentDeploymentPlan(projectId, projectName, componentFrom, componentTo, doNotUseDifferentialDeployment, excludeMasterBranch);
 
                 branchDeploymentPlan.EnvironmentDeploymentPlan.DeploymentPlans.Add(deploymentPlan);
             }
