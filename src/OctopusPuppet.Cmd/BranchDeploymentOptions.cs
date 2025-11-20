@@ -47,6 +47,12 @@ namespace OctopusPuppet.Cmd
             HelpText = "Deploy")]
         public bool Deploy { get; set; }
 
+        [Option('e', "ExcludeMasterBranch",
+            Default = false,
+            SetName = "BranchDeployment",
+            HelpText = "Exclude Master Branch")]
+        public bool ExcludeMasterBranch { get; set; }
+
         [Option('f', "DoNotUseDifferentialDeployment",
             Default = false,
             SetName = "BranchDeployment",
