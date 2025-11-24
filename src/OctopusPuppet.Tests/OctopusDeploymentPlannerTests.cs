@@ -56,5 +56,34 @@ namespace OctopusPuppet.Tests
         {
             GetSutForVersion("an-invalid-version-number").GetBranches().Should().BeEmpty();
         }
+
+        [Fact]
+        public void GetBranches_should_include_branches_with_release_prefix()
+        {
+            GetSutForVersion("1.2.3456-release-1.5.1").GetBranches().Select(x => new { x.Id, x.Name })
+                .Should().Equal(new { Id = "release-1.5.1", Name = "release-1.5.1" });
+        }
+
+        [Theory]
+        [InlineData("1.2.3456-release-1.5.1", true)]
+        [InlineData("release1.5.1", false)]
+        [InlineData("release.1", false)]
+        [InlineData("1.2.3456-a-branch", true)]
+        [InlineData("1.2.3456-DO-2059-disable-waf-rule", true)]
+        [InlineData("1234", false)] 
+        public void GetBranches_ShouldValidateReleaseFormat(string version, bool shouldExist)
+        {
+            var branches = GetSutForVersion(version).GetBranches();
+
+            if (shouldExist)
+            {
+                branches.Should().NotBeEmpty();
+            }
+            else
+            {
+                branches.Should().BeEmpty();
+            }
+        }
     }
+
 }
