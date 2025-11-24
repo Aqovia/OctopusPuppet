@@ -56,6 +56,31 @@ namespace OctopusPuppet.IntegrationTests
             dashboard.EnvironmentDeploymentPlan.DeploymentPlans.Count.Should().BeGreaterThan(0);
         }
 
+
+
+        [Fact]
+        public void GetEnvironmentMirrorDeploymentPlansExcludingMaster()
+        {
+            var octopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
+            var octopusApiKey = ConfigurationManager.AppSettings["OctopusApiKey"];
+            var deploymentPlanner = new OctopusDeploymentPlanner(octopusUrl, octopusApiKey);
+
+            var environmentFrom = ConfigurationManager.AppSettings["EnvironmentFrom"];
+            var environmentTo = ConfigurationManager.AppSettings["EnvironmentTo"];
+
+            var dashboard = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(environmentFrom, environmentTo, false, true);
+
+            var plans = dashboard.EnvironmentDeploymentPlan.DeploymentPlans
+                .Where(x => x.Action != PlanAction.Skip)
+                .ToList();
+
+            plans.Should().NotBeNull();
+            plans.Should().NotBeEmpty();
+
+        }
+
+
+
         [Fact]
         public void GetBranchDeploymentPlans()
         {

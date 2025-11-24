@@ -362,15 +362,27 @@ namespace OctopusPuppet.Gui.ViewModels
             }
         }
 
-        private bool _excludeMasterBranch = false;
-        public bool ExcludeMasterBranch
+        private bool _skipMasterBranchForMirrorDeployment = false;
+        public bool SkipMasterBranchForMirrorDeployment
         {
-            get { return _excludeMasterBranch; }
+            get { return _skipMasterBranchForMirrorDeployment; }
             set
             {
-                if (value == _excludeMasterBranch) return;
-                _excludeMasterBranch = value;
-                NotifyOfPropertyChange(() => ExcludeMasterBranch);
+                if (value == _skipMasterBranchForMirrorDeployment) return;
+                _skipMasterBranchForMirrorDeployment = value;
+                NotifyOfPropertyChange(() => SkipMasterBranchForMirrorDeployment);
+            }
+        }
+
+        private bool _skipMasterBranchForBranchDeployment = false;
+        public bool SkipMasterBranchForBranchDeployment
+        {
+            get { return _skipMasterBranchForBranchDeployment; }
+            set
+            {
+                if (value == _skipMasterBranchForBranchDeployment) return;
+                _skipMasterBranchForBranchDeployment = value;
+                NotifyOfPropertyChange(() => SkipMasterBranchForBranchDeployment);
             }
         }
 
@@ -487,7 +499,7 @@ namespace OctopusPuppet.Gui.ViewModels
                         Include = ComponentFilterInclude
                     };
 
-                    var branchDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(_selectedBranchDeploymentEnvironment.Name, _selectedBranchDeploymentBranch.Name, _doNotUseDifferentialDeploymentForBranchDeployment, _excludeMasterBranch, componentFilter);
+                    var branchDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(_selectedBranchDeploymentEnvironment.Name, _selectedBranchDeploymentBranch.Name, _doNotUseDifferentialDeploymentForBranchDeployment, _skipMasterBranchForBranchDeployment, componentFilter);
                     EnvironmentDeploymentPlan = branchDeploymentPlans.EnvironmentDeploymentPlan;
 
                     var deploymentScheduler = new DeploymentScheduler();
@@ -585,7 +597,7 @@ namespace OctopusPuppet.Gui.ViewModels
                         Expressions = ComponentFilterExpressions.Select(x => x.Text).ToList(),
                         Include = ComponentFilterInclude
                     };
-                    var environmentMirrorDeploymentPlans = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(_selectedEnvironmentMirrorFromEnvironment.Name, _selectedEnvironmentMirrorToEnvironment.Name, _doNotUseDifferentialDeploymentForMirror, _excludeMasterBranch,componentFilter);
+                    var environmentMirrorDeploymentPlans = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(_selectedEnvironmentMirrorFromEnvironment.Name, _selectedEnvironmentMirrorToEnvironment.Name, _doNotUseDifferentialDeploymentForMirror, _skipMasterBranchForMirrorDeployment, componentFilter);
 
                     EnvironmentDeploymentPlan = environmentMirrorDeploymentPlans.EnvironmentDeploymentPlan;
 

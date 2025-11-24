@@ -47,11 +47,11 @@ namespace OctopusPuppet.Cmd
             HelpText = "Deploy")]
         public bool Deploy { get; set; }
 
-        [Option('e', "ExcludeMasterBranch",
+        [Option('e', "SkipMasterBranch",
             Default = false,
             SetName = "MirrorEnvironment",
-            HelpText = "Exclude Master Branch")]
-        public bool ExcludeMasterBranch { get; set; }
+            HelpText = "Skip Master Branch")]
+        public bool SkipMasterBranch { get; set; }
 
         [Option('f', "DoNotUseDifferentialDeployment",
             Default = false,
