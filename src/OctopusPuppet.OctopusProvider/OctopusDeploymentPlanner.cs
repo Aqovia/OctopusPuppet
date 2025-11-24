@@ -210,7 +210,7 @@ namespace OctopusPuppet.OctopusProvider
             return component;
         }
 
-        private ComponentDeploymentPlan GetEnvironmentDeploymentPlan(string projectId, string projectName, Component componentFrom, Component componentTo, bool doNotUseDifferentialDeployment = false, bool excludeMasterBranch = false)
+        private ComponentDeploymentPlan GetEnvironmentDeploymentPlan(string projectId, string projectName, Component componentFrom, Component componentTo, bool doNotUseDifferentialDeployment = false, bool skipMasterBranch = false)
         {
             var deploymentPlan = new ComponentDeploymentPlan
             {
@@ -235,7 +235,7 @@ namespace OctopusPuppet.OctopusProvider
                 //deploymentPlan.Action = PlanAction.Remove;
                 deploymentPlan.Action = PlanAction.Skip;
             }
-            else if (!doNotUseDifferentialDeployment && excludeMasterBranch && string.IsNullOrWhiteSpace(componentFrom.Version.SpecialVersion))
+            else if (!doNotUseDifferentialDeployment && skipMasterBranch && string.IsNullOrWhiteSpace(componentFrom.Version.SpecialVersion))
             {
 
                 deploymentPlan.Action = PlanAction.Skip;
@@ -297,7 +297,7 @@ namespace OctopusPuppet.OctopusProvider
             return branches;
         }
 
-        public EnvironmentDeploymentPlans GetEnvironmentMirrorDeploymentPlans(string environmentFrom, string environmentTo, bool doNotUseDifferentialDeployment, bool excludeMasterBranch, ComponentFilter componentFilter = null)
+        public EnvironmentDeploymentPlans GetEnvironmentMirrorDeploymentPlans(string environmentFrom, string environmentTo, bool doNotUseDifferentialDeployment, bool skipMasterBranch, ComponentFilter componentFilter = null)
         {
             var environments = environmentFrom == environmentTo ?
                 new[] { environmentFrom } :
@@ -351,7 +351,7 @@ namespace OctopusPuppet.OctopusProvider
                     ? componentFrom
                     : GetComponentForEnvironment(dashboard, environmentReferenceTo.Id, projectId, componentFilter);
 
-                var deploymentPlan = GetEnvironmentDeploymentPlan(projectId, projectName, componentFrom, componentTo, doNotUseDifferentialDeployment, excludeMasterBranch);
+                var deploymentPlan = GetEnvironmentDeploymentPlan(projectId, projectName, componentFrom, componentTo, doNotUseDifferentialDeployment, skipMasterBranch);
 
                 environmentDeploymentPlan.EnvironmentDeploymentPlan.DeploymentPlans.Add(deploymentPlan);
             }
@@ -360,7 +360,7 @@ namespace OctopusPuppet.OctopusProvider
         }
 
 
-        public BranchDeploymentPlans GetBranchDeploymentPlans(string environment, string branch, bool doNotUseDifferentialDeployment, bool excludeMasterBranch, ComponentFilter componentFilter = null)
+        public BranchDeploymentPlans GetBranchDeploymentPlans(string environment, string branch, bool doNotUseDifferentialDeployment, bool skipMasterBranch, ComponentFilter componentFilter = null)
         {
             var environments = new[] { environment };
 
@@ -403,7 +403,7 @@ namespace OctopusPuppet.OctopusProvider
                 var componentFrom = GetComponentForBranch(dashboard, environmentReference.Id, projectId, branch, componentFilter);
                 var componentTo = GetComponentForEnvironment(dashboard, environmentReference.Id, projectId, componentFilter);
 
-                var deploymentPlan = GetEnvironmentDeploymentPlan(projectId, projectName, componentFrom, componentTo, doNotUseDifferentialDeployment, excludeMasterBranch);
+                var deploymentPlan = GetEnvironmentDeploymentPlan(projectId, projectName, componentFrom, componentTo, doNotUseDifferentialDeployment, skipMasterBranch);
 
                 branchDeploymentPlan.EnvironmentDeploymentPlan.DeploymentPlans.Add(deploymentPlan);
             }

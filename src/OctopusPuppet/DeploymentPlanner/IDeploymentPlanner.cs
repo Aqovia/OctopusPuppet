@@ -6,8 +6,8 @@ namespace OctopusPuppet.DeploymentPlanner
     {
         List<Environment> GetEnvironments();
         List<Branch> GetBranches();
-        EnvironmentDeploymentPlans GetEnvironmentMirrorDeploymentPlans(string environmentFrom, string environmentTo, bool doNotUseDifferentialDeployment, bool excludeMasterBranch ,ComponentFilter componentFilter = null);
-        BranchDeploymentPlans GetBranchDeploymentPlans(string environment, string branch, bool doNotUseDifferentialDeployment, bool excludeMasterBranch, ComponentFilter componentFilter = null);
+        EnvironmentDeploymentPlans GetEnvironmentMirrorDeploymentPlans(string environmentFrom, string environmentTo, bool doNotUseDifferentialDeployment, bool skipMasterBranch ,ComponentFilter componentFilter = null);
+        BranchDeploymentPlans GetBranchDeploymentPlans(string environment, string branch, bool doNotUseDifferentialDeployment, bool skipMasterBranch, ComponentFilter componentFilter = null);
         RedeployDeploymentPlans GetRedeployDeploymentPlans(string environment, ComponentFilter componentFilter = null);
     }
 }
