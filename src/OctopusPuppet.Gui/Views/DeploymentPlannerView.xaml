@@ -129,7 +129,6 @@
                                                 <Label Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Content="To"/>
                                                 <ComboBox Grid.Column="3" x:Name="EnvironmentMirrorToEnvironments" SelectedItem="{Binding SelectedEnvironmentMirrorToEnvironment}" DisplayMemberPath="Name" SelectedValuePath="Id" HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"/>
  
-
                                                 <StackPanel Grid.Column="4" Grid.ColumnSpan="2" Orientation="Vertical" HorizontalAlignment="Left" Margin="8,0,10,0">
                                                     <StackPanel Orientation="Horizontal" >
                                                         <Label Content="Do not use differential deploy" VerticalAlignment="Center"/>
