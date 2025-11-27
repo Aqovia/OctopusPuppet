@@ -77,6 +77,15 @@ namespace OctopusPuppet.IntegrationTests
             plans.Should().NotBeNull();
             plans.Should().NotBeEmpty();
 
+            plans.Should().OnlyContain(p =>
+                !string.IsNullOrWhiteSpace(p.ComponentFrom.Version.SpecialVersion)
+            );
+
+            plans.Should().NotContain(p => 
+            string.Equals(p.ComponentFrom.Version.SpecialVersion, "", StringComparison.OrdinalIgnoreCase),
+                "no plan should reference the master version"
+            );
+
         }
 
 
@@ -143,11 +152,6 @@ namespace OctopusPuppet.IntegrationTests
             plans.Should().OnlyContain(p =>
                 p.ComponentFrom.Version.SpecialVersion.StartsWith("release-", StringComparison.OrdinalIgnoreCase)
              );
-
-            plans.Should().OnlyContain(p =>
-                !string.Equals(p.ComponentFrom.Version.SpecialVersion, "", StringComparison.OrdinalIgnoreCase)
-            );
-
 
         }
     }
