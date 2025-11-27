@@ -94,7 +94,7 @@
                                                     </StackPanel>
                                                 </StackPanel>
 
-                                                <Button Grid.Column="8" x:Name="BranchDeployment" Content="Get" HorizontalAlignment="left" VerticalAlignment="Center" Margin="10" Padding="10 3" />
+                                                <Button Grid.Column="6" x:Name="BranchDeployment" Content="Get" HorizontalAlignment="left" VerticalAlignment="Center" Margin="10" Padding="10 3" />
                                             </Grid>
                                         </GroupBox>
                                         <GroupBox Header="Redeployment" Margin="10">
