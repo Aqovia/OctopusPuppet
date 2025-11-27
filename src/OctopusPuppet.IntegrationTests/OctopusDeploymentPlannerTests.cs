@@ -78,7 +78,7 @@ namespace OctopusPuppet.IntegrationTests
             plans.Should().NotBeEmpty();
 
             plans.Should().OnlyContain(p =>
-                !string.IsNullOrWhiteSpace(p.ComponentFrom.Version.SpecialVersion)
+                p.ComponentFrom != null && !string.IsNullOrWhiteSpace(p.ComponentFrom.Version.SpecialVersion)
             );
         }
         [Fact]
