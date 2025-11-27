@@ -140,8 +140,7 @@ namespace OctopusPuppet.IntegrationTests
             );
 
             plans.Should().OnlyContain(p =>
-                p.ComponentFrom?.Version?.SpecialVersion?.StartsWith("release-", StringComparison.OrdinalIgnoreCase) ?? false
-             );
+                p.ComponentFrom.Version.SpecialVersion.StartsWith("release-", StringComparison.OrdinalIgnoreCase));
 
         }
     }
