@@ -80,11 +80,7 @@ namespace OctopusPuppet.IntegrationTests
             plans.Should().OnlyContain(p =>
                 !string.IsNullOrWhiteSpace(p.ComponentFrom.Version.SpecialVersion)
             );
-
         }
-
-
-
         [Fact]
         public void GetBranchDeploymentPlans()
         {
