@@ -113,9 +113,6 @@ namespace OctopusPuppet.IntegrationTests
             dashboard.EnvironmentDeploymentPlan.DeploymentPlans.Count.Should().BeGreaterThan(0);
         }
 
-
-
-
         [Fact]
         public void GetBranchDeploymentPlansExcludingMaster()
         {
