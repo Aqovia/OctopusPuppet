@@ -81,11 +81,6 @@ namespace OctopusPuppet.IntegrationTests
                 !string.IsNullOrWhiteSpace(p.ComponentFrom.Version.SpecialVersion)
             );
 
-            plans.Should().NotContain(p => 
-            string.Equals(p.ComponentFrom.Version.SpecialVersion, "", StringComparison.OrdinalIgnoreCase),
-                "no plan should reference the master version"
-            );
-
         }
 
 
