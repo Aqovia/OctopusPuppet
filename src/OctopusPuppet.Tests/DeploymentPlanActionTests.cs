@@ -88,7 +88,6 @@ namespace OctopusPuppet.Tests
         }
 
         [Fact]
-
         public void DeploymentPlanner_Should_SkipMaster_WhenFlagIsTrue()
         {
             var planner = GetSutForVersionTest("1.2.3456", "D1");
