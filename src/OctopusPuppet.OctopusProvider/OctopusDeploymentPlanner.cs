@@ -247,7 +247,6 @@ namespace OctopusPuppet.OctopusProvider
             else if (componentFrom.Version == componentTo.Version && componentTo.Healthy)
             {
                 deploymentPlan.Action = doNotUseDifferentialDeployment ? PlanAction.Change : PlanAction.Skip;
-
             }
             else
             {
