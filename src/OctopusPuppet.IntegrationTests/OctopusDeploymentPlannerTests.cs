@@ -57,7 +57,6 @@ namespace OctopusPuppet.IntegrationTests
         }
 
 
-
         [Fact]
         public void GetEnvironmentMirrorDeploymentPlansExcludingMaster()
         {
