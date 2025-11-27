@@ -70,9 +70,7 @@
                                                     <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
                                                     <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
                                                     <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
+                                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/> 
                                                     <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
 
