@@ -121,14 +121,10 @@ namespace OctopusPuppet.Tests
 
 
             var plan = result.EnvironmentDeploymentPlan.DeploymentPlans.First();
-             
             plan.ComponentFrom.Version.SpecialVersion.Should().BeNullOrEmpty(
                 "this version is considered master because it has no special version suffix");
-             
             plan.Action.Should().Be(PlanAction.Change,
                 "master releases should NOT be skipped when skipMaster=false");
-
-
         }
     }
 }
