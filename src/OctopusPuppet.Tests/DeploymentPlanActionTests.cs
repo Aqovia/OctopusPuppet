@@ -86,7 +86,6 @@ namespace OctopusPuppet.Tests
 
             return new OctopusDeploymentPlanner(repo);
         }
-
         [Fact]
         public void DeploymentPlanner_Should_SkipMaster_WhenFlagIsTrue()
         {
