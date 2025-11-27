@@ -50,7 +50,7 @@ namespace OctopusPuppet.Cmd
         [Option('e', "SkipMasterBranch",
             Default = false,
             SetName = "BranchDeployment",
-            HelpText = "Skip deployment of components from master/main branch (versions without a branch suffix")]
+            HelpText = "Skip deployment of components from master/main branch (versions without a branch suffix)")]
         public bool SkipMasterBranch { get; set; }
 
         [Option('f', "DoNotUseDifferentialDeployment",
