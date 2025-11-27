@@ -99,8 +99,15 @@ namespace OctopusPuppet.Tests
                     Expressions = new List<string> { "(?i)^(ArmSharedInfrastructure|Filebeat)$" }
                 });
 
-            var masterPlan = result.EnvironmentDeploymentPlan.DeploymentPlans.First();
-            masterPlan.Action.Should().Be(PlanAction.Skip);
+
+            var plan = result.EnvironmentDeploymentPlan.DeploymentPlans.First();
+
+           
+            plan.ComponentFrom.Version.SpecialVersion.Should().BeNullOrEmpty(
+                "this version is considered master because it has no special version suffix");
+
+            plan.Action.Should().Be(PlanAction.Skip,
+                "master should be skipped when skipMaster=true");
         }
 
         [Fact]
@@ -114,8 +121,15 @@ namespace OctopusPuppet.Tests
                     Expressions = new List<string> { "(?i)^(ArmSharedInfrastructure|Filebeat)$" }
                 });
 
-            var masterPlan = result.EnvironmentDeploymentPlan.DeploymentPlans.First();
-            masterPlan.Action.Should().Be(PlanAction.Change);
+
+            var plan = result.EnvironmentDeploymentPlan.DeploymentPlans.First();
+             
+            plan.ComponentFrom.Version.SpecialVersion.Should().BeNullOrEmpty(
+                "this version is considered master because it has no special version suffix");
+             
+            plan.Action.Should().Be(PlanAction.Change,
+                "master releases should NOT be skipped when skipMaster=false");
+
 
         }
     }
