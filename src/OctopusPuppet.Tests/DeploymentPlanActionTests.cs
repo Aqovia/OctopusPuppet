@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using FluentAssertions;
 using NSubstitute;
 using Octopus.Client;
@@ -16,12 +17,13 @@ namespace OctopusPuppet.Tests
     public class DeploymentPlanActionTests
     {
 
-        private static OctopusDeploymentPlanner GetSutForVersionTest(string versionNumber, string environmentName)
+        private static OctopusDeploymentPlanner GetSutForVersion(string versionNumber, string environmentName)
         {
             var repo = Substitute.For<IOctopusRepository>();
 
             //  Projects 
-            var project = new ProjectResource { Id = "124", Name = "Test", IsDisabled = false };
+            var project = new ProjectResource { Id = "124", Name = "ArmSharedInfrastructure", IsDisabled = false };
+
             repo.Projects.Get(Arg.Any<string>()).Returns(project);
             repo.Projects.FindAll().Returns(_ => new List<ProjectResource> { project });
             repo.Projects.GetAll().Returns(_ => new List<ReferenceDataItem> { new ReferenceDataItem("124", "") });
@@ -56,7 +58,7 @@ namespace OctopusPuppet.Tests
                 {
                     Projects = new List<DashboardProjectResource>
                     {
-                        new DashboardProjectResource { Id = "124", Name = "arminfra" }
+                        new DashboardProjectResource { Id = "124", Name = "ArmSharedInfrastructure" }
                     },
                     Items = new List<DashboardItemResource>
                     {
@@ -69,12 +71,14 @@ namespace OctopusPuppet.Tests
                             QueueTime = DateTime.UtcNow.AddMinutes(-5),
                             CompletedTime = DateTime.UtcNow
                         }
+
                     }
                 });
             repo.Dashboards.Returns(dashboardRepo);
 
             // Variable Sets
             var variableSetRepo = Substitute.For<IVariableSetRepository>();
+
             variableSetRepo.Get(Arg.Any<string>()).Returns(_ => new VariableSetResource
             {
                 Variables = new List<VariableResource>
@@ -86,44 +90,70 @@ namespace OctopusPuppet.Tests
 
             return new OctopusDeploymentPlanner(repo);
         }
+
+        private static ComponentFilter ComponentFilterForTarget() =>
+            new ComponentFilter
+            {
+                Include = true,
+                Expressions = new List<string> { "(?i)^(ArmSharedInfrastructure)$" }
+            };
+
         [Fact]
-        public void DeploymentPlanner_Should_SkipMaster_WhenFlagIsTrue()
+        public void DeploymentPlanner_ShouldSkipNoBranchSuffix_WhenFlagIsTrue()
         {
-            var planner = GetSutForVersionTest("1.2.3456", "D1");
+            var version = "1.2.3456";
+            var env = "D1";
 
-            var result = planner.GetBranchDeploymentPlans("D1", "1.2.3456", false, true,
-                new ComponentFilter
-                {
-                    Expressions = new List<string> { "(?i)^(ArmSharedInfrastructure|Filebeat)$" }
-                });
- 
-            var plan = result.EnvironmentDeploymentPlan.DeploymentPlans.First();
-             
-            plan.ComponentFrom.Version.SpecialVersion.Should().BeNullOrEmpty(
-                "this version is considered master because it has no special version suffix");
+            var planner = GetSutForVersion(version, env);
+            var result = planner.GetBranchDeploymentPlans(env, version, false, true, ComponentFilterForTarget());
 
-            plan.Action.Should().Be(PlanAction.Skip,
-                "master should be skipped when skipMaster=true");
+            var plans = result.EnvironmentDeploymentPlan.DeploymentPlans;
+
+            plans.Should().NotBeEmpty();
+            plans.Should().OnlyContain(p => p.Name == "ArmSharedInfrastructure");
+            plans.Should().OnlyContain(p => string.IsNullOrWhiteSpace(p.ComponentFrom.Version.SpecialVersion));
+            plans.Should().OnlyContain(p => p.Action == PlanAction.Skip);
         }
 
         [Fact]
-        public void DeploymentPlanner_Should_UseMaster_WhenFlagIsFalse()
+        public void DeploymentPlanner_ShouldDeployNoBranchSuffix_WhenFlagIsFalse()
         {
-            var planner = GetSutForVersionTest("1.2.3456", "D1");
+            var version = "1.2.3456";
+            var env = "D1";
 
-            var result = planner.GetBranchDeploymentPlans("D1", "1.2.3456", false, false,
-                new ComponentFilter
-                {
-                    Expressions = new List<string> { "(?i)^(ArmSharedInfrastructure|Filebeat)$" }
-                });
+            var planner = GetSutForVersion(version, env);
+            var result = planner.GetBranchDeploymentPlans(env, version, false, false, ComponentFilterForTarget());
 
-            var plan = result.EnvironmentDeploymentPlan.DeploymentPlans.First();
+            var plans = result.EnvironmentDeploymentPlan.DeploymentPlans;
 
-            plan.ComponentFrom.Version.SpecialVersion.Should().BeNullOrEmpty(
-                "this version is considered master because it has no special version suffix");
-
-            plan.Action.Should().Be(PlanAction.Change,
-                "master releases should NOT be skipped when skipMaster=false");
+            plans.Should().NotBeEmpty();
+            plans.Should().OnlyContain(p => p.Name == "ArmSharedInfrastructure");
+            plans.Should().OnlyContain(p => string.IsNullOrWhiteSpace(p.ComponentFrom.Version.SpecialVersion));
+            plans.Should().OnlyContain(p => p.Action == PlanAction.Change);
         }
+
+        [Theory]
+        [InlineData("ArmSharedInfrastructure", true)]
+        [InlineData("Filebeat", false)]
+        [InlineData("NonExistingComponent", false)]
+        public void DeploymentPlanner_ComponentFilter_ShouldOnlyIncludeMatchingComponents(string projectName, bool shouldBeIncluded)
+        {
+            var version = "1.2.3456";
+            var env = "D1";
+
+            var planner = GetSutForVersion(version, env);
+
+            var result = planner.GetBranchDeploymentPlans(env, version, false, false, ComponentFilterForTarget());
+            var plans = result.EnvironmentDeploymentPlan.DeploymentPlans;
+
+            if (shouldBeIncluded)
+            {
+                plans.Should().ContainSingle(p => p.Name == projectName);
+            }
+            else
+            {
+                plans.Should().NotContain(p => p.Name == projectName);
+            }
+        } 
     }
 }
