@@ -1,66 +1,42 @@
-﻿using System.Collections.Generic;
+﻿ 
 using System.Linq;
-using FluentAssertions;
-using NSubstitute;
-using Octopus.Client;
-using Octopus.Client.Model;
-using OctopusPuppet.DeploymentPlanner;
+using FluentAssertions; 
 using OctopusPuppet.OctopusProvider;
-using Xunit;
-using static NSubstitute.Arg;
+using OctopusPuppet.Tests.TestHelpers;
+using Xunit; 
 
 namespace OctopusPuppet.Tests
 {
     public class OctopusDeploymentPlannerTests
     {
-        private static OctopusDeploymentPlanner GetSutForVersion(string versionNumber)
-        {
-            var repo = Substitute.For<IOctopusRepository>();
-
-            var project2 = new ProjectResource("124", "", "Projects-124");
-
-            repo.Projects.GetAll().Returns(new List<ReferenceDataItem> { new ReferenceDataItem("123", "") });
-            repo.Projects.FindAll().Returns(new List<ProjectResource> { project2 });
-
-            var project1 = new ProjectResource() { Id = "123" };
-            repo.Projects.Get("123").Returns(project1);
-            repo.Projects.GetReleases(project1)
-                .Returns(new ResourceCollection<ReleaseResource>(new[] { new ReleaseResource(versionNumber, "123", "") },
-                    new LinkCollection()));
-
-            repo.Projects.Get("124").Returns(project2);
-            repo.Projects.GetReleases(project2)
-                .Returns(new ResourceCollection<ReleaseResource>(new[] { new ReleaseResource(versionNumber, "124", "") },
-                    new LinkCollection()));
-
-            var sut = new OctopusDeploymentPlanner(repo);
-            return sut;
-        }
+        // Provides a mocked OctopusDeploymentPlanner for unit tests.
+        private OctopusDeploymentPlanner GetPlanner(string version) => 
+            DeploymentPlannerTestFactory.GetSutForVersion(version);
 
         [Fact]
         public void GetBranches_should_include_branches_with_valid_version_numbers_containing_special_names()
         {
-            GetSutForVersion("1.2.3456-a-branch").GetBranches().Select(x => new { x.Id, x.Name })
+            GetPlanner("1.2.3456-a-branch").GetBranches().Select(x => new { x.Id, x.Name })
                 .Should().Equal(new { Id = "a-branch", Name = "a-branch" });
         }
 
         [Fact]
         public void GetBranches_should_include_branches_in_versions_without_special_names()
         {
-            GetSutForVersion("1.2.3456").GetBranches().Select(x => new { x.Id, x.Name })
+            GetPlanner("1.2.3456").GetBranches().Select(x => new { x.Id, x.Name })
                 .Should().Equal(new { Id = "", Name = "" });
         }
 
         [Fact]
         public void GetBranches_should_not_include_branches_with_invalid_version_numbers()
         {
-            GetSutForVersion("an-invalid-version-number").GetBranches().Should().BeEmpty();
+            GetPlanner("an-invalid-version-number").GetBranches().Should().BeEmpty();
         }
 
         [Fact]
         public void GetBranches_should_include_branches_with_release_prefix()
         {
-            GetSutForVersion("1.2.3456-release-1.5.1").GetBranches().Select(x => new { x.Id, x.Name })
+            DeploymentPlannerTestFactory.GetSutForVersion("1.2.3456-release-1.5.1").GetBranches().Select(x => new { x.Id, x.Name })
                 .Should().Equal(new { Id = "release-1.5.1", Name = "release-1.5.1" });
         }
 
@@ -70,10 +46,10 @@ namespace OctopusPuppet.Tests
         [InlineData("release.1", false)]
         [InlineData("1.2.3456-a-branch", true)]
         [InlineData("1.2.3456-DO-2059-disable-waf-rule", true)]
-        [InlineData("1234", false)] 
+        [InlineData("1234", false)]
         public void GetBranches_ShouldValidateReleaseFormat(string version, bool shouldExist)
         {
-            var branches = GetSutForVersion(version).GetBranches();
+            var branches = GetPlanner(version).GetBranches();
 
             if (shouldExist)
             {
