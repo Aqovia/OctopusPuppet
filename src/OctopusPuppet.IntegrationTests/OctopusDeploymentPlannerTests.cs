@@ -58,7 +58,7 @@ namespace OctopusPuppet.IntegrationTests
 
 
         [Fact]
-        public void GetEnvironmentMirrorDeploymentPlansExcludingMaster()
+        public void GetEnvironmentMirrorDeploymentPlansExcludingBranchSuffix()
         {
             var octopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
             var octopusApiKey = ConfigurationManager.AppSettings["OctopusApiKey"];
@@ -113,6 +113,9 @@ namespace OctopusPuppet.IntegrationTests
             dashboard.EnvironmentDeploymentPlan.DeploymentPlans.Count.Should().BeGreaterThan(0);
         }
 
+        [Fact]
+        public void GetBranchDeploymentPlansPlansExcludingBranchSuffix()
+        {
             var octopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
             var octopusApiKey = ConfigurationManager.AppSettings["OctopusApiKey"];
             var deploymentPlanner = new OctopusDeploymentPlanner(octopusUrl, octopusApiKey);

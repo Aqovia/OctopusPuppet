@@ -87,8 +87,8 @@
                                                     </StackPanel>
 
                                                     <StackPanel Orientation="Horizontal"  >
-                                                        <Label Content="Exclude Master Versions" VerticalAlignment="Center"/>
-                                                        <CheckBox IsChecked="{Binding SkipMasterBranchForBranchDeployment, Mode=TwoWay}" VerticalAlignment="Center" Margin="38,4,0,0"/>
+                                                        <Label Content="Skip no branch suffix" VerticalAlignment="Center"/>
+                                                        <CheckBox IsChecked="{Binding SkipNoBranchSuffixForBranchDeployment, Mode=TwoWay}" VerticalAlignment="Center" Margin="55,4,0,0"/>
                                                     </StackPanel>
                                                 </StackPanel>
 
@@ -136,8 +136,8 @@
                                                     </StackPanel>
 
                                                     <StackPanel Orientation="Horizontal"  >
-                                                        <Label Content="Exclude Master Versions" VerticalAlignment="Center"/>
-                                                        <CheckBox IsChecked="{Binding SkipMasterBranchForMirrorDeployment, Mode=TwoWay}" VerticalAlignment="Center" Margin="38,4,0,0"/>
+                                                        <Label Content="Skip no branch suffix" VerticalAlignment="Center"/>
+                                                        <CheckBox IsChecked="{Binding SkipNoBranchSuffixForMirrorDeployment, Mode=TwoWay}" VerticalAlignment="Center" Margin="55,4,0,0"/>
                                                     </StackPanel>
                                                 </StackPanel>
 
