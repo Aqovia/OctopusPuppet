@@ -114,7 +114,7 @@ namespace OctopusPuppet.IntegrationTests
         }
 
         [Fact]
-        public void GetBranchDeploymentPlansExcludingBranchSuffix()
+        public void GetBranchDeploymentPlansSkippingNoBranchSuffix()
         {
             var octopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
             var octopusApiKey = ConfigurationManager.AppSettings["OctopusApiKey"];
