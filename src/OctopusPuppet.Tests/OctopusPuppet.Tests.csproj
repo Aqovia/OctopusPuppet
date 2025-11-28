@@ -99,6 +99,7 @@
     <Compile Include="ComponentFilterTests.cs" />
     <Compile Include="DeploymentSchedulerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestHelpers\DeploymentPlannerTestFactory.cs" /> 
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OctopusPuppet.OctopusProvider\OctopusPuppet.OctopusProvider.csproj">
