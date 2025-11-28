@@ -27,8 +27,8 @@ namespace OctopusPuppet.Tests
             // Then: branches exist or not as expected
             if (shouldExist)
             {
-                branches.Should().ContainSingle()
-                    .Which.Should().ShouldBeEquivalentTo(
+                branches.Should().ContainSingle() 
+                    .Which.ShouldBeEquivalentTo(
                         new { Id = expectedBranch, Name = expectedBranch },
                         options => options.ExcludingMissingMembers()
                     );
