@@ -58,7 +58,7 @@ namespace OctopusPuppet.IntegrationTests
 
 
         [Fact]
-        public void GetEnvironmentMirrorDeploymentPlansExcludingBranchSuffix()
+        public void GetEnvironmentMirrorDeploymentPlansSkippingNoBranchSuffix()
         {
             var octopusUrl = ConfigurationManager.AppSettings["OctopusUrl"];
             var octopusApiKey = ConfigurationManager.AppSettings["OctopusApiKey"];
