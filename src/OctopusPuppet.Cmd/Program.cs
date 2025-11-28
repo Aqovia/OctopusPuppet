@@ -95,7 +95,7 @@ namespace OctopusPuppet.Cmd
             var componentFilter = GetComponentFilter(opts.ComponentFilterPath, opts.ComponentFilter);
 
             notifier.PrintActionMessage(string.Format("Retrieve branch deployment plans for TargetEnvironment=\"{0}\" Branch=\"{1}\"", opts.TargetEnvironment, opts.Branch));
-            var redeployDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(opts.TargetEnvironment, opts.Branch, opts.DoNotUseDifferentialDeployment, opts.SkipMasterBranch, componentFilter);
+            var redeployDeploymentPlans = deploymentPlanner.GetBranchDeploymentPlans(opts.TargetEnvironment, opts.Branch, opts.DoNotUseDifferentialDeployment, opts.SkipNoBranchSuffix, componentFilter);
             var environmentDeploymentPlan = redeployDeploymentPlans.EnvironmentDeploymentPlan;
 
             var deploymentScheduler = new DeploymentScheduler();
@@ -121,7 +121,7 @@ namespace OctopusPuppet.Cmd
             var componentFilter = GetComponentFilter(opts.ComponentFilterPath, opts.ComponentFilter);
 
             notifier.PrintActionMessage(string.Format("Retrieve mirror environment plans for SourceEnvironment=\"{0}\" TargetEnvironment=\"{1}\"", opts.SourceEnvironment, opts.TargetEnvironment));
-            var environmentMirrorDeploymentPlans = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(opts.SourceEnvironment, opts.TargetEnvironment, opts.DoNotUseDifferentialDeployment, opts.SkipMasterBranch, componentFilter);
+            var environmentMirrorDeploymentPlans = deploymentPlanner.GetEnvironmentMirrorDeploymentPlans(opts.SourceEnvironment, opts.TargetEnvironment, opts.DoNotUseDifferentialDeployment, opts.SkipNoBranchSuffix, componentFilter);
             var environmentDeploymentPlan = environmentMirrorDeploymentPlans.EnvironmentDeploymentPlan;
 
             var deploymentScheduler = new DeploymentScheduler();
