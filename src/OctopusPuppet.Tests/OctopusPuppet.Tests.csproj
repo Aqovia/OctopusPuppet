@@ -96,6 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="OctopusDeploymentPlannerTests.cs" />
+    <Compile Include="DeploymentPlanActionTests.cs" />
     <Compile Include="ComponentFilterTests.cs" />
     <Compile Include="DeploymentSchedulerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
