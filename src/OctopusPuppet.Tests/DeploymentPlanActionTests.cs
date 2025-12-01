@@ -16,7 +16,7 @@ namespace OctopusPuppet.Tests
 
         public DeploymentPlanActionTests()
         {
-            // Arrange: initialize planner and component filter for all tests
+            // Arrange: initialise planner and component filter for all tests
             _planner = DeploymentPlannerTestFactory.GetSutForVersion(_version, _environment);
             _filter = DeploymentPlannerTestFactory.ComponentFilterForTarget();
         }
