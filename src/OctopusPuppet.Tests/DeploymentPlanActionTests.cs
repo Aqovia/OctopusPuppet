@@ -17,7 +17,6 @@ namespace OctopusPuppet.Tests
         {
             new TestComponent { ProjectName = "ArmSharedInfrastructure", Version = "1.2.3456" },
             new TestComponent { ProjectName = "Filebeat", Version = "2.3.456" },
-            new TestComponent { ProjectName = "NonRelevantProject", Version = "1.0.0" }
         };
 
 
@@ -28,7 +27,7 @@ namespace OctopusPuppet.Tests
         public void GetBranchDeploymentPlan_Should_Skip_MasterBuilds_When_SkipNoBranchSuffix_IsTrue(string branch)
         {
             // GIVEN: master builds only and a filter restricting to relevant projects
-            var components = GetComponents().Where(c => c.ProjectName != "NonRelevantProject").ToArray();
+            var components = GetComponents();
             var filter = new ComponentFilter
             {
                 Include = true,
@@ -56,7 +55,7 @@ namespace OctopusPuppet.Tests
         public void DeploymentPlanner_ShouldDeploy_MasterBuilds_When_SkipNoBranchSuffix_IsFalse(string branch)
         {
             // GIVEN: master builds only and a filter restricting to relevant projects
-            var components = GetComponents().Where(c => c.ProjectName != "NonRelevantProject").ToArray();
+            var components = GetComponents();
             var filter = new ComponentFilter
             {
                 Include = true,
