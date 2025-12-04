@@ -25,7 +25,7 @@ namespace OctopusPuppet.Tests
         [InlineData("2.3.456")]
         public void GetBranchDeploymentPlan_Should_Skip_MasterBuilds_When_SkipNoBranchSuffix_IsTrue(string branch)
         {
-            // GIVEN: master builds only and a filter restricting to relevant projects
+            // GIVEN: components and filter to get a deployment plan
             var components = GetComponents();
             var filter = new ComponentFilter
             {
@@ -53,7 +53,7 @@ namespace OctopusPuppet.Tests
         [InlineData("2.3.456")]
         public void DeploymentPlanner_ShouldDeploy_MasterBuilds_When_SkipNoBranchSuffix_IsFalse(string branch)
         {
-            // GIVEN: master builds only and a filter restricting to relevant projects
+            // GIVEN: components and filter to get a deployment plan
             var components = GetComponents();
             var filter = new ComponentFilter
             {
@@ -84,7 +84,7 @@ namespace OctopusPuppet.Tests
         public void DeploymentPlanner_ComponentFilter_ShouldOnlyIncludeMatchingComponents(
             string projectName, string branch, bool shouldBeIncluded)
         {
-            // GIVEN: mixed components and a filter
+            // GIVEN: components and filter to get a deployment plan
             var components = GetComponents();
             var filter = new ComponentFilter
             {
