@@ -14,17 +14,22 @@ namespace OctopusPuppet.Tests
         private readonly string _environment = "D1";
         private readonly ComponentFilter _filter;
 
+
         public DeploymentPlanActionTests()
         {
             // Arrange: initialise planner and component filter for all tests
             _planner = DeploymentPlannerTestFactory.GetSutForVersion(_version, _environment);
-            _filter = DeploymentPlannerTestFactory.ComponentFilterForTarget();
+            _filter = new ComponentFilter
+            {
+                Include = true,
+                Expressions = new List<string> { "(?i)^(ArmSharedInfrastructure|Filebeat)$" }
+            };
         }
 
         [Fact]
         public void DeploymentPlanner_ShouldSkipNoBranchSuffix_WhenFlagIsTrue()
         {
-            // Given: a planner with a component filter and skipNoBranchSuffix = true
+            // Given: a deployment planner has been configured with skipNoBranchSuffix = true
             var result = _planner.GetBranchDeploymentPlans(_environment, _version, false, true, _filter);
 
             // When: retrieving the deployment plans
@@ -42,7 +47,7 @@ namespace OctopusPuppet.Tests
         [Fact]
         public void DeploymentPlanner_ShouldDeployNoBranchSuffix_WhenFlagIsFalse()
         {
-            // Given: a planner with a component filter and skipNoBranchSuffix = false
+            // Given: a deployment planner has been configured with skipNoBranchSuffix = false
             var result = _planner.GetBranchDeploymentPlans(_environment, _version, false, false, _filter);
 
             // When: retrieving the deployment plans
@@ -63,7 +68,7 @@ namespace OctopusPuppet.Tests
         [InlineData("NonRelevantProject", false)]
         public void DeploymentPlanner_ComponentFilter_ShouldOnlyIncludeMatchingComponents(string projectName, bool shouldBeIncluded)
         {
-            // Given: a planner with a component filter
+            // Given: a deployment planner has been configured to include specific projects
             var result = _planner.GetBranchDeploymentPlans(_environment, _version, false, false, _filter);
 
             // When: retrieving the deployment plans

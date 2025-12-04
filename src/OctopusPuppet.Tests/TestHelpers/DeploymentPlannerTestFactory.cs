@@ -71,11 +71,6 @@ namespace OctopusPuppet.Tests.TestHelpers
             return new OctopusDeploymentPlanner(repo);
         }
 
-        public static ComponentFilter ComponentFilterForTarget() =>
-            new ComponentFilter
-            {
-                Include = true,
-                Expressions = new List<string> { "(?i)^(ArmSharedInfrastructure|Filebeat)$" }
-            };
+        
     }
 }
