@@ -18,8 +18,7 @@ namespace OctopusPuppet.Tests
             new TestComponent { ProjectName = "ArmSharedInfrastructure", Version = "1.2.3456" },
             new TestComponent { ProjectName = "Filebeat", Version = "2.3.456" },
         };
-
-
+         
 
         [Theory]
         [InlineData("1.2.3456")]
@@ -85,7 +84,7 @@ namespace OctopusPuppet.Tests
         public void DeploymentPlanner_ComponentFilter_ShouldOnlyIncludeMatchingComponents(
             string projectName, string branch, bool shouldBeIncluded)
         {
-            // GIVEN: mixed components (some matching, some not) and a filter
+            // GIVEN: mixed components and a filter
             var components = GetComponents();
             var filter = new ComponentFilter
             {
