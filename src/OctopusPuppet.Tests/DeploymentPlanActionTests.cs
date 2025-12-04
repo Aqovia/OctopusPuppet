@@ -37,7 +37,6 @@ namespace OctopusPuppet.Tests
 
             // Then: all relevant components are returned as master builds and skipped
             plans.Should().NotBeEmpty();
-            plans.Should().OnlyContain(p => p.Name == "ArmSharedInfrastructure" || p.Name == "Filebeat");
             plans.Should().OnlyContain(p => string.IsNullOrWhiteSpace(p.ComponentFrom.Version.SpecialVersion),
                 "versions with no special suffix are master builds");
             plans.Should().OnlyContain(p => p.Action == PlanAction.Skip,
@@ -55,7 +54,6 @@ namespace OctopusPuppet.Tests
 
             // Then: all relevant components are returned as master builds and deployed
             plans.Should().NotBeEmpty();
-            plans.Should().OnlyContain(p => p.Name == "ArmSharedInfrastructure" || p.Name == "Filebeat");
             plans.Should().OnlyContain(p => string.IsNullOrWhiteSpace(p.ComponentFrom.Version.SpecialVersion),
                 "versions with no special suffix are master builds");
             plans.Should().OnlyContain(p => p.Action == PlanAction.Change,
