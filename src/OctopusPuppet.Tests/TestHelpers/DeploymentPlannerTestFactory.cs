@@ -6,41 +6,52 @@ using OctopusPuppet.DeploymentPlanner;
 using OctopusPuppet.OctopusProvider;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OctopusPuppet.Tests.TestHelpers
 {
+    public class TestComponent
+    {
+        public string ProjectName { get; set; }
+        public string Version { get; set; }
+    }
+
     public static class DeploymentPlannerTestFactory
     {
-        public static OctopusDeploymentPlanner GetSutForVersion(string versionNumber, string environmentName = "D1")
+        public static OctopusDeploymentPlanner GetSutForComponents(TestComponent[] components, string environmentName = "D1")
         {
             var repo = Substitute.For<IOctopusRepository>();
 
             // Projects
-            var project1 = new ProjectResource { Id = "124", Name = "ArmSharedInfrastructure", IsDisabled = false };
-            var project2 = new ProjectResource { Id = "125", Name = "Filebeat", IsDisabled = false };
-
-            repo.Projects.Get(Arg.Any<string>()).Returns(project1);
-            repo.Projects.FindAll().Returns(new List<ProjectResource> { project1, project2 });
-            repo.Projects.GetAll().Returns(new List<ReferenceDataItem>
+            var projectMap = new Dictionary<string, ProjectResource>();
+            int idCounter = 100;
+            foreach (var c in components)
             {
-                new ReferenceDataItem("124",""),
-                new ReferenceDataItem("125",""),
-            });
+                if (!projectMap.ContainsKey(c.ProjectName))
+                    projectMap[c.ProjectName] = new ProjectResource { Id = (idCounter++).ToString(), Name = c.ProjectName };
+            }
+
+            var projects = projectMap.Values.ToList();
+            repo.Projects.FindAll().Returns(projects);
+            repo.Projects.GetAll().Returns(projects.Select(p => new ReferenceDataItem(p.Id, p.Name)).ToList());
+            foreach (var p in projects) repo.Projects.Get(p.Id).Returns(p);
 
             // Releases
             repo.Projects.GetReleases(Arg.Any<ProjectResource>())
-                .Returns(args =>
+                .Returns(call =>
                 {
-                    var project = args.Arg<ProjectResource>();
-                    return new ResourceCollection<ReleaseResource>(
-                        new[] { new ReleaseResource(versionNumber, project.Id, "") { Id = versionNumber, Version = versionNumber } },
-                        new LinkCollection()
-                    );
+                    var project = call.Arg<ProjectResource>();
+                    var releases = components
+                        .Where(c => c.ProjectName == project.Name)
+                        .Select(c => new ReleaseResource(c.Version, project.Id, "") { Id = c.Version, Version = c.Version })
+                        .ToArray();
+
+                    return new ResourceCollection<ReleaseResource>(releases, new LinkCollection());
                 });
 
             // Environments
             var envRepo = Substitute.For<IEnvironmentRepository>();
-            envRepo.GetAll().Returns(new List<ReferenceDataItem> { new ReferenceDataItem("124", environmentName) });
+            envRepo.GetAll().Returns(new List<ReferenceDataItem> { new ReferenceDataItem("env1", environmentName) });
             repo.Environments.Returns(envRepo);
 
             // Dashboard
@@ -48,15 +59,17 @@ namespace OctopusPuppet.Tests.TestHelpers
             dashboardRepo.GetDynamicDashboard(Arg.Any<string[]>(), Arg.Any<string[]>())
                 .Returns(new DashboardResource
                 {
-                    Projects = new List<DashboardProjectResource>
+                    Projects = projects.Select(p => new DashboardProjectResource { Id = p.Id, Name = p.Name }).ToList(),
+                    Items = components.Select(c =>
                     {
-                        new DashboardProjectResource { Id = "124", Name = "ArmSharedInfrastructure" },
-                        new DashboardProjectResource { Id = "125", Name = "Filebeat" }                    },
-                    Items = new List<DashboardItemResource>
-                    {
-                        new DashboardItemResource { ProjectId = "124", EnvironmentId = environmentName, ReleaseVersion = versionNumber },
-                        new DashboardItemResource { ProjectId = "125", EnvironmentId = environmentName, ReleaseVersion = versionNumber },
-                    }
+                        var project = projectMap[c.ProjectName];
+                        return new DashboardItemResource
+                        {
+                            ProjectId = project.Id,
+                            EnvironmentId = environmentName,
+                            ReleaseVersion = c.Version
+                        };
+                    }).ToList()
                 });
             repo.Dashboards.Returns(dashboardRepo);
 
@@ -64,13 +77,14 @@ namespace OctopusPuppet.Tests.TestHelpers
             var variableSetRepo = Substitute.For<IVariableSetRepository>();
             variableSetRepo.Get(Arg.Any<string>()).Returns(new VariableSetResource
             {
-                Variables = new List<VariableResource> { new VariableResource { Id = Guid.NewGuid().ToString(), Name = "test", Value = "Testing var" } }
+                Variables = new List<VariableResource>
+        {
+            new VariableResource { Id = Guid.NewGuid().ToString(), Name = "test", Value = "Testing var" }
+        }
             });
             repo.VariableSets.Returns(variableSetRepo);
 
             return new OctopusDeploymentPlanner(repo);
         }
-
-        
     }
 }
