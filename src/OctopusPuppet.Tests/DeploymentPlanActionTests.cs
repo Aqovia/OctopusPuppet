@@ -34,6 +34,7 @@ namespace OctopusPuppet.Tests
             var plans = result.EnvironmentDeploymentPlan.DeploymentPlans;
 
             // Then: the deployment plan should skip builds with no branch suffix
+            plans.Should().NotBeEmpty();
             plans.Should().OnlyContain(p => string.IsNullOrWhiteSpace(p.ComponentFrom.Version.SpecialVersion));
             plans.Should().OnlyContain(p => p.Action == PlanAction.Skip);
         }
