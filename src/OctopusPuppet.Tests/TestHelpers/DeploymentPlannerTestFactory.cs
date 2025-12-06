@@ -28,7 +28,7 @@ namespace OctopusPuppet.Tests.TestHelpers
             foreach (var c in components)
             {
                 if (!projectMap.ContainsKey(c.ProjectName))
-                    projectMap[c.ProjectName] = new ProjectResource { Id = (idCounter++).ToString(), Name = c.ProjectName, IsDisabled= false };
+                    projectMap[c.ProjectName] = new ProjectResource { Id = (idCounter++).ToString(), Name = c.ProjectName, IsDisabled = false };
             }
 
             var projects = projectMap.Values.ToList();
@@ -38,8 +38,6 @@ namespace OctopusPuppet.Tests.TestHelpers
             {
                 repo.Projects.Get(p.Id).Returns(p);
             }
-
-
 
             // Releases
             repo.Projects.GetReleases(Arg.Any<ProjectResource>())
