@@ -28,13 +28,18 @@ namespace OctopusPuppet.Tests.TestHelpers
             foreach (var c in components)
             {
                 if (!projectMap.ContainsKey(c.ProjectName))
-                    projectMap[c.ProjectName] = new ProjectResource { Id = (idCounter++).ToString(), Name = c.ProjectName };
+                    projectMap[c.ProjectName] = new ProjectResource { Id = (idCounter++).ToString(), Name = c.ProjectName, IsDisabled= false };
             }
 
             var projects = projectMap.Values.ToList();
             repo.Projects.FindAll().Returns(projects);
             repo.Projects.GetAll().Returns(projects.Select(p => new ReferenceDataItem(p.Id, p.Name)).ToList());
-            foreach (var p in projects) repo.Projects.Get(p.Id).Returns(p);
+            foreach (var p in projects)
+            {
+                repo.Projects.Get(p.Id).Returns(p);
+            }
+
+
 
             // Releases
             repo.Projects.GetReleases(Arg.Any<ProjectResource>())
@@ -77,9 +82,8 @@ namespace OctopusPuppet.Tests.TestHelpers
             var variableSetRepo = Substitute.For<IVariableSetRepository>();
             variableSetRepo.Get(Arg.Any<string>()).Returns(new VariableSetResource
             {
-                Variables = new List<VariableResource>
-        {
-            new VariableResource { Id = Guid.NewGuid().ToString(), Name = "test", Value = "Testing var" }
+                Variables = new List<VariableResource>        {
+                new VariableResource { Id = Guid.NewGuid().ToString(), Name = "test", Value = "Testing var" }
         }
             });
             repo.VariableSets.Returns(variableSetRepo);

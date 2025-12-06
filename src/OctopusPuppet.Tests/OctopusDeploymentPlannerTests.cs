@@ -7,44 +7,51 @@ using Xunit;
 
 namespace OctopusPuppet.Tests
 {
-    [Collection("NonParallelCollection")] 
+     
     public class OctopusDeploymentPlannerTests
     {
-        private readonly TestComponent[] _components = new[]
+        private readonly TestComponent[] _components;
+        private readonly OctopusDeploymentPlanner _planner;
+
+        public OctopusDeploymentPlannerTests()
         {
-            new TestComponent { ProjectName = "ArmSharedInfrastructure", Version = "1.2.3456" },                  // master
-            new TestComponent { ProjectName = "ArmSharedInfrastructure", Version = "1.2.3456-a-branch" },         // normal branch
-            new TestComponent { ProjectName = "ArmSharedInfrastructure", Version = "1.2.3456-release-1.5.1" },   // release branch
-        };
+             
+            _components = new[]
+            {
+                new TestComponent { ProjectName = "ArmSharedInfrastructure", Version = "1.2.3456" },                // master
+                new TestComponent { ProjectName = "FileBeat", Version = "1.2.3456-a-branch" },       // normal branch
+                new TestComponent { ProjectName = "TestProjectDummy", Version = "1.2.3456-release-1.5.1" }, // release branch
+            };
+
+            _planner = DeploymentPlannerTestFactory.GetSutForComponents(_components, "D1");
+        }
+
 
         [Theory]
-        [InlineData("1.2.3456", true)]                  // master
-        [InlineData("1.2.3456-a-branch", true)]        // normal branch
-        [InlineData("1.2.3456-release-1.5.1", true)]   // release branch
-        [InlineData("an-invalid-version-number", false)] // invalid
-        [InlineData("1234", false)]                     // invalid
-        public void GetBranches_ShouldExistBasedOnVersion(string version, bool shouldExist)
+        [InlineData("1.2.3456" ,"", true)]                  // master
+        [InlineData("1.2.3456-a-branch", "a-branch", true)]        // normal branch
+        [InlineData("1.2.3456-release-1.5.1", "release-1.5.1", true)]   // release branch
+        [InlineData("an-invalid-version-number", "", false)] // invalid
+        [InlineData("1234", "", false)]                     // invalid
+        public void GetBranches_ShouldExistBasedOnVersion(string version,string expectedVersion, bool shouldExist)
         {
-
-            // given: a planner with components that only include valid versions
              
-            var components = _components
-               .Where(c => c.Version == version && shouldExist)
-               .ToArray();
 
-            var planner = DeploymentPlannerTestFactory.GetSutForComponents(components, "D1");
-
-            // when: retrieving branches for the given version
-            var branches = planner.GetBranches();
+            // when: retrieving branches for the given 
+            var branches = _planner.GetBranches();
 
             // then: branches exist or not as expected
             if (shouldExist)
             {
-                branches.Should().NotBeEmpty($"the version '{version}' should exist");
+                branches.Should()
+                        .Contain(b => b.Name == expectedVersion,
+                            $"the version '{version}' should exist");
             }
             else
             {
-                branches.Should().BeEmpty($"the version '{version}' is invalid and should not exist");
+                branches.Should()
+                        .NotContain(version,
+                            $"the version '{version}' is invalid and should not exist");
             }
         }
     }
