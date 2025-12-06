@@ -13,7 +13,7 @@ namespace OctopusPuppet.Tests
         private const string EnvironmentId = "D1";
 
         [Fact]
-        public void NoBranchSuffix_PlanActionShouldBeSkipped_WhenSkipNoBranchSuffixIsTrue()
+        public void NoBranchSuffix_PlanActionShouldBeSkip_WhenSkipNoBranchSuffixIsTrue()
         {
             // Given: a component with no branch suffix 
             var components = new[]
