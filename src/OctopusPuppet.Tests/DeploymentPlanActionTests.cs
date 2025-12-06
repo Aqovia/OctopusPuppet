@@ -86,7 +86,7 @@ namespace OctopusPuppet.Tests
             var result = planner.GetBranchDeploymentPlans(EnvironmentId, "release-1.6.0", false, true, filter);
             var plans = result.EnvironmentDeploymentPlan.DeploymentPlans;
 
-            // Then: the deployment plan should deploy the suffixed branch regardless
+            // Then: the deployment plan should deploy the suffixed branch 
             var branchPlan = plans.SingleOrDefault(p => p.ComponentFrom.Version.ToString() == "1.2.34-release-1.6.0");
             branchPlan.Should().NotBeNull();
             branchPlan.Action.Should().Be(PlanAction.Change);
@@ -113,7 +113,7 @@ namespace OctopusPuppet.Tests
             var result = planner.GetBranchDeploymentPlans(EnvironmentId, "release-1.6.0", false, false, filter);
             var plans = result.EnvironmentDeploymentPlan.DeploymentPlans;
 
-            // Then: the deployment plan should deploy the suffixed branch regardless
+            // Then: the deployment plan should deploy the suffixed branch 
             var branchPlan = plans.SingleOrDefault(p => p.ComponentFrom.Version.ToString() == "1.2.34-release-1.6.0");
             branchPlan.Should().NotBeNull();
             branchPlan.Action.Should().Be(PlanAction.Change);
