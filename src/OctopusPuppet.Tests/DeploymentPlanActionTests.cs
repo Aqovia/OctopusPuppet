@@ -15,7 +15,7 @@ namespace OctopusPuppet.Tests
         [Fact]
         public void NoBranchSuffix_PlanActionShouldBeSkip_WhenSkipNoBranchSuffixIsTrue()
         {
-            // Given: a component with no branch suffix 
+            // Given: a component with no branch suffix and a filter that includes it
             var components = new[]
             {
                 new TestComponent { ProjectName = "ArmSharedInfrastructure", Version = "1.2.3456" }
@@ -29,11 +29,11 @@ namespace OctopusPuppet.Tests
 
             var planner = DeploymentPlannerTestFactory.GetSutForComponents(components, EnvironmentId);
 
-            // When: skipNoBranchSuffix is true
+            // When: generating the deployment plan with skipNoBranchSuffix = true
             var result = planner.GetBranchDeploymentPlans(EnvironmentId, "1.2.3456", false, true, filter);
             var plans = result.EnvironmentDeploymentPlan.DeploymentPlans;
 
-            // Then: the deployment plan should skip builds with no branch suffix
+            // Then: the plan action should be Skip for the no-suffix branch
             plans.Should().NotBeEmpty();
             plans.Should().OnlyContain(p => string.IsNullOrWhiteSpace(p.ComponentFrom.Version.SpecialVersion));
             plans.Should().OnlyContain(p => p.Action == PlanAction.Skip);
@@ -42,7 +42,7 @@ namespace OctopusPuppet.Tests
         [Fact]
         public void NoBranchSuffix_PlanActionShouldBeChange_WhenSkipNoBranchSuffixIsFalse()
         {
-            // Given: a component with no branch suffix
+            // Given: a component with no branch suffix and a filter that includes it
             var components = new[]
             {
                 new TestComponent { ProjectName = "ArmSharedInfrastructure", Version = "1.2.3456" }
@@ -56,11 +56,11 @@ namespace OctopusPuppet.Tests
 
             var planner = DeploymentPlannerTestFactory.GetSutForComponents(components, EnvironmentId);
 
-            // When: skipNoBranchSuffix is false
+            // When: generating the deployment plan with skipNoBranchSuffix = false 
             var result = planner.GetBranchDeploymentPlans(EnvironmentId, "1.2.3456", false, false, filter);
             var plans = result.EnvironmentDeploymentPlan.DeploymentPlans;
 
-            // Then: the deployment plan should deploy master builds
+            // Then: the plan action should be Change for the non-suffixed branch
             plans.Should().NotBeEmpty();
             plans.Should().OnlyContain(p => string.IsNullOrWhiteSpace(p.ComponentFrom.Version.SpecialVersion));
             plans.Should().OnlyContain(p => p.Action == PlanAction.Change);
@@ -69,7 +69,7 @@ namespace OctopusPuppet.Tests
         [Fact]
         public void BranchWithSuffix_PlanActionShouldAlwaysBeChange_WhenSkipNoBranchSuffixIsTrue()
         {
-            // Given: a component with a branch suffix
+            // Given: a component with a branch suffix and a filter that includes it 
             var components = new[]
             {
                 new TestComponent { ProjectName = "ArmSharedInfrastructure", Version = "1.2.34-release-1.6.0" }
@@ -83,11 +83,11 @@ namespace OctopusPuppet.Tests
 
             var planner = DeploymentPlannerTestFactory.GetSutForComponents(components, EnvironmentId);
 
-            // When: skipNoBranchSuffix is true
+            // When: generating the deployment plan with skipNoBranchSuffix = true
             var result = planner.GetBranchDeploymentPlans(EnvironmentId, "release-1.6.0", false, true, filter);
             var plans = result.EnvironmentDeploymentPlan.DeploymentPlans;
 
-            // Then: the deployment plan should deploy the suffixed branch 
+            // Then: the plan action should be Change for the suffixed branch
             var branchPlan = plans.SingleOrDefault(p => p.ComponentFrom.Version.ToString() == "1.2.34-release-1.6.0");
             branchPlan.Should().NotBeNull();
             branchPlan.Action.Should().Be(PlanAction.Change);
@@ -96,7 +96,7 @@ namespace OctopusPuppet.Tests
         [Fact]
         public void BranchWithSuffix_PlanActionShouldAlwaysBeChange_WhenSkipNoBranchSuffixIsFalse()
         {
-            // Given: a component with a branch suffix  
+            // Given: a component with a branch suffix and a filter that includes it  
             var components = new[]
             {
                 new TestComponent { ProjectName = "ArmSharedInfrastructure", Version = "1.2.34-release-1.6.0" }
@@ -110,11 +110,11 @@ namespace OctopusPuppet.Tests
 
             var planner = DeploymentPlannerTestFactory.GetSutForComponents(components, EnvironmentId);
 
-            // When: skipNoBranchSuffix is false
+            // When: generating the deployment plan with skipNoBranchSuffix = false
             var result = planner.GetBranchDeploymentPlans(EnvironmentId, "release-1.6.0", false, false, filter);
             var plans = result.EnvironmentDeploymentPlan.DeploymentPlans;
 
-            // Then: the deployment plan should deploy the suffixed branch 
+            // Then: the plan action should be Change for the suffixed branch
             var branchPlan = plans.SingleOrDefault(p => p.ComponentFrom.Version.ToString() == "1.2.34-release-1.6.0");
             branchPlan.Should().NotBeNull();
             branchPlan.Action.Should().Be(PlanAction.Change);
@@ -123,7 +123,7 @@ namespace OctopusPuppet.Tests
         [Fact]
         public void DeploymentPlan_ShouldOnlyInclude_FilteredComponents()
         {
-            // given: components with a filter for ArmSharedInfrastructure and Filebeat
+            // Given: multiple components and a filter that includes only ArmSharedInfrastructure and Filebeat
             var components = new[]
             {
                 new TestComponent { ProjectName = "ArmSharedInfrastructure", Version = "1.2.3456" },
@@ -139,11 +139,11 @@ namespace OctopusPuppet.Tests
 
             var planner = DeploymentPlannerTestFactory.GetSutForComponents(components, EnvironmentId);
 
-            // When: retrieving the deployment plan
+            // When: generating the deployment plan
             var result = planner.GetBranchDeploymentPlans(EnvironmentId, "1.2.3456", false, false, filter);
             var plans = result.EnvironmentDeploymentPlan.DeploymentPlans;
 
-            // Then: only the components matching the filter appear
+            // Then: only the components matching the filter should appear in the deployment plan 
             plans.Should().NotBeNull();
             plans.Should().HaveCount(2);
             plans.Select(p => p.Name).Should().BeEquivalentTo("ArmSharedInfrastructure", "Filebeat");
