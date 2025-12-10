@@ -97,7 +97,7 @@ namespace OctopusPuppet.Tests
             var suffixedPlan = plans.Single(p => p.ComponentFrom.Version.ToString() == "1.2.34-release-1.6.0");
             suffixedPlan.Action.Should().Be(PlanAction.Change);
 
-            // And: non-suffixed component action depends on skip flag
+            // And: non-suffixed component action depends on skipNoBranchSuffix
             var noSuffixPlan = plans.Single(p => p.ComponentFrom.Version.ToString() == "1.2.34");
             noSuffixPlan.Action.Should().Be(skipNoBranchSuffix ? PlanAction.Skip : PlanAction.Change);
         }
