@@ -46,7 +46,7 @@ namespace OctopusPuppet.Tests
         [InlineData(false)]
         public void SuffixedBranch_ShouldAlwaysHavePlanActionChange(bool skipNoBranchSuffix)
         {
-            // Given: a component with a branch suffix
+            // Given: a component with no branch suffix and a filter that includes it
             var components = new[]
             {
                 new TestComponent { ProjectName = "ArmSharedInfrastructure", Version = "1.2.34-release-1.6.0" }
