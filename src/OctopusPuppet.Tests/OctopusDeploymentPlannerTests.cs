@@ -28,7 +28,7 @@ namespace OctopusPuppet.Tests
 
 
         [Theory]
-        [InlineData("1.2.3456" ,"", true)]                  // master
+        [InlineData("1.2.3456", "", true)]                  // master
         [InlineData("1.2.3456-a-branch", "a-branch", true)]        // normal branch
         [InlineData("1.2.3456-release-1.5.1", "release-1.5.1", true)]   // release branch
         [InlineData("an-invalid-version-number", "", false)] // invalid
