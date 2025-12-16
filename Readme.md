@@ -1,13 +1,6 @@
 Octopus Puppet
 ==============
 
-[![Build status](https://ci.appveyor.com/api/projects/status/a18hd51vae9nho0p/branch/master?svg=true)](https://ci.appveyor.com/project/aqovia/octopuspuppet/branch/master)
-
-[Download latest OctopusPuppet.Cmd](https://ci.appveyor.com/api/projects/aqovia/octopuspuppet/artifacts/OctopusPuppet.Cmd.zip?branch=master "Download latest master OctopusPuppet.Cmd")
-
-[Download latest master OctopusPuppet.Gui](https://ci.appveyor.com/api/projects/aqovia/octopuspuppet/artifacts/OctopusPuppet.Gui.zip?branch=master "Download latest master OctopusPuppet.Gui")
-
-[Download latest master OctopusPuppet.Teamcity Plugin](https://ci.appveyor.com/api/projects/aqovia/octopuspuppet/artifacts/octopuspuppet-metarunner.zip?branch=master "Download latest master OctopusPuppet.Teamcity")
 
 See [https://github.com/Aqovia/OctopusPuppet](https://github.com/Aqovia/OctopusPuppet) for information about Octopus Puppet.
 
