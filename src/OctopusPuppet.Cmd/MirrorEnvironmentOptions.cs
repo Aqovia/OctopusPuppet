@@ -47,6 +47,12 @@ namespace OctopusPuppet.Cmd
             HelpText = "Deploy")]
         public bool Deploy { get; set; }
 
+        [Option('e', "SkipNoBranchSuffix",
+            Default = false,
+            SetName = "MirrorEnvironment",
+            HelpText = "Skip deployment of components from master/main branch (versions without a branch suffix)")]
+        public bool SkipNoBranchSuffix { get; set; }
+
         [Option('f', "DoNotUseDifferentialDeployment",
             Default = false,
             SetName = "MirrorEnvironment",
