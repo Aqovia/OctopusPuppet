@@ -12,6 +12,7 @@ namespace OctopusPuppet.Tests
     {
         private const string EnvironmentId = "D1";
 
+
         [Theory]
         [InlineData(true, PlanAction.Skip)]
         [InlineData(false, PlanAction.Change)]
@@ -101,6 +102,34 @@ namespace OctopusPuppet.Tests
             var noSuffixPlan = plans.Single(p => p.ComponentFrom.Version.ToString() == "1.2.34");
             noSuffixPlan.Action.Should().Be(skipNoBranchSuffix ? PlanAction.Skip : PlanAction.Change);
         }
+        [Theory]
+        [InlineData(false, PlanAction.Skip)]
+        [InlineData(true, PlanAction.Change)]
+        public void SameVersion_HealthDeterminesPlanAction(bool healthy, PlanAction expectedAction)
+        {
+            // Given: a component with the same version in both environments, but different health
+            var components = new[]
+            {
+                new TestComponent { ProjectName = "ArmSharedInfrastructure", Version = "1.2.3456", Healthy = healthy },
+            };
+
+            var filter = new ComponentFilter
+            {
+                Include = true,
+                Expressions = new List<string> { "(?i)^(ArmSharedInfrastructure)$" }
+            };
+
+            var planner = DeploymentPlannerTestFactory.GetSutForComponents(components, EnvironmentId);
+
+            // When: generating the deployment plan (simulate both from and to as the same version)
+            var result = planner.GetBranchDeploymentPlans(EnvironmentId, "1.2.3456", false, false, filter);
+            var plans = result.EnvironmentDeploymentPlan.DeploymentPlans;
+
+            // Then: the plan action matches the expected value based on health
+            plans.Should().NotBeNull();
+            plans.Should().OnlyContain(p => p.Action == expectedAction);
+
+        }
 
         [Fact]
         public void DeploymentPlan_ShouldOnlyInclude_FilteredComponents()
@@ -108,9 +137,9 @@ namespace OctopusPuppet.Tests
             // Given: multiple components and a filter that includes only ArmSharedInfrastructure and Filebeat
             var components = new[]
             {
-                new TestComponent { ProjectName = "ArmSharedInfrastructure", Version = "1.2.3456" },
-                new TestComponent { ProjectName = "Filebeat", Version = "2.3.456" },
-                new TestComponent { ProjectName = "TestProjectDummy", Version = "1.0.0" }
+                new TestComponent { ProjectName = "ArmSharedInfrastructure", Version = "1.2.3456"},
+                new TestComponent { ProjectName = "Filebeat", Version = "2.3.456"},
+                new TestComponent { ProjectName = "TestProjectDummy", Version = "1.0.0"}
             };
 
             var filter = new ComponentFilter
@@ -131,5 +160,6 @@ namespace OctopusPuppet.Tests
             plans.Select(p => p.Name).Should().BeEquivalentTo("ArmSharedInfrastructure", "Filebeat");
             plans.Select(p => p.Name).Should().NotContain("TestProjectDummy");
         }
+        
     }
 }

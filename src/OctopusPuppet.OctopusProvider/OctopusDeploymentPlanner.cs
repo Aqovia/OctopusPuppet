@@ -253,6 +253,9 @@ namespace OctopusPuppet.OctopusProvider
                 deploymentPlan.Action = PlanAction.Change;
             }
 
+            if (!componentFrom.Healthy) deploymentPlan.Action = PlanAction.Skip;
+
+
             return deploymentPlan;
         }
 
