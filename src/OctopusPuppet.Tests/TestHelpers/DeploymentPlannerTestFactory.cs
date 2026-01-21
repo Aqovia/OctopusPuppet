@@ -78,7 +78,7 @@ namespace OctopusPuppet.Tests.TestHelpers
                             ProjectId = project.Id,
                             EnvironmentId = environmentName,
                             ReleaseVersion = c.Version,
-                            State= TestComponent.Equals(c.Healthy, true) ? TaskState.Success : TaskState.Failed
+                            State = TestComponent.Equals(c.Healthy, true) ? TaskState.Success : TaskState.Failed
 
                         };
                     }).ToList()
