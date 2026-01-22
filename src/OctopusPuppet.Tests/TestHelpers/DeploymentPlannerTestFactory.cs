@@ -7,12 +7,14 @@ using OctopusPuppet.OctopusProvider;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace OctopusPuppet.Tests.TestHelpers
 {
     public class TestComponent
     {
         public string ProjectName { get; set; }
+        public bool Healthy { get; set; } = true;
         public string Version { get; set; }
     }
 
@@ -20,6 +22,11 @@ namespace OctopusPuppet.Tests.TestHelpers
     {
         public static OctopusDeploymentPlanner GetSutForComponents(TestComponent[] components, string environmentName = "D1")
         {
+            // Clear the static cache between tests to prevent test isolation issues
+            var field = typeof(OctopusDeploymentPlanner).GetField("_cachedProjects", BindingFlags.NonPublic | BindingFlags.Static);
+            if (field != null)
+                field.SetValue(null, null);
+
             var repo = Substitute.For<IOctopusRepository>();
 
             // Projects
@@ -70,7 +77,9 @@ namespace OctopusPuppet.Tests.TestHelpers
                         {
                             ProjectId = project.Id,
                             EnvironmentId = environmentName,
-                            ReleaseVersion = c.Version
+                            ReleaseVersion = c.Version,
+                            State = TestComponent.Equals(c.Healthy, true) ? TaskState.Success : TaskState.Failed
+
                         };
                     }).ToList()
                 });

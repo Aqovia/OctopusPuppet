@@ -253,6 +253,12 @@ namespace OctopusPuppet.OctopusProvider
                 deploymentPlan.Action = PlanAction.Change;
             }
 
+            // Health takes precedence over version differences and other conditions.
+            // If the source component is not healthy, we skip deployment regardless of the above logic.
+            if (componentFrom != null && !componentFrom.Healthy)
+            {
+                deploymentPlan.Action = PlanAction.Skip;
+            }
             return deploymentPlan;
         }
 
